@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="AnchorPane" prefHeight="200" prefWidth="320" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.t.MakeOrderController">
+    <children>
+        <Label layoutX="71.0" layoutY="31.0" text="Make Order">
+            <font>
+                <Font size="18.0" />
+            </font>
+        </Label>
+        <Label layoutX="71.0" layoutY="76.0" text="Product ID:" />
+        <Label layoutX="71.0" layoutY="114.0" text="Quantity:" />
+        <TextField fx:id="productIdField" layoutX="158.0" layoutY="72.0" prefWidth="88.0" />
+        <TextField fx:id="quantityField" layoutX="158.0" layoutY="110.0" prefWidth="88.0" />
+        <Button fx:id="orderButton" layoutX="141.0" layoutY="157.0" mnemonicParsing="false" onAction="#orderButtonClicked" text="Order" />
+        <Button fx:id="backButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#backButtonClicked" text="Back" />
+    </children>
+</AnchorPane>

@@ -1,0 +1,12 @@
+Invoice ID,Invoice Date,Customer Name,Product Name,Quantity,Price,Discount
+779,2023-07-10,lai,pen,2,2.45,2.0
+Total Amount:,4.9
+Invoice ID,Invoice Date,Customer Name,Product Name,Quantity,Price,Discount
+197,2023-07-10,ali,bag,2,490.0,2.0
+Total Amount:,980.0
+Invoice ID,Invoice Date,Customer Name,Product Name,Quantity,Price,Discount
+789,2023-07-10,Walk-in Customer,bag,2,54.879999999999995,2.0
+Total Amount:,109.75999999999999
+Invoice ID,Invoice Date,Customer Name,Product Name,Quantity,Price,Discount
+681,2023-07-10,ffff,bag,23,485.0,3.0
+Total Amount:,11155.0

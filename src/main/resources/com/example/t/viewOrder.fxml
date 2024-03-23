@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<?import javafx.scene.text.Font?>
+<AnchorPane id="AnchorPane" prefHeight="300" prefWidth="400" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.t.ViewOrderScreen">
+    <children>
+        <Label layoutX="135.0" layoutY="30.0" text="View Order">
+            <font>
+                <Font size="18.0" />
+            </font>
+        </Label>
+        <TableView fx:id="orderTableView" layoutX="45.0" layoutY="71.0" prefHeight="200.0" prefWidth="310.0">
+            <columns>
+                <TableColumn fx:id="orderIdColumn" prefWidth="75.0" text="Order ID">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="orderId" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="productIdColumn" prefWidth="75.0" text="Product ID">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="productId" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="quantityColumn" prefWidth="75.0" text="Quantity">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="quantity" />
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+        </TableView>
+        <Button fx:id="backButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#backButtonClicked" text="Back" />
+    </children>
+</AnchorPane>

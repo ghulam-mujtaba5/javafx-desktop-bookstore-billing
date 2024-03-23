@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.t.MenuController">
+    <top>
+        <Button fx:id="closeButton" text="X" style="-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;" onAction="#exitButtonClicked"/>
+    </top>
+    <center>
+        <VBox fx:id="centerBox" alignment="CENTER_LEFT" spacing="10">
+            <Button text="Add Stock" onAction="#addStockButtonClicked" style="-fx-font-size: 18px; -fx-min-width: 200px;"/>
+            <Button text="View Stock" onAction="#viewStockButtonClicked" style="-fx-font-size: 18px; -fx-min-width: 200px;"/>
+            <Button text="Create Order" onAction="#createOrderButtonClicked" style="-fx-font-size: 18px; -fx-min-width: 200px;"/>
+            <Button text="View Order" onAction="#viewOrderButtonClicked" style="-fx-font-size: 18px; -fx-min-width: 200px;"/>
+            <Button text="View Invoices" onAction="#viewInvoicesButtonClicked" style="-fx-font-size: 18px; -fx-min-width: 200px;"/>
+            <Button text="Exit" onAction="#exitButtonClicked" style="-fx-font-size: 18px; -fx-min-width: 200px;"/>
+        </VBox>
+    </center>
+</BorderPane>

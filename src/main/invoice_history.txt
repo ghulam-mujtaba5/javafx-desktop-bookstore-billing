@@ -1,0 +1,115 @@
+Invoice ID: 73
+Order Date: 2023-07-14
+Customer Name: lll
+Total Amount: Rs4.9
+Order Details:
+Product Name	Quantity	Price	Discount %
+pen		2		2.45		2.0
+
+Invoice ID: 75
+Order Date: 2023-07-14
+Customer Name: oo
+Total Amount: Rs9.7804
+Order Details:
+Product Name	Quantity	Price	Discount %
+notebook		2		4.8902		2.0
+
+Invoice ID: 263
+Order Date: 2023-07-15
+Customer Name: ahmed
+Total Amount: Rs1001.3208
+Order Details:
+Product Name	Quantity	Price	Discount %
+bag		2		490.0		2.0
+notebook		2		4.8902		2.0
+eraser		2		0.9702		2.0
+pen		4		2.4		4.0
+
+Invoice ID: 292
+Order Date: 2023-07-15
+Customer Name: Mujtaba
+Total Amount: Rs1.96
+Order Details:
+Product Name	Quantity	Price	Discount %
+pencil		2		0.98		2.0
+
+Invoice ID: 111
+Order Date: 2023-07-15
+Customer Name: ali
+Total Amount: Rs980.0
+Order Details:
+Product Name	Quantity	Price	Discount %
+bag		2		490.0		2.0
+
+Invoice ID: 529
+Order Date: 2023-07-16
+Customer Name: ali
+Total Amount: Rs9.7804
+Order Details:
+Product Name	Quantity	Price	Discount %
+notebook		2		4.8902		2.0
+
+Invoice ID: 197
+Order Date: 2023-07-16
+Customer Name: ali
+Total Amount: Rs980.0
+Order Details:
+Product Name	Quantity	Price	Discount %
+bag		2		490.0		2.0
+
+Invoice ID: 473
+Order Date: 2023-07-16
+Customer Name: al
+Total Amount: Rs980.0
+Order Details:
+Product Name	Quantity	Price	Discount %
+bag		2		490.0		2.0
+
+Invoice ID: 372
+Order Date: 2023-07-16
+Customer Name: alli
+Total Amount: Rs980.0
+Order Details:
+Product Name	Quantity	Price	Discount %
+bag		2		490.0		2.0
+
+Invoice ID: 916
+Order Date: 2023-07-16
+Customer Name: ali
+Total Amount: Rs980.0
+Order Details:
+Product Name	Quantity	Price	Discount %
+bag		2		490.0		2.0
+
+Invoice ID: 272
+Order Date: 2023-07-17
+Customer Name: ali
+Total Amount: Rs980.0
+Order Details:
+Product Name	Quantity	Price	Discount %
+bag		2		490.0		2.0
+
+Invoice ID: 710
+Order Date: 2023-07-17
+Customer Name: ali
+Total Amount: Rs980.0
+Order Details:
+Product Name	Quantity	Price	Discount %
+bag		2		490.0		2.0
+
+Invoice ID: 290
+Order Date: 2023-07-17
+Customer Name: Walk-in Customer
+Total Amount: Rs109.75999999999999
+Order Details:
+Product Name	Quantity	Price	Discount %
+bag		2		54.879999999999995		2.0
+
+Invoice ID: 790
+Order Date: 2023-07-23
+Customer Name: ali
+Total Amount: Rs8855.0
+Order Details:
+Product Name	Quantity	Price	Discount %
+bag		23		385.0		23.0
+

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<?import javafx.scene.text.Font?>
+<AnchorPane id="AnchorPane" prefHeight="300" prefWidth="400" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.t.AddStockScreen">
+    <children>
+        <Label layoutX="96.0" layoutY="45.0" text="Add Stock">
+            <font>
+                <Font size="18.0" />
+            </font>
+        </Label>
+        <Label layoutX="96.0" layoutY="97.0" text="Product ID:" />
+        <Label layoutX="96.0" layoutY="136.0" text="Product Name:" />
+        <Label layoutX="96.0" layoutY="175.0" text="Product Quantity:" />
+        <Label layoutX="96.0" layoutY="214.0" text="Product Price:" />
+        <TextField fx:id="productIdField" layoutX="208.0" layoutY="93.0" prefWidth="120.0" />
+        <TextField fx:id="productNameField" layoutX="208.0" layoutY="132.0" prefWidth="120.0" />
+        <TextField fx:id="productQuantityField" layoutX="208.0" layoutY="171.0" prefWidth="120.0" />
+        <TextField fx:id="productPriceField" layoutX="208.0" layoutY="210.0" prefWidth="120.0" />
+        <Button fx:id="addButton" layoutX="171.0" layoutY="258.0" mnemonicParsing="false" onAction="#addButtonClicked" text="Add" />
+        <Button fx:id="backButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#backButtonClicked" text="Back" />
+    </children>
+</AnchorPane>
