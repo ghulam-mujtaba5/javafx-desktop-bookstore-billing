@@ -1,63 +1,73 @@
-.table-row-cell:odd {
-    -fx-background-color: #f7fafd;
-    background-color: #f7fafd;
-}
-.table-row-cell:even {
-    -fx-background-color: #fff;
-    background-color: #fff;
-}
-.table-row-cell:selected {
-    -fx-background-color: #e5f1fb;
-    background-color: #e5f1fb;
-    -fx-text-fill: #0078d7;
-    color: #0078d7;
-}
-.table-row-cell:hover {
-    -fx-background-color: #e9eef5;
-    background-color: #e9eef5;
-}
-
-/* Table column alignment */
-.table-column {
-    -fx-alignment: CENTER_LEFT;
-}
-
-/* Table header styling */
-.column-header-background {
-    -fx-background-color: #f3f6fa;
-    background-color: #f3f6fa;
-    -fx-border-color: #dbe6f3;
-    border-color: #dbe6f3;
-    -fx-border-width: 0 0 1 0;
-    border-width: 0 0 1px 0;
-}
-.table-view .column-header .label {
-    -fx-font-weight: bold;
-    font-weight: bold;
-    -fx-text-fill: #222;
-    color: #222;
-}
-/* modern-windows-theme.css - Modern Windows-style theme for JavaFX desktop app */
-
-/* Standard properties for compatibility */
+/* Root styles */
 .root {
     -fx-font-family: 'Segoe UI', Arial, sans-serif;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    -fx-background-color: linear-gradient(to bottom, #f3f6fa, #e9eef5);
-    background-color: #f3f6fa;
-    -fx-text-fill: #222;
-    color: #222;
+    -fx-background-color: #f8f9fa;
+    -fx-text-fill: #212529;
 }
 
-/* Standard properties for compatibility */
+/* Button styles */
 .button {
-    -fx-background-color: #0078d7;
-    background-color: #0078d7;
+    -fx-background-color: #0d6efd;
     -fx-text-fill: white;
-    color: white;
-    -fx-font-size: 15px;
-    font-size: 15px;
-    -fx-background-radius: 6px;
+    -fx-font-size: 14px;
+    -fx-background-radius: 4px;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.button:hover {
+    -fx-background-color: #0b5ed7;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.button:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Text field styles */
+.text-field {
+    -fx-background-color: white;
+    -fx-background-radius: 4px;
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 4px;
+    -fx-padding: 8;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused {
+    -fx-border-color: #86b7fe;
+    -fx-effect: dropshadow(gaussian, rgba(13,110,253,0.25), 8, 0, 0, 0);
+}
+
+/* Table styles */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 4px;
+    -fx-padding: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.075), 8, 0, 0, 1);
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #f8f9fa;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #dee2e6;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 12 8;
+}
+
+.table-view .column-header .label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #495057;
+}
     border-radius: 6px;
     -fx-padding: 8 18 8 18;
     padding: 8px 18px 8px 18px;

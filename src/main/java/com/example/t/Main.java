@@ -1,11 +1,9 @@
-
 package com.example.t;
 
 import javafx.application.Application;
-// import javafx.scene.control.Alert;
-// import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
-// import java.util.Optional;
+import javafx.stage.StageStyle;
 
 
     public class Main extends Application {
@@ -21,7 +19,8 @@ import javafx.stage.Stage;
         @Override
         public void start(Stage primaryStage) {
             this.primaryStage = primaryStage;
-
+            setupPrimaryStage();
+            
             password = new Password(); // Initialize the password object
 
             PasswordScreen passwordScreen = new PasswordScreen(password);
@@ -33,14 +32,27 @@ import javafx.stage.Stage;
             });
 
             passwordScreen.start(primaryStage);
-            primaryStage.setOnShown(event -> primaryStage.setMaximized(true));
+        }
+
+        private void setupPrimaryStage() {
+            primaryStage.setTitle("Bookstore Billing System");
+            primaryStage.initStyle(StageStyle.UNIFIED);
+            primaryStage.setMinWidth(1024);
+            primaryStage.setMinHeight(768);
+            primaryStage.setMaximized(true);
+
+            // Add window icons
+            try {
+                primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/com/example/t/icon.ico")));
+            } catch (Exception e) {
+                System.err.println("Could not load application icon");
+            }
+
             primaryStage.setOnCloseRequest(event -> {
                 if (shop != null) {
                     shop.saveData(); // Save shop data to file before exiting
                 }
-                // System.exit(0); // Remove this to prevent app from closing automatically
             });
-            primaryStage.requestFocus();
         }
 
         private void showMenuScreen() {
@@ -50,10 +62,13 @@ import javafx.stage.Stage;
                 javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/example/t/Menu.fxml"));
                 javafx.scene.Parent root = loader.load();
                 javafx.scene.Scene scene = new javafx.scene.Scene(root);
+                
+                // Apply both themes
+                scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme-new.css").toExternalForm());
                 scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-windows-theme.css").toExternalForm());
+                
                 primaryStage.setScene(scene);
                 primaryStage.setTitle("Bookstore Billing - Menu");
-                primaryStage.setMaximized(true);
                 primaryStage.show();
                 System.out.println("Menu.fxml loaded and shown.");
             } catch (Exception e) {

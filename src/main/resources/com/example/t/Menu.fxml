@@ -4,8 +4,8 @@
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.t.MenuController" styleClass="root">
     <left>
-        <VBox fx:id="sidebar" styleClass="sidebar" spacing="8" alignment="TOP_LEFT" prefWidth="180">
-            <Label text="Bookstore" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-padding: 24 0 24 24;" />
+        <VBox fx:id="sidebar" styleClass="sidebar" spacing="12" alignment="TOP_LEFT" prefWidth="240">
+            <Label text="Bookstore" styleClass="title-label" style="-fx-padding: 24 0 24 24;" />
             <Button fx:id="btnAddStock" styleClass="sidebar-button">
                 <graphic>
                     <Label text="📦" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
@@ -79,8 +79,11 @@
                 Logout
             </Button>
         </VBox>
-    </left>
-    <center>
-        <StackPane fx:id="contentArea" style="-fx-padding: 32;" />
+    </left>    <center>
+        <StackPane fx:id="contentArea" styleClass="form-container">
+            <padding>
+                <javafx.geometry.Insets top="32" right="32" bottom="32" left="32" />
+            </padding>
+        </StackPane>
     </center>
 </BorderPane>
