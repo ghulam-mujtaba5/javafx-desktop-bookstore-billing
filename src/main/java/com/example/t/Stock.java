@@ -42,21 +42,20 @@ public class Stock {
         }
         saveStockToFile();
     }
-
-    /**
-     * Reads the stock from file and returns a list of products.
-     * @return List of products loaded from file.
-     */
     public List<Product> readStockFromFile() {
         List<Product> stockList = new ArrayList<>();
+
         File file = new File(stockFilePath);
+
         if (!file.exists()) {
             try {
+                // Create a new file if it does not exist
                 file.createNewFile();
             } catch (IOException e) {
-                Logger.error("Error creating stock file: " + e.getMessage());
+                e.printStackTrace();
             }
         }
+
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -72,19 +71,21 @@ public class Stock {
                     double price = Double.parseDouble(data[3]);
                     double purchasePrice = Double.parseDouble(data[4]);
                     boolean status = Boolean.parseBoolean(data[5]);
+
                     Product product = new Product(id, name, quantity, price, purchasePrice);
                     product.setStatus(status);
                     stockList.add(product);
                 } catch (NumberFormatException e) {
-                    Logger.warn("Invalid product data in stock file: " + e.getMessage());
+                    // Handle the case where data cannot be parsed into numbers
+                    e.printStackTrace();
                 }
             }
         } catch (IOException e) {
-            Logger.error("Error reading stock file: " + e.getMessage());
+            e.printStackTrace();
         }
+
         return stockList;
     }
-
     public void saveStockToFile() {
         try {
             PrintWriter writer = new PrintWriter(stockFilePath);
@@ -100,7 +101,7 @@ public class Stock {
             }
             writer.close();
         } catch (IOException e) {
-            Logger.error("Error saving stock file: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -119,7 +120,7 @@ public class Stock {
             }
             writer.close();
         } catch (IOException e) {
-            Logger.error("Error saving stock file: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

@@ -1,89 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.t.MenuController" styleClass="root">
-    <left>
-        <VBox fx:id="sidebar" styleClass="sidebar" spacing="12" alignment="TOP_LEFT" prefWidth="240">
-            <Label text="Bookstore" styleClass="title-label" style="-fx-padding: 24 0 24 24;" />
-            <Button fx:id="btnAddStock" styleClass="sidebar-button">
-                <graphic>
-                    <Label text="📦" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
-                </graphic>
-                <tooltip>
-                    <Tooltip text="Add new stock items" />
-                </tooltip>
-                Add Stock
-            </Button>
-            <Button fx:id="btnViewStock" styleClass="sidebar-button">
-                <graphic>
-                    <Label text="📚" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
-                </graphic>
-                <tooltip>
-                    <Tooltip text="View current stock" />
-                </tooltip>
-                View Stock
-            </Button>
-            <Button fx:id="btnUpdateStock" styleClass="sidebar-button">
-                <graphic>
-                    <Label text="✏️" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
-                </graphic>
-                <tooltip>
-                    <Tooltip text="Update stock details" />
-                </tooltip>
-                Update Stock
-            </Button>
-            <Button fx:id="btnCreateOrder" styleClass="sidebar-button">
-                <graphic>
-                    <Label text="🛒" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
-                </graphic>
-                <tooltip>
-                    <Tooltip text="Create a new order" />
-                </tooltip>
-                Create Order
-            </Button>
-            <Button fx:id="btnViewOrder" styleClass="sidebar-button">
-                <graphic>
-                    <Label text="📄" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
-                </graphic>
-                <tooltip>
-                    <Tooltip text="View all orders" />
-                </tooltip>
-                View Orders
-            </Button>
-            <Button fx:id="btnViewInvoices" styleClass="sidebar-button">
-                <graphic>
-                    <Label text="🧾" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
-                </graphic>
-                <tooltip>
-                    <Tooltip text="View invoices" />
-                </tooltip>
-                View Invoices
-            </Button>
-            <Button fx:id="btnSettings" styleClass="sidebar-button">
-                <graphic>
-                    <Label text="⚙️" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
-                </graphic>
-                <tooltip>
-                    <Tooltip text="Application settings" />
-                </tooltip>
-                Settings
-            </Button>
-            <Button fx:id="btnLogout" styleClass="sidebar-button">
-                <graphic>
-                    <Label text="⏻" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
-                </graphic>
-                <tooltip>
-                    <Tooltip text="Logout from the application" />
-                </tooltip>
-                Logout
-            </Button>
-        </VBox>
-    </left>    <center>
-        <StackPane fx:id="contentArea" styleClass="form-container">
-            <padding>
-                <javafx.geometry.Insets top="32" right="32" bottom="32" left="32" />
-            </padding>
-        </StackPane>
-    </center>
-</BorderPane>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER_LEFT" spacing="10" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.t.MenuController">
+    <Button fx:id="addStockButton" text="Add Stock" onAction="#addStockButtonClicked"/>
+    <Button fx:id="viewStockButton" text="View Stock" onAction="#viewStockButtonClicked"/>
+    <Button fx:id="createOrderButton" text="Create Order" onAction="#createOrderButtonClicked"/>
+    <Button fx:id="viewOrderButton" text="View Order" onAction="#viewOrderButtonClicked"/>
+    <Button fx:id="viewInvoicesButton" text="View Invoices" onAction="#viewInvoicesButtonClicked"/>
+    <Button fx:id="exitButton" text="Exit" onAction="#exitButtonClicked"/>
+</VBox>

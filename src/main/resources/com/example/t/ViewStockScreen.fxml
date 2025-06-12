@@ -1,41 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
 
-<VBox styleClass="main-content" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.t.ViewStockScreen">
-    <VBox styleClass="content-card">
-        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="card-header">
-            <Label text="Stock Overview" styleClass="card-title"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <TextField fx:id="searchField" promptText="Search stock..." styleClass="search-field"/>
-            <Button text="Export" onAction="#handleExport" styleClass="secondary-button"/>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.t.ViewStockScreen" styleClass="content-container">
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="toolbar">
+            <Label text="Stock Inventory" styleClass="screen-title" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Export" fx:id="exportButton" onAction="#handleExport" styleClass="secondary-button" />
+            <Button text="Update Stock" onAction="#handleUpdateStock" styleClass="primary-button" />
+            <Button text="Add New Stock" onAction="#handleAddStock" styleClass="primary-button" />
         </HBox>
-        
-        <TableView fx:id="stockTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
+    </top>
+    <center>
+        <TableView fx:id="stockTable" prefHeight="400" prefWidth="800">
             <columns>
-                <TableColumn fx:id="bookIdColumn" text="Book ID" />
-                <TableColumn fx:id="bookNameColumn" text="Book Name" />
-                <TableColumn fx:id="authorColumn" text="Author" />
-                <TableColumn fx:id="publisherColumn" text="Publisher" />
-                <TableColumn fx:id="editionColumn" text="Edition" />
-                <TableColumn fx:id="priceColumn" text="Price" />
-                <TableColumn fx:id="quantityColumn" text="Quantity" />
+                <TableColumn fx:id="bookIdColumn" text="Book ID" prefWidth="80" />
+                <TableColumn fx:id="bookNameColumn" text="Book Name" prefWidth="180" />
+                <TableColumn fx:id="authorColumn" text="Author" prefWidth="120" />
+                <TableColumn fx:id="publisherColumn" text="Publisher" prefWidth="120" />
+                <TableColumn fx:id="editionColumn" text="Edition" prefWidth="80" />
+                <TableColumn fx:id="priceColumn" text="Price" prefWidth="80" />
+                <TableColumn fx:id="quantityColumn" text="Quantity" prefWidth="80" />
             </columns>
-            <placeholder>
-                <Label text="No stock items found" styleClass="table-placeholder"/>
-            </placeholder>
         </TableView>
-        
-        <HBox spacing="10" alignment="CENTER_RIGHT" styleClass="card-footer">
-            <Button fx:id="refreshButton" text="Refresh" onAction="#refreshStock" styleClass="action-button"/>
-            <Button fx:id="exportButton" text="Export" onAction="#exportStockToCSV" styleClass="secondary-button"/>
-            <Button text="Update Stock" onAction="#handleUpdateStock" styleClass="primary-button"/>
-            <Button text="Add New Stock" onAction="#handleAddStock" styleClass="primary-button"/>
-        </HBox>
-    </VBox>
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
-</VBox>
+    </center>
+    <bottom>
+        <Label fx:id="messageLabel" text="" styleClass="message-label" BorderPane.alignment="CENTER" />
+    </bottom>
+</BorderPane>

@@ -43,14 +43,12 @@ public class PasswordScreen extends Application {
         enterButton.setOnAction(event -> {
             String enteredPassword = passwordField.getText();
             if (password.isCorrect(enteredPassword)) {
-                showAlert("Success", "Password correct. Welcome!");
                 if (onPasswordCorrect != null) {
                     onPasswordCorrect.run();
                 }
-                // primaryStage.hide(); // REMOVE this line to keep the main window open
             } else {
-                showAlert("Invalid password", "The entered password is incorrect. Please try again.");
                 passwordField.clear();
+                // showAlert("Invalid password", "The entered password is incorrect. Please try again.");
             }
         });
 
@@ -58,14 +56,12 @@ public class PasswordScreen extends Application {
             if (event.getCode() == KeyCode.ENTER) {
                 String enteredPassword = passwordField.getText();
                 if (password.isCorrect(enteredPassword)) {
-                    showAlert("Success", "Password correct. Welcome!");
                     if (onPasswordCorrect != null) {
                         onPasswordCorrect.run();
                     }
-                    // primaryStage.hide(); // REMOVE this line to keep the main window open
                 } else {
-                    showAlert("Invalid password", "The entered password is incorrect. Please try again.");
                     passwordField.clear();
+                    // showAlert("Invalid password", "The entered password is incorrect. Please try again.");
                 }
             }
         });
@@ -92,7 +88,6 @@ public class PasswordScreen extends Application {
         double screenHeight = Screen.getPrimary().getBounds().getHeight() - 200;
 
         Scene scene = new Scene(root, screenWidth, screenHeight);
-        scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
         primaryStage.setScene(scene);
 
         scene.setOnKeyPressed(event -> {
@@ -108,14 +103,6 @@ public class PasswordScreen extends Application {
         });
 
         primaryStage.show();
-    }
-
-    private void showAlert(String title, String message) {
-        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 
     public static void main(String[] args) {

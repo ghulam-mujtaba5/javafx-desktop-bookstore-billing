@@ -17,12 +17,6 @@ public class Shop {
         this.mobileNumber = mobileNumber;
     }
 
-    public Shop() {
-        this.shopName = DEFAULT_SHOP_NAME;
-        this.address = DEFAULT_ADDRESS;
-        this.mobileNumber = DEFAULT_MOBILE_NUMBER;
-    }
-
     public void setShopName(String shopName) {
         this.shopName = shopName;
         saveData();
@@ -59,7 +53,8 @@ public class Shop {
             writer.newLine();
             writer.write(mobileNumber);
         } catch (IOException e) {
-            Logger.error("Error saving shop data: " + e.getMessage());
+            System.err.println("Error saving shop data: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -84,7 +79,8 @@ public class Shop {
                 mobileNumber = line;
             }
         } catch (IOException e) {
-            Logger.error("Error loading shop data: " + e.getMessage());
+            System.err.println("Error loading shop data: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

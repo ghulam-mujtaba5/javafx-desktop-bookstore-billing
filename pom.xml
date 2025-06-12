@@ -52,7 +52,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <release>20</release>
+                    <source>20</source>
+                    <target>20</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -64,9 +65,8 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.example.t/com.example.t.RunFX</mainClass>
+                            <mainClass>com.example.t/com.example.t.HelloApplication</mainClass>
                             <launcher>app</launcher>
-                            <jvmArgs>--enable-native-access=ALL-UNNAMED</jvmArgs>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
                             <noManPages>true</noManPages>

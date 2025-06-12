@@ -32,18 +32,12 @@ public class CreateOrderScreen {
         this.shop = shop;
     }
 
-    public CreateOrderScreen() {
-        this.stock = new Stock();
-        this.selectedProducts = new ArrayList<>();
-        this.shop = new Shop();
-    }
-
     public void show() {
         Stage stage = new Stage();
         stage.setTitle("Create Order");
 
         GridPane grid = new GridPane();
-        Image backgroundImage = new Image(FilePathManager.getBackgroundImagePath());
+        Image backgroundImage = new Image("D:\\t\\src\\main\\background1.jpg");  // Replace "your_image_path.jpg" with the actual path to your image
         BackgroundImage background = new BackgroundImage(
                 backgroundImage,
                 BackgroundRepeat.NO_REPEAT,
@@ -76,10 +70,7 @@ public class CreateOrderScreen {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         TableColumn<Product, Double> discountColumn = new TableColumn<>("Discount");
         discountColumn.setCellValueFactory(new PropertyValueFactory<>("discount"));
-        // Suppress type safety warning for varargs TableColumn
-        @SuppressWarnings("unchecked")
-        TableColumn<Product, ?>[] columns = new TableColumn[] {productNameColumn, quantityColumn, priceColumn, discountColumn};
-        productTable.getColumns().addAll(columns);
+        productTable.getColumns().addAll(productNameColumn, quantityColumn, priceColumn, discountColumn);
         GridPane.setConstraints(productTable, 0, 2, 2, 1);
 
         Label quantityLabel = new Label("Quantity:");
@@ -106,10 +97,7 @@ public class CreateOrderScreen {
         selectedPriceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         TableColumn<Product, Double> selectedDiscountColumn = new TableColumn<>("Discount");
         selectedDiscountColumn.setCellValueFactory(new PropertyValueFactory<>("discount"));
-        // Suppress type safety warning for varargs TableColumn
-        @SuppressWarnings("unchecked")
-        TableColumn<Product, ?>[] orderColumns = new TableColumn[] {selectedProductNameColumn, selectedQuantityColumn, selectedPriceColumn, selectedDiscountColumn};
-        orderTable.getColumns().addAll(orderColumns);
+        orderTable.getColumns().addAll(selectedProductNameColumn, selectedQuantityColumn, selectedPriceColumn, selectedDiscountColumn);
         GridPane.setConstraints(orderTable, 0, 6, 2, 1);
 
         // Set cell factories for editable columns
@@ -188,7 +176,12 @@ public class CreateOrderScreen {
 
         generateInvoiceButton.setOnAction(event -> {
             if (!selectedProducts.isEmpty()) {
-                // Removed totalAmount calculation, as it is not used
+                double totalAmount = 0.0;
+
+                for (Product product : selectedProducts) {
+                    double discountedPrice = product.getPrice() * (1 - product.getDiscount() / 100);
+                    totalAmount += discountedPrice * product.getQuantity();
+                }
 
                 TextInputDialog nameDialog = new TextInputDialog();
                 nameDialog.setTitle("Customer Name");
@@ -269,7 +262,6 @@ public class CreateOrderScreen {
         });
 
         Scene scene = new Scene(grid);
-        scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
@@ -337,14 +329,14 @@ public class CreateOrderScreen {
         invoiceBox.setPadding(new Insets(20));
 
         Label titleLabel = new Label("Invoice");
-        titleLabel.getStyleClass().add("title-label");
+        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
         Label shopNameLabel = new Label(shop.getShopName());
-        shopNameLabel.getStyleClass().add("label");
+        shopNameLabel.setStyle("-fx-font-size: 16px;");
         Label contactLabel = new Label("Mobile Number: " + shop.getMobileNumber());
         Label addressLabel = new Label("Address: " + shop.getAddress());
 
         Label orderDetailsLabel = new Label("Order Details");
-        orderDetailsLabel.getStyleClass().add("label");
+        orderDetailsLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
         Label orderIdLabel = new Label("Order ID: " + order.getOrderId());
         Label orderDateLabel = new Label("Order Date: " + order.getOrderDate().toString());
         Label customerNameLabel = new Label("Customer Name: " + order.getCustomerName());
@@ -358,10 +350,7 @@ public class CreateOrderScreen {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         TableColumn<Product, Double> discountColumn = new TableColumn<>("Discount %");
         discountColumn.setCellValueFactory(new PropertyValueFactory<>("discount"));
-        // Suppress type safety warning for varargs TableColumn
-        @SuppressWarnings("unchecked")
-        TableColumn<Product, ?>[] invoiceColumns = new TableColumn[] {productNameColumn, quantityColumn, priceColumn, discountColumn};
-        productTable.getColumns().addAll(invoiceColumns);
+        productTable.getColumns().addAll(productNameColumn, quantityColumn, priceColumn, discountColumn);
         productTable.setItems(FXCollections.observableArrayList(order.getProducts()));
         productTable.setEditable(true);
 
@@ -378,7 +367,7 @@ public class CreateOrderScreen {
         });
 
         Label totalAmountLabel = new Label("Total Amount: Rs" + order.getTotalAmount());
-        totalAmountLabel.getStyleClass().add("label");
+        totalAmountLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
         invoiceBox.getChildren().addAll(
                 titleLabel,
@@ -396,7 +385,6 @@ public class CreateOrderScreen {
         );
 
         Scene invoiceScene = new Scene(invoiceBox);
-        invoiceScene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
         invoiceStage.setScene(invoiceScene);
         invoiceStage.setMaximized(true);
         invoiceStage.show();
