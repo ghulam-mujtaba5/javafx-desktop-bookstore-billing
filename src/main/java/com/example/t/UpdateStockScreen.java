@@ -3,7 +3,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -12,6 +11,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.geometry.Pos;
 import javafx.scene.layout.*;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -36,7 +36,8 @@ public class UpdateStockScreen {
         stage.setMaximized(true);
 
         table = new TableView<>();
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // Use UNCONSTRAINED_RESIZE_POLICY as CONSTRAINED_RESIZE_POLICY is deprecated in Java 20+
+        table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         table.setEditable(true);
         table.setPrefHeight(600); // Set preferred height of the table
 
@@ -64,7 +65,10 @@ public class UpdateStockScreen {
         TableColumn<Product, Double> purchasePriceColumn = new TableColumn<>("Purchase Price");
         purchasePriceColumn.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
 
-        table.getColumns().addAll(idColumn, nameColumn, quantityColumn, priceColumn, purchasePriceColumn);
+        // Suppress type safety warning for varargs TableColumn
+        @SuppressWarnings("unchecked")
+        TableColumn<Product, ?>[] columns = new TableColumn[] {idColumn, nameColumn, quantityColumn, priceColumn, purchasePriceColumn};
+        table.getColumns().addAll(columns);
 
         Stock stock = new Stock();
         List<Product> stockList = stock.readStockFromFile();
@@ -77,15 +81,28 @@ public class UpdateStockScreen {
             }
         });
 
-        VBox vbox = new VBox();
-        vbox.setSpacing(10);
-        vbox.setPadding(new Insets(10));
+        StackPane root = new StackPane();
+        Image backgroundImage = new Image(FilePathManager.getBackgroundImagePath());
+        BackgroundImage background = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                new BackgroundSize(1.0, 1.0, true, true, false, false)
+        );
+        root.setBackground(new Background(background));
+
+        VBox overlay = new VBox(24);
+        overlay.setAlignment(Pos.CENTER);
+        overlay.setMaxWidth(700);
+        overlay.setStyle("-fx-background-color: rgba(255,255,255,0.92); -fx-background-radius: 18px; -fx-padding: 30 30 30 30;");
+
+        Label title = new Label("Update Stock");
+        title.getStyleClass().add("title-label");
 
         searchField = new TextField();
         searchField.setPromptText("Search by Name...");
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filterStock(newValue);
-        });
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> filterStock(newValue));
 
         Button sortButton = new Button("Sort by Price");
         sortButton.setOnAction(event -> sortStockByPrice());
@@ -99,8 +116,8 @@ public class UpdateStockScreen {
         Button addStockButton = new Button("Add Stock");
         addStockButton.setOnAction(event -> showAddStockDialog());
 
-        HBox buttonContainer = new HBox();
-        buttonContainer.setSpacing(10);
+        HBox buttonContainer = new HBox(12);
+        buttonContainer.setAlignment(Pos.CENTER);
         Button deleteButton = new Button("Delete");
         deleteButton.setOnAction(event -> {
             if (selectedProduct != null) {
@@ -110,34 +127,15 @@ public class UpdateStockScreen {
             }
         });
         buttonContainer.getChildren().addAll(deleteButton, changePriceButton, addStockButton);
-        vbox.getChildren().addAll(searchField, sortButton, sortByIdButton, buttonContainer, table);
 
-        BorderPane borderPane = new BorderPane();
-        borderPane.setCenter(vbox);
-
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.setPadding(new Insets(10));
-        gridPane.add(borderPane, 0, 0);
-
-        // Set the background image using a URL path
-        String imageUrl = FilePathManager.getBackgroundImagePath();
-        Image backgroundImage = new Image(imageUrl);
-        BackgroundImage background = new BackgroundImage(
-                backgroundImage,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundPosition.CENTER,
-                new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true)
-        );
-
-        gridPane.setBackground(new Background(background));
+        overlay.getChildren().addAll(title, searchField, sortButton, sortByIdButton, buttonContainer, table);
+        root.getChildren().add(overlay);
 
         double screenWidth = Screen.getPrimary().getBounds().getWidth() - 200;
         double screenHeight = Screen.getPrimary().getBounds().getHeight() - 200;
 
-        Scene scene = new Scene(gridPane, screenWidth, screenHeight);
+        Scene scene = new Scene(root, screenWidth, screenHeight);
+        scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
         scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.DELETE) {
                 if (selectedProduct != null) {
@@ -199,7 +197,8 @@ public class UpdateStockScreen {
         searchTextField.setPromptText("Search by Product Name");
 
         TableView<Product> searchResultsTable = new TableView<>();
-        searchResultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // Use UNCONSTRAINED_RESIZE_POLICY as CONSTRAINED_RESIZE_POLICY is deprecated in Java 20+
+        searchResultsTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
         TableColumn<Product, String> nameColumn = new TableColumn<>("Name");
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
@@ -207,7 +206,10 @@ public class UpdateStockScreen {
         TableColumn<Product, Double> priceColumn = new TableColumn<>("Sale Price");
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
 
-        searchResultsTable.getColumns().addAll(nameColumn, priceColumn);
+        // Suppress type safety warning for varargs TableColumn
+        @SuppressWarnings("unchecked")
+        TableColumn<Product, ?>[] searchColumns = new TableColumn[] {nameColumn, priceColumn};
+        searchResultsTable.getColumns().addAll(searchColumns);
 
         TextField newPriceTextField = new TextField();
         newPriceTextField.setPromptText("Enter new price");
@@ -282,7 +284,8 @@ public class UpdateStockScreen {
         searchTextField.setPromptText("Search by Product Name");
 
         TableView<Product> searchResultsTable = new TableView<>();
-        searchResultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // Use UNCONSTRAINED_RESIZE_POLICY as CONSTRAINED_RESIZE_POLICY is deprecated in Java 20+
+        searchResultsTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
         TableColumn<Product, String> nameColumn = new TableColumn<>("Name");
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
@@ -296,7 +299,10 @@ public class UpdateStockScreen {
         TableColumn<Product, Integer> quantityColumn = new TableColumn<>("Quantity");
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
-        searchResultsTable.getColumns().addAll(nameColumn, idColumn, priceColumn, quantityColumn);
+        // Suppress type safety warning for varargs TableColumn
+        @SuppressWarnings("unchecked")
+        TableColumn<Product, ?>[] searchColumns2 = new TableColumn[] {nameColumn, idColumn, priceColumn, quantityColumn};
+        searchResultsTable.getColumns().addAll(searchColumns2);
 
         TextField newQuantityTextField = new TextField();
         newQuantityTextField.setPromptText("Enter new quantity");
@@ -390,8 +396,9 @@ public class UpdateStockScreen {
                 String purchasePriceString = purchasePriceTextField.getText();
                 try {
                     int newQuantity = Integer.parseInt(newQuantityString);
-                    double salePrice = Double.parseDouble(salePriceString);
-                    double purchasePrice = Double.parseDouble(purchasePriceString);
+                    // Removed unused local variables salePrice and purchasePrice
+                    Double.parseDouble(salePriceString);
+                    Double.parseDouble(purchasePriceString);
                     return newQuantity;
                 } catch (NumberFormatException e) {
                     showAlert("Invalid quantity or price format", Alert.AlertType.ERROR);

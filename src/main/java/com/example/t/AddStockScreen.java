@@ -27,7 +27,7 @@ public class AddStockScreen {
     private TextField purchasePriceField;
     private TextField priceField;
     private TextField quantityField;
-    private ObservableList<String> productNames;
+    // Removed unused productNames field
     private List<Product> productList;
     private TableView<Product> productTable;
 
@@ -62,8 +62,7 @@ public class AddStockScreen {
         quantityField = new TextField();
         Button addButton = new Button("Add");
 
-        // Create a list of strings containing the product IDs and names
-        productNames = FXCollections.observableArrayList();
+        // Removed productNames initialization (field removed)
 
         // Set the items of the nameTextField to the productNames list
         nameTextField.setOnKeyReleased(event -> {
@@ -158,9 +157,13 @@ public class AddStockScreen {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         TableColumn<Product, Integer> quantityColumn = new TableColumn<>("Quantity");
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        productTable.getColumns().addAll(productIdColumn, productNameColumn, purchasePriceColumn, priceColumn, quantityColumn);
+        // Suppress type safety warning for varargs TableColumn
+        @SuppressWarnings("unchecked")
+        TableColumn<Product, ?>[] columns = new TableColumn[] {productIdColumn, productNameColumn, purchasePriceColumn, priceColumn, quantityColumn};
+        productTable.getColumns().addAll(columns);
         productTable.setItems(FXCollections.observableArrayList(productList));
-        productTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // Use UNCONSTRAINED_RESIZE_POLICY as CONSTRAINED_RESIZE_POLICY is deprecated in Java 20+
+        productTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         productTable.setPlaceholder(new Label("No products"));
 
         VBox formContainer = new VBox(gridPane);
@@ -197,6 +200,7 @@ public class AddStockScreen {
         double screenHeight = Screen.getPrimary().getBounds().getHeight()-100;
 
         Scene scene = new Scene(root, screenWidth, screenHeight);
+        scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
         scene.setFill(null); // Make the scene background transparent
 
         root.setLeft(leftContainer);

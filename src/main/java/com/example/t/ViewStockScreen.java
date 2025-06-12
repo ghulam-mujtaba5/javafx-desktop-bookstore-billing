@@ -2,7 +2,6 @@ package com.example.t;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -10,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.geometry.Pos;
 
 import java.util.Comparator;
 import java.util.List;
@@ -28,7 +28,8 @@ public class ViewStockScreen {
         stage.setMaximized(true);
 
         table = new TableView<>();
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // Use UNCONSTRAINED_RESIZE_POLICY as CONSTRAINED_RESIZE_POLICY is deprecated in Java 20+
+        table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         table.setPrefHeight(600); // Set preferred height of the table
 
         TableColumn<Product, Integer> idColumn = new TableColumn<>("ID");
@@ -46,54 +47,50 @@ public class ViewStockScreen {
         TableColumn<Product, Double> purchasePriceColumn = new TableColumn<>("Purchase Price");
         purchasePriceColumn.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
 
-        table.getColumns().addAll(idColumn, nameColumn, quantityColumn, priceColumn, purchasePriceColumn);
+        // Suppress type safety warning for varargs TableColumn
+        @SuppressWarnings("unchecked")
+        TableColumn<Product, ?>[] columns = new TableColumn[] {idColumn, nameColumn, quantityColumn, priceColumn, purchasePriceColumn};
+        table.getColumns().addAll(columns);
 
         Stock stock = new Stock();
         List<Product> stockList = stock.readStockFromFile();
         data = FXCollections.observableArrayList(stockList);
         table.setItems(data);
 
-        VBox vbox = new VBox();
-        vbox.setSpacing(10);
-        vbox.setPadding(new Insets(10));
-
-        searchField = new TextField();
-        searchField.setPromptText("Search by Name...");
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filterStock(newValue);
-        });
-
-        Button sortButton = new Button("Sort by Price");
-        sortButton.setOnAction(event -> sortStockByPrice());
-
-        vbox.getChildren().addAll(searchField, sortButton, table);
-
-        BorderPane borderPane = new BorderPane();
-        borderPane.setCenter(vbox);
-
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.setPadding(new Insets(10));
-        gridPane.add(borderPane, 0, 0);
-
-        // Set the background image using a URL path
-        String imageUrl = FilePathManager.getBackgroundImagePath();
-        Image backgroundImage = new Image(imageUrl);
+        StackPane root = new StackPane();
+        Image backgroundImage = new Image(FilePathManager.getBackgroundImagePath());
         BackgroundImage background = new BackgroundImage(
                 backgroundImage,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
-                new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true)
+                new BackgroundSize(1.0, 1.0, true, true, false, false)
         );
+        root.setBackground(new Background(background));
 
-        gridPane.setBackground(new Background(background));
+        VBox overlay = new VBox(24);
+        overlay.setAlignment(Pos.CENTER);
+        overlay.setMaxWidth(600);
+        overlay.setStyle("-fx-background-color: rgba(255,255,255,0.92); -fx-background-radius: 18px; -fx-padding: 30 30 30 30;");
 
-        double screenWidth = Screen.getPrimary().getBounds().getWidth()-200 ;
-        double screenHeight = Screen.getPrimary().getBounds().getHeight() -200;
+        Label title = new Label("View Stock");
+        title.getStyleClass().add("title-label");
 
-        Scene scene = new Scene(gridPane, screenWidth, screenHeight);
+        searchField = new TextField();
+        searchField.setPromptText("Search by Name...");
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> filterStock(newValue));
+
+        Button sortButton = new Button("Sort by Price");
+        sortButton.setOnAction(event -> sortStockByPrice());
+
+        overlay.getChildren().addAll(title, searchField, sortButton, table);
+        root.getChildren().add(overlay);
+
+        double screenWidth = Screen.getPrimary().getBounds().getWidth() - 200;
+        double screenHeight = Screen.getPrimary().getBounds().getHeight() - 200;
+
+        Scene scene = new Scene(root, screenWidth, screenHeight);
+        scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
         stage.setScene(scene);
         stage.show();
     }

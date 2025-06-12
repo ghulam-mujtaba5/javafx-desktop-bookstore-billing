@@ -6,8 +6,7 @@ public class FilePathManager {
     private static final String APP_NAME = "GM Shop";
     private static final String APP_DATA_PATH = System.getenv("APPDATA") + File.separator + APP_NAME;
     private static final String STOCK_FILE_PATH = "src/main/stock.txt";
-    private static final String BACKGROUND_IMAGE_PATH = "src/main/background1.jpg";
-    private static final String SETTINGS_ICON_PATH = "src/main/setting_icon.png";
+    // Removed unused fields BACKGROUND_IMAGE_PATH and SETTINGS_ICON_PATH
     private static final String PASSWORD_FILE_PATH = APP_DATA_PATH + File.separator + "password.txt";
     private static final String INVOICE_HISTORY_FILE_PATH = APP_DATA_PATH + File.separator + "invoice_history.txt";
 

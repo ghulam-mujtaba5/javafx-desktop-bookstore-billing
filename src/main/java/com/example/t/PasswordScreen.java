@@ -88,6 +88,7 @@ public class PasswordScreen extends Application {
         double screenHeight = Screen.getPrimary().getBounds().getHeight() - 200;
 
         Scene scene = new Scene(root, screenWidth, screenHeight);
+        scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
         primaryStage.setScene(scene);
 
         scene.setOnKeyPressed(event -> {

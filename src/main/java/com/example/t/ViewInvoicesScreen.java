@@ -8,7 +8,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -53,7 +52,10 @@ public class ViewInvoicesScreen {
         TableColumn<Invoice, Double> orderTotalColumn = new TableColumn<>("Order Total");
         orderTotalColumn.setCellValueFactory(new PropertyValueFactory<>("orderTotal"));
 
-        invoiceTable.getColumns().addAll(invoiceIdColumn, orderNumColumn, customerNameColumn, invoiceDateColumn, orderTotalColumn);
+        // Suppress type safety warning for varargs TableColumn
+        @SuppressWarnings("unchecked")
+        TableColumn<Invoice, ?>[] columns = new TableColumn[] {invoiceIdColumn, orderNumColumn, customerNameColumn, invoiceDateColumn, orderTotalColumn};
+        invoiceTable.getColumns().addAll(columns);
 
         // Enable sorting by clicking on column headers
         invoiceTable.getSortOrder().add(invoiceIdColumn);
@@ -121,6 +123,7 @@ public class ViewInvoicesScreen {
         vbox.getChildren().add(invoiceTable);
 
         Scene scene = new Scene(vbox, 600, 500);
+        scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -263,11 +266,11 @@ public class ViewInvoicesScreen {
         Label orderTotalValueLabel = new Label(String.valueOf(invoice.getOrderTotal()));
 
         // Set label styles
-        invoiceIdLabel.setStyle("-fx-font-weight: bold;");
-        orderNumLabel.setStyle("-fx-font-weight: bold;");
-        customerNameLabel.setStyle("-fx-font-weight: bold;");
-        invoiceDateLabel.setStyle("-fx-font-weight: bold;");
-        orderTotalLabel.setStyle("-fx-font-weight: bold;");
+        invoiceIdLabel.getStyleClass().add("label");
+        orderNumLabel.getStyleClass().add("label");
+        customerNameLabel.getStyleClass().add("label");
+        invoiceDateLabel.getStyleClass().add("label");
+        orderTotalLabel.getStyleClass().add("label");
 
         // Add labels to the gridPane
         gridPane.addRow(0, invoiceIdLabel, invoiceIdValueLabel);
@@ -296,6 +299,7 @@ public class ViewInvoicesScreen {
 
         // Create a scene with the gridPane and set it on the invoice details stage
         Scene invoiceDetailsScene = new Scene(gridPane, 400, 300);
+        invoiceDetailsScene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
         invoiceDetailsStage.setScene(invoiceDetailsScene);
 
         // Show the invoice details stage

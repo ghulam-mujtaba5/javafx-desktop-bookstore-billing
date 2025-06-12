@@ -1,7 +1,6 @@
 package com.example.t;
 
-import javafx.animation.Animation;
-import javafx.animation.FadeTransition;
+// Removed unused imports
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -26,7 +25,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Duration;
+// Removed unused import
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -74,46 +73,27 @@ import java.util.Optional;
                 System.exit(0);
             });
 
-            VBox root = new VBox(10);
-            root.setAlignment(Pos.TOP_LEFT);
-            root.setPrefWidth(300); // Set the preferred width
-            root.setPrefHeight(300); // Set the preferred height
+            StackPane root = new StackPane();
+            // Background image is set below
 
-            // Create a StackPane for the date components
-            StackPane dateContainer = new StackPane();
-            dateContainer.setAlignment(Pos.TOP_LEFT);
-            dateContainer.setStyle("-fx-background-color: #212121;"); // Example: using light blue
+            VBox overlay = new VBox(30);
+            overlay.setAlignment(Pos.CENTER);
+            overlay.setMaxWidth(400);
+            overlay.setStyle("-fx-background-color: rgba(255,255,255,0.85); -fx-background-radius: 18px; -fx-padding: 40 40 40 40;");
 
-            // Create a Text object to display the current date
+            // Date and time at the top
+            HBox dateTimeBox = new HBox(20);
+            dateTimeBox.setAlignment(Pos.CENTER);
+
             Text dateText = new Text();
-            dateText.setFont(Font.font("Arial", FontWeight.BOLD, 28)); // Decrease font size to 28
-            dateText.setFill(Color.WHITE);
+            dateText.getStyleClass().add("label");
+            dateText.setFont(Font.font("Segoe UI", FontWeight.BOLD, 20));
 
-            // Add the dateText to the dateContainer
-            dateContainer.getChildren().add(dateText);
-
-            // Create a StackPane for the digital clock components
-            StackPane clockContainer = new StackPane();
-            clockContainer.setAlignment(Pos.TOP_LEFT);
-            clockContainer.setStyle("-fx-background-color: #212121;"); // Example: using light blue
-
-            // Create a Text object to display the digital clock
             Text digitalClock = new Text();
-            digitalClock.setFont(Font.font("Arial", FontWeight.BOLD, 28)); // Decrease font size to 28
-            digitalClock.setFill(Color.WHITE);
+            digitalClock.getStyleClass().add("label");
+            digitalClock.setFont(Font.font("Segoe UI", FontWeight.BOLD, 20));
 
-            // Create fade-in and fade-out animations for the digital clock
-            FadeTransition fadeIn = new FadeTransition(Duration.seconds(1), digitalClock);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-            fadeIn.setCycleCount(Animation.INDEFINITE);
-            fadeIn.setAutoReverse(true);
-
-            FadeTransition fadeOut = new FadeTransition(Duration.seconds(1), digitalClock);
-            fadeOut.setFromValue(1);
-            fadeOut.setToValue(0);
-            fadeOut.setCycleCount(Animation.INDEFINITE);
-            fadeOut.setAutoReverse(true);
+            dateTimeBox.getChildren().addAll(dateText, digitalClock);
 
             // Update the date and digital clock every second
             Thread dateTimeUpdateThread = new Thread(() -> {
@@ -141,84 +121,51 @@ import java.util.Optional;
             dateTimeUpdateThread.setDaemon(true);
             dateTimeUpdateThread.start();
 
-
-            // Add the digitalClock to the clockContainer
-            clockContainer.getChildren().add(digitalClock);
-
-            // Create an HBox for the dateContainer and clockContainer
-            HBox dateTimeBox = new HBox(10);
-            dateTimeBox.getChildren().addAll(dateContainer, clockContainer);
-
-            // Add settings icon
+            // Add settings icon (bottom right floating button)
             Image settingsImage = new Image(FilePathManager.getSettingsIconPath());
             ImageView settingsIcon = new ImageView(settingsImage);
             settingsIcon.setFitWidth(32);
             settingsIcon.setFitHeight(32);
             StackPane.setAlignment(settingsIcon, Pos.BOTTOM_RIGHT);
-
-            // Create a border for the settings icon
             StackPane settingsButton = new StackPane(settingsIcon);
             settingsButton.setStyle("-fx-border-color: transparent; -fx-border-width: 1;");
-
-            // Add a click effect to the settings button
             DropShadow dropShadow = new DropShadow(10, Color.GRAY);
             settingsButton.setOnMousePressed(event -> settingsButton.setEffect(dropShadow));
             settingsButton.setOnMouseReleased(event -> settingsButton.setEffect(null));
             settingsButton.setOnMouseEntered(event -> settingsButton.setEffect(dropShadow));
             settingsButton.setOnMouseExited(event -> settingsButton.setEffect(null));
-
-            settingsButton.setOnMouseClicked(event -> openSettingsScreen()); // Open the settings screen when clicked
+            settingsButton.setOnMouseClicked(event -> openSettingsScreen());
 
             StackPane settingsContainer = new StackPane(settingsButton);
             settingsContainer.setAlignment(Pos.BOTTOM_RIGHT);
-            settingsContainer.setPadding(new Insets(180, 10, 8, 4)); // Adjust the paddings as needed
+            settingsContainer.setPadding(new Insets(0, 30, 30, 0));
 
-            // Create a VBox for the menu buttons
-            VBox buttonsContainer = new VBox(10);
+            VBox buttonsContainer = new VBox(18);
             buttonsContainer.setAlignment(Pos.CENTER);
-            buttonsContainer.setPrefWidth(300);
             buttonsContainer.setFillWidth(true);
-            // Set padding/margin from the top
-            int topPadding = 260; // Adjust the value as needed
-            buttonsContainer.setStyle("-fx-padding: " + topPadding + " 80 0 0;");
 
-            Button addStockButton = new Button("Add Stock");
-            addStockButton.setPrefWidth(120);
-            addStockButton.setOnAction(event -> openAddStockScreen());
-
-            Button viewStockButton = new Button("View Stock");
-            viewStockButton.setPrefWidth(120);
-            viewStockButton.setOnAction(event -> openViewStockScreen());
-
-            Button updateStockButton = new Button("Update Stock"); // New button for updating stock
-            updateStockButton.setPrefWidth(120);
-            updateStockButton.setOnAction(event -> openUpdateStockScreen());
-
-            Button createOrderButton = new Button("Create Order");
-            createOrderButton.setPrefWidth(120);
-            createOrderButton.setOnAction(event -> openCreateOrderScreen());
-
-            Button viewOrderButton = new Button("View Order");
-            viewOrderButton.setPrefWidth(120);
-            viewOrderButton.setOnAction(event -> openViewOrderScreen());
-
-            Button viewInvoicesButton = new Button("View Invoices");
-            viewInvoicesButton.setPrefWidth(120);
-            viewInvoicesButton.setOnAction(event -> openViewInvoicesScreen());
-
-            Button exitButton = new Button("Logout");
-            exitButton.setPrefWidth(120);
-            exitButton.setOnAction(event -> {
-                if (shop != null) {
-                    shop.saveData(); // Save shop data to file before logging out
+            String[] buttonNames = {"Add Stock", "View Stock", "Update Stock", "Create Order", "View Order", "View Invoices", "Logout"};
+            Runnable[] actions = {
+                this::openAddStockScreen,
+                this::openViewStockScreen,
+                this::openUpdateStockScreen,
+                this::openCreateOrderScreen,
+                this::openViewOrderScreen,
+                this::openViewInvoicesScreen,
+                () -> {
+                    if (shop != null) shop.saveData();
+                    openPasswordScreen();
                 }
-                openPasswordScreen();
-            });
-
-            buttonsContainer.getChildren().addAll(
-                    addStockButton, viewStockButton, updateStockButton, // Add the updateStockButton
-                    createOrderButton, viewOrderButton, viewInvoicesButton, exitButton
-            );
+            };
+            for (int i = 0; i < buttonNames.length; i++) {
+                Button btn = new Button(buttonNames[i]);
+                btn.setPrefWidth(220);
+                btn.setPrefHeight(40);
+                btn.setStyle("-fx-font-size: 16px;");
+                int idx = i;
+                btn.setOnAction(e -> actions[idx].run());
+                buttonsContainer.getChildren().add(btn);
+            }
 
             // Set the background image
             Image backgroundImage = new Image(FilePathManager.getBackgroundImagePath());
@@ -228,18 +175,16 @@ import java.util.Optional;
                     BackgroundRepeat.NO_REPEAT,
                     BackgroundPosition.CENTER, new BackgroundSize(1.0, 1.0, true, true, false, false)
             );
-
-            StackPane.setMargin(settingsContainer, new Insets(0)); // Adjust the margins as needed
-            StackPane.setAlignment(settingsContainer, Pos.BOTTOM_RIGHT);
-            StackPane stackPane = new StackPane();
-            stackPane.getChildren().addAll(settingsContainer);
-            root.getChildren().addAll(dateTimeBox, buttonsContainer, stackPane);
             root.setBackground(new Background(background));
+
+            overlay.getChildren().addAll(dateTimeBox, buttonsContainer);
+            root.getChildren().add(overlay);
 
             double screenWidth = Screen.getPrimary().getBounds().getWidth();
             double screenHeight = Screen.getPrimary().getBounds().getHeight();
 
             Scene scene = new Scene(root, screenWidth, screenHeight);
+            scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
             primaryStage.setMaximized(true);
             primaryStage.setScene(scene);
             primaryStage.setResizable(true);

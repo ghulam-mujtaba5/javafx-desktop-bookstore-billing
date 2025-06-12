@@ -12,7 +12,7 @@ public class Invoice {
     private double discountPercentage;
     private double discount;
     private double netPrice;
-    private double neprice;
+    // Removed unused field neprice
 
     public Invoice(int invoiceId, int orderNum, String customerName, LocalDate invoiceDate,
                    List<Product> products, double orderTotal, double discountPercentage,

@@ -90,6 +90,7 @@ public class SettingsScreen extends Stage {
 
         // Set the scene
         Scene scene = new Scene(settingsContent, 400, 300);
+        scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
         setScene(scene);
 
         // Apply a blur effect to the main menu screen while the settings screen is open
