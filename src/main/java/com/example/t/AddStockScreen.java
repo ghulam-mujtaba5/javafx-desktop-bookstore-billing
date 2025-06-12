@@ -188,7 +188,7 @@ public class AddStockScreen {
         root.setPadding(new Insets(40));
 
         // Set background image
-        Image backgroundImage = new Image("file:///D:/t/src/main/background1.jpg");
+        Image backgroundImage = new Image(FilePathManager.getBackgroundImagePath());
         BackgroundImage background = new BackgroundImage(backgroundImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER, new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true));
         root.setBackground(new Background(background));

@@ -5,9 +5,9 @@ import java.io.File;
 public class FilePathManager {
     private static final String APP_NAME = "GM Shop";
     private static final String APP_DATA_PATH = System.getenv("APPDATA") + File.separator + APP_NAME;
-    private static final String STOCK_FILE_PATH ="D:\\t\\src\\main\\stock.txt";
-    private static final String BACKGROUND_IMAGE_PATH = "C:\\Program Files (x86)\\GM Shop\\src\\main\\background1.jpg";
-    private static final String SETTINGS_ICON_PATH = "C:\\Program Files (x86)\\GM Shop\\src\\main\\setting_icon.png";
+    private static final String STOCK_FILE_PATH = "src/main/stock.txt";
+    private static final String BACKGROUND_IMAGE_PATH = "src/main/background1.jpg";
+    private static final String SETTINGS_ICON_PATH = "src/main/setting_icon.png";
     private static final String PASSWORD_FILE_PATH = APP_DATA_PATH + File.separator + "password.txt";
     private static final String INVOICE_HISTORY_FILE_PATH = APP_DATA_PATH + File.separator + "invoice_history.txt";
 
@@ -20,11 +20,12 @@ public class FilePathManager {
     }
 
     public static String getBackgroundImagePath() {
-        return BACKGROUND_IMAGE_PATH;
+        // Use a relative path to the background image in the project directory
+        return "file:src/main/background1.jpg";
     }
 
     public static String getSettingsIconPath() {
-        return SETTINGS_ICON_PATH;
+        return "file:src/main/setting_icon.png";
     }
 
     public static String getPasswordFilePath() {

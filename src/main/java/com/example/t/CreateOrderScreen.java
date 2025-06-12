@@ -37,7 +37,7 @@ public class CreateOrderScreen {
         stage.setTitle("Create Order");
 
         GridPane grid = new GridPane();
-        Image backgroundImage = new Image("D:\\t\\src\\main\\background1.jpg");  // Replace "your_image_path.jpg" with the actual path to your image
+        Image backgroundImage = new Image(FilePathManager.getBackgroundImagePath());
         BackgroundImage background = new BackgroundImage(
                 backgroundImage,
                 BackgroundRepeat.NO_REPEAT,

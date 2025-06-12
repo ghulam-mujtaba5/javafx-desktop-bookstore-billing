@@ -6,7 +6,7 @@ import java.util.List;
 
 public class FileHandler {
     private static final String STOCK_FILE_NAME = "stock.txt";
-    private static final String STOCK_FILE_PATH = "D:\\t\\src\\main\\stock.txt";
+    private static final String STOCK_FILE_PATH = "src/main";
     private static final String INVOICE_FILE_NAME = "invoice.csv";
 
     static String getStockFilePath() {
