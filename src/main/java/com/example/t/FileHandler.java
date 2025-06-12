@@ -1,6 +1,7 @@
 package com.example.t;
 
 import java.io.*;
+// ...existing code...
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class FileHandler {
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                System.out.println("Failed to create stock file: " + e.getMessage());
+                Logger.error("Failed to create stock file: " + e.getMessage());
             }
         }
 
@@ -32,7 +33,7 @@ public class FileHandler {
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                System.out.println("Failed to create invoice file: " + e.getMessage());
+                Logger.error("Failed to create invoice file: " + e.getMessage());
             }
         }
 
@@ -58,7 +59,7 @@ public class FileHandler {
                 stock.add(product);
             }
         } catch (IOException e) {
-            System.out.println("Failed to load stock from file: " + e.getMessage());
+            Logger.error("Failed to load stock from file: " + e.getMessage());
         }
         return stock;
     }
@@ -74,9 +75,9 @@ public class FileHandler {
             }
 
             writer.close();
-            System.out.println("Stock saved successfully.");
+            Logger.info("Stock saved successfully.");
         } catch (IOException e) {
-            System.out.println("Failed to save stock to file: " + e.getMessage());
+            Logger.error("Failed to save stock to file: " + e.getMessage());
         }
     }
 
@@ -97,7 +98,7 @@ public class FileHandler {
 
             writer.close();
         } catch (IOException e) {
-            System.out.println("Failed to save invoice to file: " + e.getMessage());
+            Logger.error("Failed to save invoice to file: " + e.getMessage());
         }
     }
 
@@ -130,7 +131,7 @@ public class FileHandler {
 //            invoice = new Invoice(invoiceId, orderNum, customerName, invoiceDate, products, orderTotal, discountPercentage, discount, netPrice);
 //
 //        } catch (IOException e) {
-//            System.out.println("Failed to load invoice from file: " + e.getMessage());
+//            Logger.error("Failed to load invoice from file: " + e.getMessage());
 //        }
 //
 //        return invoice;

@@ -138,9 +138,8 @@ public class ViewInvoicesScreen {
             } else {
                 showAlert("Error", "Failed to load invoices. Please check the invoice history file.");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Error", "An error occurred while loading the invoices.");
+        } catch (IOException e) {
+            showAlert("Error", "An error occurred while loading the invoices: " + e.getMessage());
         }
     }
 

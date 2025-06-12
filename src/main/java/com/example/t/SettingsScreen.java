@@ -7,6 +7,7 @@ import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+// ...existing code...
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -47,10 +48,20 @@ public class SettingsScreen extends Stage {
             String newPassword = newPasswordField.getText();
             if (password.isCorrect(currentPassword)) {
                 password.changePassword(newPassword);
-                System.out.println("Password changed successfully.");
+                Logger.info("Password changed successfully.");
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Password Changed");
+                alert.setHeaderText(null);
+                alert.setContentText("Password changed successfully.");
+                alert.showAndWait();
                 close();
             } else {
-                System.out.println("Incorrect current password. Please try again.");
+                Logger.warn("Incorrect current password. Please try again.");
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Incorrect Password");
+                alert.setHeaderText(null);
+                alert.setContentText("Incorrect current password. Please try again.");
+                alert.showAndWait();
             }
         });
         settingsContent.add(changePasswordButton, 1, 3);
@@ -83,7 +94,7 @@ public class SettingsScreen extends Stage {
             shop.setShopName(name);
             shop.setAddress(address);
             shop.setMobileNumber(contact);
-            System.out.println("Shop attributes saved successfully.");
+            Logger.info("Shop attributes saved successfully.");
             close();
         });
         settingsContent.add(saveShopAttributesButton, 1, 8);

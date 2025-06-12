@@ -53,8 +53,7 @@ public class Shop {
             writer.newLine();
             writer.write(mobileNumber);
         } catch (IOException e) {
-            System.err.println("Error saving shop data: " + e.getMessage());
-            e.printStackTrace();
+            Logger.error("Error saving shop data: " + e.getMessage());
         }
     }
 
@@ -79,8 +78,7 @@ public class Shop {
                 mobileNumber = line;
             }
         } catch (IOException e) {
-            System.err.println("Error loading shop data: " + e.getMessage());
-            e.printStackTrace();
+            Logger.error("Error loading shop data: " + e.getMessage());
         }
     }
 }

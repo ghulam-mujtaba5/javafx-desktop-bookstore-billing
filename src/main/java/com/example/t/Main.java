@@ -49,7 +49,10 @@ import java.util.Optional;
             password = new Password(); // Initialize the password object
 
             PasswordScreen passwordScreen = new PasswordScreen(password);
-            passwordScreen.setOnPasswordCorrect(this::showMenuScreen);
+            passwordScreen.setOnPasswordCorrect(() -> {
+                showMenuScreen();
+                primaryStage.show();
+            });
 
             passwordScreen.start(primaryStage);
             primaryStage.setOnShown(event -> primaryStage.setMaximized(true));
@@ -57,7 +60,7 @@ import java.util.Optional;
                 if (shop != null) {
                     shop.saveData(); // Save shop data to file before exiting
                 }
-                System.exit(0);
+                // System.exit(0); // Remove this to prevent app from closing automatically
             });
             primaryStage.requestFocus();
         }
@@ -70,7 +73,7 @@ import java.util.Optional;
                 if (shop != null) {
                     shop.saveData(); // Save shop data to file before exiting
                 }
-                System.exit(0);
+                // System.exit(0); // Remove this to prevent app from closing automatically
             });
 
             StackPane root = new StackPane();
@@ -100,19 +103,25 @@ import java.util.Optional;
                 while (true) {
                     LocalDateTime now = LocalDateTime.now();
                     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
-                    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a"); // Remove the "ss" pattern for seconds
+                    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
                     String formattedDate = now.format(dateFormatter);
                     String formattedTime = now.format(timeFormatter);
 
-                    // Update the date and digital clock on the JavaFX application thread
                     javafx.application.Platform.runLater(() -> {
                         dateText.setText(formattedDate);
                         digitalClock.setText(formattedTime);
                     });
 
+                    // Use JavaFX PauseTransition instead of Thread.sleep
                     try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
+                        javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(1));
+                        final boolean[] finished = {false};
+                        pause.setOnFinished(event -> finished[0] = true);
+                        pause.play();
+                        while (!finished[0]) {
+                            Thread.onSpinWait();
+                        }
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -235,7 +244,7 @@ import java.util.Optional;
                 CreateOrderScreen createOrderScreen = new CreateOrderScreen(stock, shop);
                 createOrderScreen.show();
             } else {
-                System.out.println("Stock or Shop object is not initialized");
+                Logger.error("Stock or Shop object is not initialized");
             }
         }
 
@@ -253,9 +262,8 @@ import java.util.Optional;
             PasswordScreen passwordScreen = new PasswordScreen(password);
             passwordScreen.setOnPasswordCorrect(this::showMenuScreen);
 
-            Stage passwordStage = new Stage();
-            passwordScreen.start(passwordStage);
-            primaryStage.close();
+            // Use the same primaryStage, just reset the scene
+            passwordScreen.start(primaryStage);
         }
 
         private void initializeStockAndShopObjects() {

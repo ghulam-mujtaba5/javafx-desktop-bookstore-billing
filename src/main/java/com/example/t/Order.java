@@ -2,6 +2,7 @@ package com.example.t;
 
 import java.time.LocalDate;
 import java.util.List;
+// ...existing code...
 
 public class Order {
     private int orderId;
@@ -49,7 +50,7 @@ public class Order {
                     int stockQuantity = stockProduct.getQuantity();
                     if (orderQuantity > stockQuantity) {
                         orderAccepted = false;
-                        System.out.println("Order rejected: not enough stock for " + p.getProductName());
+                        Logger.warn("Order rejected: not enough stock for " + p.getProductName());
                     } else {
                         stockProduct.setQuantity(stockQuantity - orderQuantity);
                     }
@@ -59,7 +60,7 @@ public class Order {
             }
             if (!foundInStock) {
                 orderAccepted = false;
-                System.out.println("Order rejected: product not found in stock for " + p.getProductName());
+                Logger.warn("Order rejected: product not found in stock for " + p.getProductName());
             }
         }
         return orderAccepted;
