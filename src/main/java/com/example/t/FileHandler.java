@@ -1,7 +1,6 @@
 package com.example.t;
 
 import java.io.*;
-// ...existing code...
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +8,25 @@ public class FileHandler {
     private static final String STOCK_FILE_NAME = "stock.txt";
     private static final String STOCK_FILE_PATH = "src/main";
     private static final String INVOICE_FILE_NAME = "invoice.csv";
+    
+    private static FileHandler instance;
+    private List<Product> stock;
+    private List<Invoice> invoices;
+    
+    private FileHandler() {
+        // Private constructor to enforce singleton pattern
+        stock = new ArrayList<>();
+        invoices = new ArrayList<>();
+    }
+    
+    public static FileHandler getInstance() {
+        if (instance == null) {
+            instance = new FileHandler();
+        }
+        return instance;
+    }
 
-    static String getStockFilePath() {
+    public String getStockFilePath() {
         String filePath = STOCK_FILE_PATH + File.separator + STOCK_FILE_NAME;
         File file = new File(filePath);
 
@@ -25,7 +41,7 @@ public class FileHandler {
         return filePath;
     }
 
-    static String getInvoiceFilePath() {
+    public String getInvoiceFilePath() {
         String filePath = STOCK_FILE_PATH + File.separator + INVOICE_FILE_NAME;
         File file = new File(filePath);
 
@@ -40,48 +56,53 @@ public class FileHandler {
         return filePath;
     }
 
-    public static List<Product> loadStock() {
-        List<Product> stock = new ArrayList<>();
+    public List<Product> loadStock() {
+        stock = new ArrayList<>();
         String filePath = getStockFilePath();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                int productId = Integer.parseInt(parts[0]);
-                String productName = parts[1];
-                int quantity = Integer.parseInt(parts[2]);
-                double price = Double.parseDouble(parts[3]);
-                double purchasePrice = Double.parseDouble(parts[4]);
-                boolean status = Boolean.parseBoolean(parts[5]);
-                Product product = new Product(productId, productName, quantity, price, purchasePrice);
-                product.setStatus(status);
-                stock.add(product);
+                if (parts.length >= 5) {
+                    int id = Integer.parseInt(parts[0].trim());
+                    String name = parts[1].trim();
+                    int quantity = Integer.parseInt(parts[2].trim());
+                    double price = Double.parseDouble(parts[3].trim());
+                    double purchasePrice = Double.parseDouble(parts[4].trim());
+                    stock.add(new Product(id, name, quantity, price, purchasePrice));
+                }
             }
-        } catch (IOException e) {
-            Logger.error("Failed to load stock from file: " + e.getMessage());
+        } catch (IOException | NumberFormatException e) {
+            Logger.error("Error loading stock: " + e.getMessage());
         }
+
         return stock;
     }
 
-    public static void saveStock(List<Product> stock) {
+    public void saveStock(List<Product> stock) {
         String filePath = getStockFilePath();
-        try {
-            PrintWriter writer = new PrintWriter(new FileWriter(filePath));
-
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             for (Product product : stock) {
-                writer.println(product.getProductId() + "," + product.getProductName() + ","
-                        + product.getQuantity() + "," + product.getPrice() + "," + product.getPurchasePrice() + "," + product.getStatus());
+                writer.write(String.format("%d,%s,%d,%.2f,%.2f%n", 
+                    product.getProductId(), 
+                    product.getProductName(), 
+                    product.getQuantity(), 
+                    product.getPrice(),
+                    product.getPurchasePrice()));
             }
-
-            writer.close();
-            Logger.info("Stock saved successfully.");
         } catch (IOException e) {
-            Logger.error("Failed to save stock to file: " + e.getMessage());
+            Logger.error("Error saving stock: " + e.getMessage());
+        }
+    }
+    
+    public void saveAllChanges() {
+        if (stock != null) {
+            saveStock(stock);
         }
     }
 
-    public static void saveInvoice(Invoice invoice) {
+    public void saveInvoice(Invoice invoice) {
         String filePath = getInvoiceFilePath();
         try {
             PrintWriter writer = new PrintWriter(new FileWriter(filePath, true));

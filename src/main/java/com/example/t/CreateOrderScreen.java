@@ -32,6 +32,12 @@ public class CreateOrderScreen {
         this.shop = shop;
     }
 
+    public CreateOrderScreen() {
+        this.stock = new Stock();
+        this.selectedProducts = new ArrayList<>();
+        this.shop = new Shop();
+    }
+
     public void show() {
         Stage stage = new Stage();
         stage.setTitle("Create Order");

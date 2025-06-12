@@ -17,6 +17,12 @@ public class Shop {
         this.mobileNumber = mobileNumber;
     }
 
+    public Shop() {
+        this.shopName = DEFAULT_SHOP_NAME;
+        this.address = DEFAULT_ADDRESS;
+        this.mobileNumber = DEFAULT_MOBILE_NUMBER;
+    }
+
     public void setShopName(String shopName) {
         this.shopName = shopName;
         saveData();

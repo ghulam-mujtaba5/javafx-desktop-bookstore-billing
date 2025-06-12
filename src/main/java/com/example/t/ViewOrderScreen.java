@@ -2,7 +2,6 @@ package com.example.t;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ListChangeListener;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
@@ -14,21 +13,20 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.application.Platform;
 import javafx.print.*;
-import javafx.scene.text.Text;
 import javafx.scene.Node;
-import javafx.print.PageLayout;
 import javafx.scene.chart.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.Modality;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.Side;  // Added missing import
 import javafx.stage.FileChooser;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.Month;
 import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,22 +52,18 @@ public class ViewOrderScreen {
     // Product analytics class
     private static final class ProductAnalytics {
         private final String name;
-        private int quantitySold;
         private double revenue;
 
         public ProductAnalytics(String name) {
             this.name = name;
-            this.quantitySold = 0;
             this.revenue = 0;
         }
 
         public void addProduct(Product product) {
-            quantitySold += product.getQuantity();
             revenue += product.getPrice() * product.getQuantity();
         }
 
         public String getName() { return name; }
-        public int getQuantitySold() { return quantitySold; }
         public double getRevenue() { return revenue; }
     }
 
@@ -311,136 +305,25 @@ public class ViewOrderScreen {
     }
 
     private void setupBatchOperations() {
-        batchOperationsButton.setDisable(true);
-        
-        orderTable.getSelectionModel().getSelectedItems().addListener(
-            (ListChangeListener<Order>) c -> 
-                batchOperationsButton.setDisable(c.getList().isEmpty())
-        );
-        
-        batchOperationsButton.setOnAction(e -> showBatchOperationsDialog());
+        batchOperationsButton.setOnAction(e -> showBatchOperationsMenu());
     }
 
-    private void showBatchOperationsDialog() {
-        ObservableList<Order> selectedOrders = orderTable.getSelectionModel().getSelectedItems();
+    private void showBatchOperationsMenu() {
+        ContextMenu menu = new ContextMenu();
         
-        Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setTitle("Batch Operations");
+        MenuItem printSelected = new MenuItem("Print Selected Orders");
+        printSelected.setOnAction(e -> printSelectedOrders());
+        printSelected.setDisable(orderTable.getSelectionModel().getSelectedItems().isEmpty());
 
-        VBox content = new VBox(10);
-        content.setPadding(new Insets(15));
-        content.setStyle("-fx-background-color: white;");
+        MenuItem exportSelected = new MenuItem("Export Selected to CSV");
+        exportSelected.setOnAction(e -> exportSelectedToCSV());
+        exportSelected.setDisable(orderTable.getSelectionModel().getSelectedItems().isEmpty());
 
-        Label header = new Label("Selected Orders: " + selectedOrders.size());
-        header.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
+        MenuItem generateReport = new MenuItem("Generate Summary Report");
+        generateReport.setOnAction(e -> generateSummaryReport());
 
-        // Create operation buttons
-        Button printButton = new Button("Print Selected Orders");
-        printButton.setOnAction(e -> {
-            dialog.close();
-            printSelectedOrders();
-        });
-
-        Button exportButton = new Button("Export to CSV");
-        exportButton.setOnAction(e -> {
-            dialog.close();
-            exportSelectedToCSV(selectedOrders);
-        });
-
-        content.getChildren().addAll(
-            header,
-            new Separator(),
-            printButton,
-            exportButton
-        );
-
-        Scene scene = new Scene(content);
-        dialog.setScene(scene);
-        dialog.show();
-    }
-
-    private void printSelectedOrders() {
-        ObservableList<Order> selectedOrders = orderTable.getSelectionModel().getSelectedItems();
-        if (selectedOrders.isEmpty()) {
-            NotificationUtil.showWarning("No Selection", "Please select orders to print");
-            return;
-        }
-
-        PrinterJob job = PrinterJob.createPrinterJob();
-        if (job != null && job.showPrintDialog(orderTable.getScene().getWindow())) {
-            VBox printContent = new VBox(20);
-            printContent.setPadding(new Insets(20));
-
-            // Add header
-            Text header = new Text("Order Report");
-            header.setStyle("-fx-font-size: 24; -fx-font-weight: bold;");
-            printContent.getChildren().add(header);
-
-            // Add date
-            Text dateText = new Text("Generated: " + LocalDate.now().format(dateFormatter));
-            dateText.setStyle("-fx-font-size: 12;");
-            printContent.getChildren().add(dateText);
-            printContent.getChildren().add(new Separator());
-
-            // Add each order
-            for (Order order : selectedOrders) {
-                VBox orderBox = new VBox(5);
-                orderBox.getChildren().addAll(
-                    new Text("Order #" + order.getOrderId()),
-                    new Text("Customer: " + order.getCustomerName()),
-                    new Text("Date: " + order.getOrderDate().format(dateFormatter)),
-                    new Text("Products:")
-                );
-
-                // Add products table
-                GridPane productsGrid = new GridPane();
-                productsGrid.setHgap(10);
-                productsGrid.setVgap(5);
-                productsGrid.setPadding(new Insets(0, 0, 0, 20));
-
-                // Add headers
-                productsGrid.addRow(0,
-                    new Text("Product"),
-                    new Text("Quantity"),
-                    new Text("Price")
-                );
-
-                // Add products
-                int row = 1;
-                for (Product product : order.getProducts()) {
-                    productsGrid.addRow(row++,
-                        new Text(product.getProductName()),
-                        new Text(String.valueOf(product.getQuantity())),
-
-                        new Text(String.format("$%.2f", product.getPrice()))
-                    );
-                }
-
-                orderBox.getChildren().add(productsGrid);
-                orderBox.getChildren().add(new Text(
-                    String.format("Total Amount: $%.2f", order.getTotalAmount())
-                ));
-                orderBox.getChildren().add(new Separator());
-                printContent.getChildren().add(orderBox);
-            }
-
-            // Print the content
-            boolean printed = job.printPage(printContent);
-            if (printed) {
-                job.endJob();
-                NotificationUtil.showSuccess("Print Complete", 
-                    "Successfully printed " + selectedOrders.size() + " orders");
-            } else {
-                NotificationUtil.showError("Print Failed", 
-                    "Failed to print orders");
-            }
-        }
-    }
-
-    private void setupPrintingAndStatistics() {
-        printSelectedButton.setOnAction(e -> printSelectedOrders());
-        statisticsButton.setOnAction(e -> showAdvancedStatisticsDialog());
+        menu.getItems().addAll(printSelected, exportSelected, generateReport);
+        menu.show(batchOperationsButton, Side.BOTTOM, 0, 0);
     }
 
     private void showStatisticsDialog() {
@@ -563,42 +446,322 @@ public class ViewOrderScreen {
         dialog.show();
     }
 
-    private void exportSelectedToCSV(List<Order> orders) {
+    private void exportSelectedToCSV() {
+        List<Order> selectedOrders = new ArrayList<>(orderTable.getSelectionModel().getSelectedItems());
+        if (selectedOrders.isEmpty()) {
+            NotificationUtil.showWarning("No Orders Selected", "Please select orders to export.");
+            return;
+        }
+
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Export Selected Orders");
+        fileChooser.setTitle("Export Orders to CSV");
         fileChooser.getExtensionFilters().add(
             new FileChooser.ExtensionFilter("CSV Files", "*.csv")
         );
-        fileChooser.setInitialFileName("selected_orders_export.csv");
+        fileChooser.setInitialFileName("orders_export_" + 
+            LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE) + ".csv");
 
         File file = fileChooser.showSaveDialog(orderTable.getScene().getWindow());
         if (file != null) {
             try (FileWriter writer = new FileWriter(file)) {
                 // Write header
-                writer.write("Order ID,Date,Customer,Total Amount,Products\n");
-
+                writer.write("Order ID,Customer Name,Date,Total Amount,Products\n");
+                
                 // Write data
-                for (Order order : orders) {
-                    StringBuilder products = new StringBuilder();
-                    for (Product product : order.getProducts()) {
-                        products.append(product.getProductName())
-                                .append(" (").append(product.getQuantity()).append(") ");
-                    }
-                    
-                    writer.write(String.format("%d,%s,\"%s\",$%.2f,\"%s\"\n",
+                for (Order order : selectedOrders) {
+                    writer.write(String.format("%d,%s,%s,%.2f,\"%s\"\n",
                         order.getOrderId(),
-                        dateFormatter.format(order.getOrderDate()),
-                        order.getCustomerName(),
+                        order.getCustomerName().replace(",", ";"),
+                        order.getOrderDate().format(dateFormatter),
                         order.getTotalAmount(),
-                        products.toString().trim()
+                        order.getProducts().stream()
+                            .<String>map(p -> String.format("%s x%d", p.getProductName(), p.getQuantity()))
+                            .collect(Collectors.joining("; "))
                     ));
                 }
-                
                 NotificationUtil.showSuccess("Export Complete", 
-                    "Selected orders have been exported to " + file.getName());
-            } catch (IOException e) {
+                    String.format("Successfully exported %d orders to CSV.", selectedOrders.size()));
+            } catch (IOException ex) {
                 NotificationUtil.showError("Export Failed", 
-                    "Failed to export orders: " + e.getMessage());
+                    "Failed to export orders: " + ex.getMessage());
+            }
+        }
+    }
+
+    private void generateSummaryReport() {
+        List<Order> orders = new ArrayList<>(orderTable.getItems());
+        if (orders.isEmpty()) {
+            NotificationUtil.showWarning("No Data", "There are no orders to generate a report from.");
+            return;
+        }
+
+        Stage reportStage = new Stage();
+        reportStage.initModality(Modality.APPLICATION_MODAL);
+        reportStage.setTitle("Sales Summary Report");
+
+        VBox reportContent = new VBox(10);
+        reportContent.setPadding(new Insets(20));
+
+        // Add summary statistics
+        Label titleLabel = new Label("Sales Summary Report");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        LocalDate now = LocalDate.now();
+        Label dateLabel = new Label("Generated on: " + now.format(dateFormatter));
+
+        // Basic statistics
+        double totalRevenue = orders.stream()
+            .mapToDouble(Order::getTotalAmount)
+            .sum();
+        int totalOrders = orders.size();
+        double averageOrderValue = totalRevenue / totalOrders;
+
+        VBox statsBox = new VBox(5);
+        statsBox.getChildren().addAll(
+            new Label(String.format("Total Revenue: $%.2f", totalRevenue)),
+            new Label(String.format("Total Orders: %d", totalOrders)),
+            new Label(String.format("Average Order Value: $%.2f", averageOrderValue))
+        );
+
+        // Add charts
+        LineChart<String, Number> revenueChart = createRevenueChart(orders);
+        revenueChart.setTitle("Revenue Trend");
+        VBox.setVgrow(revenueChart, Priority.ALWAYS);
+
+        PieChart productChart = createProductDistributionChart(orders);
+        productChart.setTitle("Product Distribution");
+        VBox.setVgrow(productChart, Priority.ALWAYS);
+
+        // Add export and print buttons
+        Button exportButton = new Button("Export Report");
+        exportButton.setOnAction(e -> exportReport(reportContent));
+        
+        Button printButton = new Button("Print Report");
+        printButton.setOnAction(e -> printReport(reportContent));
+
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.getChildren().addAll(exportButton, printButton);
+
+        reportContent.getChildren().addAll(
+            titleLabel, dateLabel, new Separator(),
+            statsBox, new Separator(),
+            revenueChart, productChart,
+            buttonBox
+        );
+
+        Scene scene = new Scene(reportContent, 800, 900);
+        reportStage.setScene(scene);
+        reportStage.show();
+    }
+
+    private LineChart<String, Number> createRevenueChart(List<Order> orders) {
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
+
+        xAxis.setLabel("Date");
+        yAxis.setLabel("Revenue ($)");
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Daily Revenue");
+
+        Map<LocalDate, Double> dailyRevenue = orders.stream()
+            .collect(Collectors.groupingBy(
+                Order::getOrderDate,
+                Collectors.summingDouble(Order::getTotalAmount)
+            ));
+
+        dailyRevenue.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .forEach(entry -> series.getData().add(
+                new XYChart.Data<>(entry.getKey().format(dateFormatter), entry.getValue())
+            ));
+
+        lineChart.getData().add(series);
+        return lineChart;
+    }
+
+    private PieChart createProductDistributionChart(List<Order> orders) {
+        Map<String, Integer> productQuantities = new HashMap<>();
+        
+        orders.stream()
+            .flatMap(order -> order.getProducts().stream())
+            .forEach(product -> {
+                productQuantities.merge(product.getProductName(), product.getQuantity(), Integer::sum);
+            });
+
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+        productQuantities.forEach((name, quantity) -> 
+            pieChartData.add(new PieChart.Data(name + " (" + quantity + ")", quantity))
+        );
+
+        PieChart chart = new PieChart(pieChartData);
+        chart.setLegendVisible(true);
+        chart.setLabelsVisible(true);
+        
+        return chart;
+    }
+
+    private void setupPrintingAndStatistics() {
+        statisticsButton.setOnAction(e -> {
+            List<Order> selectedOrders = orderTable.getSelectionModel().getSelectedItems();
+            if (selectedOrders.isEmpty()) {
+                selectedOrders = new ArrayList<>(orderTable.getItems());
+            }
+            showAdvancedStatisticsDialog(selectedOrders);
+        });
+
+        // Set up print button
+        printSelectedButton.setOnAction(e -> printSelectedOrders());
+    }
+
+    private void printSelectedOrders() {
+        List<Order> selectedOrders = new ArrayList<>(orderTable.getSelectionModel().getSelectedItems());
+        if (selectedOrders.isEmpty()) {
+            NotificationUtil.showWarning("No Orders Selected", "Please select orders to print.");
+            return;
+        }
+
+        PrinterJob job = PrinterJob.createPrinterJob();
+        if (job != null && job.showPrintDialog(orderTable.getScene().getWindow())) {
+            boolean success = true;
+            Node[] pages = createPrintPages(selectedOrders);
+            
+            for (Node page : pages) {
+                success = job.printPage(page);
+                if (!success) break;
+            }
+            
+            if (success) {
+                job.endJob();
+                NotificationUtil.showSuccess("Print Complete", 
+                    String.format("Successfully printed %d orders.", selectedOrders.size()));
+            } else {
+                NotificationUtil.showError("Print Failed", 
+                    "Failed to print orders. Please check your printer settings.");
+            }
+        }
+    }
+
+    private Node[] createPrintPages(List<Order> orders) {
+        return orders.stream().map(order -> {
+            VBox page = new VBox(10);
+            page.setPadding(new Insets(20));
+            page.setPrefWidth(595); // A4 width in points
+            
+            // Header
+            Label headerLabel = new Label("Order Details");
+            headerLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+            
+            Label orderIdLabel = new Label("Order #" + order.getOrderId());
+            orderIdLabel.setStyle("-fx-font-size: 18px;");
+            
+            Label dateLabel = new Label("Date: " + order.getOrderDate().format(dateFormatter));
+            Label customerLabel = new Label("Customer: " + order.getCustomerName());
+            
+            // Products table
+            GridPane productsGrid = new GridPane();
+            productsGrid.setHgap(20);
+            productsGrid.setVgap(5);
+            productsGrid.setPadding(new Insets(10));
+            productsGrid.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
+            
+            // Table headers
+            Label nameHeader = new Label("Product");
+            Label qtyHeader = new Label("Quantity");
+            Label priceHeader = new Label("Price");
+            Label totalHeader = new Label("Total");
+            
+            nameHeader.setStyle("-fx-font-weight: bold;");
+            qtyHeader.setStyle("-fx-font-weight: bold;");
+            priceHeader.setStyle("-fx-font-weight: bold;");
+            totalHeader.setStyle("-fx-font-weight: bold;");
+            
+            productsGrid.add(nameHeader, 0, 0);
+            productsGrid.add(qtyHeader, 1, 0);
+            productsGrid.add(priceHeader, 2, 0);
+            productsGrid.add(totalHeader, 3, 0);
+            
+            // Product rows
+            int row = 1;
+            for (Product product : order.getProducts()) {
+                productsGrid.add(new Label(product.getProductName()), 0, row);
+                productsGrid.add(new Label(String.valueOf(product.getQuantity())), 1, row);
+                productsGrid.add(new Label(String.format("$%.2f", product.getPrice())), 2, row);
+                productsGrid.add(
+                    new Label(String.format("$%.2f", product.getPrice() * product.getQuantity())), 
+                    3, row
+                );
+                row++;
+            }
+            
+            // Total
+            HBox totalBox = new HBox(10);
+            totalBox.setAlignment(Pos.CENTER_RIGHT);
+            totalBox.getChildren().addAll(
+                new Label("Total Amount: "),
+                new Label(String.format("$%.2f", order.getTotalAmount()))
+            );
+            totalBox.setStyle("-fx-font-weight: bold; -fx-padding: 10 0 0 0;");
+            
+            // Footer
+            Label footerLabel = new Label("Thank you for your business!");
+            footerLabel.setStyle("-fx-font-style: italic;");
+            
+            page.getChildren().addAll(
+                headerLabel,
+                orderIdLabel,
+                dateLabel,
+                customerLabel,
+                new Separator(),
+                productsGrid,
+                totalBox,
+                new Separator(),
+                footerLabel
+            );
+            
+            return page;
+        }).toArray(Node[]::new);
+    }
+
+    private void exportReport(Node reportContent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export Report");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
+        );
+        fileChooser.setInitialFileName("sales_report_" + 
+            LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE) + ".pdf");
+
+        File file = fileChooser.showSaveDialog(orderTable.getScene().getWindow());
+        if (file != null) {
+            PrinterJob job = PrinterJob.createPrinterJob();
+            if (job != null) {
+                boolean success = job.printPage(reportContent);
+                if (success) {
+                    job.endJob();
+                    NotificationUtil.showSuccess("Export Complete", 
+                        "Successfully exported report to PDF.");
+                } else {
+                    NotificationUtil.showError("Export Failed", 
+                        "Failed to export report to PDF.");
+                }
+            }
+        }
+    }
+
+    private void printReport(Node reportContent) {
+        PrinterJob job = PrinterJob.createPrinterJob();
+        if (job != null && job.showPrintDialog(orderTable.getScene().getWindow())) {
+            boolean success = job.printPage(reportContent);
+            if (success) {
+                job.endJob();
+                NotificationUtil.showSuccess("Print Complete", 
+                    "Successfully printed the report.");
+            } else {
+                NotificationUtil.showError("Print Failed", 
+                    "Failed to print the report.");
             }
         }
     }
@@ -756,8 +919,11 @@ public class ViewOrderScreen {
                 }
             }
         });
-        
-        productTable.getColumns().addAll(nameCol, quantityCol, revenueCol);
+
+        // Fix type safety warning for table columns
+        @SuppressWarnings("unchecked")
+        TableColumn<ProductAnalytics, ?>[] columns = new TableColumn[]{nameCol, quantityCol, revenueCol};
+        productTable.getColumns().addAll(columns);
         
         // Calculate product analytics
         Map<String, ProductAnalytics> analytics = new HashMap<>();

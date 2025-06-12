@@ -19,26 +19,27 @@ import javafx.fxml.FXML;
 
 public class ViewStockScreen {
     @FXML private TableView<Product> stockTable;
-    @FXML private TableColumn<Product, Integer> colId;
-    @FXML private TableColumn<Product, String> colName;
-    @FXML private TableColumn<Product, Integer> colQuantity;
-    @FXML private TableColumn<Product, Double> colPrice;
-    @FXML private TableColumn<Product, Double> colPurchasePrice;
-    @FXML private TableColumn<Product, Boolean> colStatus;
-    @FXML private Button refreshButton;
-    @FXML private Button exportButton;
+    @FXML private TableColumn<Product, Integer> bookIdColumn;
+    @FXML private TableColumn<Product, String> bookNameColumn;
+    @FXML private TableColumn<Product, String> authorColumn;
+    @FXML private TableColumn<Product, String> publisherColumn;
+    @FXML private TableColumn<Product, String> editionColumn;
+    @FXML private TableColumn<Product, Double> priceColumn;
+    @FXML private TableColumn<Product, Integer> quantityColumn;
+    // Removed unused refreshButton and exportButton to match FXML
     @FXML private Label messageLabel;
 
     private ObservableList<Product> data;
 
     @FXML
     public void initialize() {
-        colId.setCellValueFactory(new PropertyValueFactory<>("productId"));
-        colName.setCellValueFactory(new PropertyValueFactory<>("productName"));
-        colQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        colPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
-        colPurchasePrice.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
-        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+        bookIdColumn.setCellValueFactory(new PropertyValueFactory<>("productId"));
+        bookNameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        authorColumn.setCellValueFactory(new PropertyValueFactory<>("author"));
+        publisherColumn.setCellValueFactory(new PropertyValueFactory<>("publisher"));
+        editionColumn.setCellValueFactory(new PropertyValueFactory<>("edition"));
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
         Stock stock = new Stock();
         List<Product> stockList = stock.readStockFromFile();
@@ -46,8 +47,7 @@ public class ViewStockScreen {
         stockTable.setItems(data);
         stockTable.setPlaceholder(new Label("No products in stock. Add new stock to get started!"));
 
-        refreshButton.setOnAction(e -> refreshStock());
-        exportButton.setOnAction(e -> exportStockToCSV());
+        // Button event handlers are now set via FXML onAction attributes
     }
 
     private void refreshStock() {
@@ -60,5 +60,22 @@ public class ViewStockScreen {
     private void exportStockToCSV() {
         // TODO: Implement export logic
         messageLabel.setText("Exported to CSV (not implemented)");
+    }
+
+    @FXML
+    private void handleExport() {
+        exportStockToCSV();
+    }
+
+    @FXML
+    private void handleUpdateStock() {
+        // TODO: Implement update stock logic or show a dialog
+        messageLabel.setText("Update Stock action triggered.");
+    }
+
+    @FXML
+    private void handleAddStock() {
+        // TODO: Implement add stock logic or show a dialog
+        messageLabel.setText("Add Stock action triggered.");
     }
 }

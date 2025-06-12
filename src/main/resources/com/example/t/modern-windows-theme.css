@@ -82,18 +82,12 @@
     padding: 8px 12px;
 }
 
+
 .table-row-cell:selected {
     -fx-background-color: #E3F2FD;
     background-color: #E3F2FD;
     -fx-text-fill: #1976D2;
     color: #1976D2;
-}
-    -fx-background-color: #E5F3FF;
-    background-color: #E5F3FF;
-    -fx-text-fill: black;
-    color: black;
-    -fx-font-weight: normal;
-    font-weight: normal;
 }
 
 /* Cards */
@@ -121,7 +115,7 @@
 .sub-header {
     -fx-font-size: 18px;
     font-size: 18px;
-    -fx-font-weight: semi-bold;
+    -fx-font-weight: 600;
     font-weight: 600;
     -fx-fill: #505050;
     fill: #505050;

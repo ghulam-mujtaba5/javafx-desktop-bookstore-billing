@@ -8,6 +8,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Stage;
+import javafx.application.Platform;
+import java.io.IOException;
 
 public class MenuController {
     @FXML private Button btnAddStock;
@@ -22,42 +25,75 @@ public class MenuController {
 
     @FXML
     private void initialize() {
-
-
-        btnAddStock.setOnAction(e -> loadScreen("/com/example/t/AddStockScreen.fxml"));
-        btnViewStock.setOnAction(e -> loadScreen("/com/example/t/ViewStockScreen.fxml"));
-        btnUpdateStock.setOnAction(e -> loadScreen("/com/example/t/UpdateStockScreen.fxml"));
-        btnCreateOrder.setOnAction(e -> loadScreen("/com/example/t/CreateOrderScreen.fxml"));
-        btnViewOrder.setOnAction(e -> loadScreen("/com/example/t/ViewOrderScreen.fxml"));
-        btnViewInvoices.setOnAction(e -> loadScreen("/com/example/t/ViewInvoicesScreen.fxml"));
-        btnSettings.setOnAction(e -> loadScreen("/com/example/t/SettingsScreen.fxml"));
+        // Set up button actions
+        btnAddStock.setOnAction(e -> loadScreen("AddStockScreen.fxml", "Add Stock"));
+        btnViewStock.setOnAction(e -> loadScreen("ViewStockScreen.fxml", "View Stock"));
+        btnUpdateStock.setOnAction(e -> loadScreen("UpdateStockScreen.fxml", "Update Stock"));
+        btnCreateOrder.setOnAction(e -> loadScreen("CreateOrderScreen.fxml", "Create Order"));
+        btnViewOrder.setOnAction(e -> loadScreen("ViewOrderScreen.fxml", "View Orders"));
+        btnViewInvoices.setOnAction(e -> loadScreen("ViewInvoicesScreen.fxml", "View Invoices"));
+        btnSettings.setOnAction(e -> loadScreen("SettingsScreen.fxml", "Settings"));
         btnLogout.setOnAction(e -> logout());
+
         // Load default screen
-        loadScreen("/com/example/t/ViewStockScreen.fxml");
+        Platform.runLater(() -> loadScreen("ViewStockScreen.fxml", "View Stock"));
     }
 
-    private void loadScreen(String fxmlPath) {
+    private void loadScreen(String fxmlName, String title) {
         try {
+            String fxmlPath = "/com/example/t/" + fxmlName;
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Node screen = loader.load();
+            
             contentArea.getChildren().setAll(screen);
-        } catch (Exception e) {
+            
+            // Update window title
+            Stage stage = (Stage) contentArea.getScene().getWindow();
+            stage.setTitle("Bookstore Management - " + title);
+            
+        } catch (IOException e) {
             e.printStackTrace();
+            NotificationUtil.showError("Error", "Failed to load " + title + " screen: " + e.getMessage());
         }
     }
 
     private void logout() {
-        // Confirmation dialog for logout
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to logout?", ButtonType.YES, ButtonType.NO);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirm Logout");
         alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to logout?");
         alert.initOwner(contentArea.getScene().getWindow());
+        
         alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) {
-                NotificationUtil.showToast(contentArea.getScene(), "Logged out successfully.");
-                contentArea.getScene().getWindow().hide();
-            } else {
-                NotificationUtil.showToast(contentArea.getScene(), "Logout cancelled.");
+            if (response == ButtonType.OK) {
+                try {
+                    // Save any pending changes or cleanup
+                    FileHandler.getInstance().saveAllChanges();
+                    
+                    NotificationUtil.showSuccess("Logout", "Successfully logged out");
+                    
+                    // Close the main window
+                    Platform.runLater(() -> {
+                        Stage stage = (Stage) contentArea.getScene().getWindow();
+                        stage.close();
+                        
+                        // Show login screen
+                        try {
+                            Stage loginStage = new Stage();
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/t/Password_Screen.fxml"));
+                            Scene scene = new Scene(loader.load());
+                            loginStage.setScene(scene);
+                            loginStage.setTitle("Bookstore Management - Login");
+                            loginStage.show();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            NotificationUtil.showError("Error", "Failed to load login screen");
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    NotificationUtil.showError("Error", "Failed to logout properly: " + e.getMessage());
+                }
             }
         });
     }

@@ -1,42 +1,6 @@
-50,bag,500,500.0,45.0,true
-1,bag,52,56.0,67.0,true
-3,pen,100,2.5,1.0,false
-12,pencil,150,1.0,0.5,false
-18,marker,50,3.99,2.49,true
-22,eraser,80,0.99,0.25,false
-28,ruler,30,1.99,1.0,true
-35,scissors,20,5.99,4.49,true
-40,stapler,15,7.99,5.99,true
-45,tape,100,1.99,1.0,true
-51,calculator,10,12.99,9.99,false
-55,sharpener,40,0.99,0.5,false
-60,highlighter,60,2.49,1.49,true
-65,glue,30,2.99,2.0,true
-70,binders,25,3.99,2.99,true
-75,envelopes,50,4.99,3.99,true
-80,paper clips,100,0.99,0.25,false
-85,sticky notes,80,1.99,0.99,true
-90,folders,40,2.99,2.49,true
-95,calendar,10,6.99,4.99,true
-100,desk organizer,20,9.99,7.99,true
-105,whiteboard,5,19.99,16.99,true
-110,projector,2,149.99,129.99,true
-115,laptop,8,799.99,699.99,true
-120,headphones,15,49.99,39.99,true
-125,keyboard,10,29.99,24.99,true
-130,mouse,20,14.99,9.99,true
-135,printer,5,199.99,179.99,true
-140,scanner,3,149.99,129.99,true
-145,external hard drive,6,89.99,79.99,true
-2,bag,500,300.0,500.0,true
-34,hum,23,23.0,23.0,true
-4,bag,500,50.0,50.0,true
-9,hum,500,500.0,50.0,true
-28,ruler,28,1.99,1.0,true
-3,pen,3,2.5,1.0,true
-55,sharpener,55,0.99,0.5,true
-12,pencil,12,1.0,0.5,true
-51,calculator,10,10.0,10.0,true
-35,scissors,10,10.0,10.0,true
-78,bag,500,55.0,5.0,true
-89,bag,3,30.0,30.0,true
+0,sw,3,23.0,23.0,false
+0,temp,67,67.0,56.0,false
+0,ghgh,56,56.0,56.0,true
+0,565,56,56.0,45.0,true
+0,xsw,70,9.0,6.0,true
+0,de,4,4.0,5.0,true

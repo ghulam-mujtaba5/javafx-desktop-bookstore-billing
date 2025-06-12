@@ -29,6 +29,8 @@
         </TableView>
         
         <HBox spacing="10" alignment="CENTER_RIGHT" styleClass="card-footer">
+            <Button fx:id="refreshButton" text="Refresh" onAction="#refreshStock" styleClass="action-button"/>
+            <Button fx:id="exportButton" text="Export" onAction="#exportStockToCSV" styleClass="secondary-button"/>
             <Button text="Update Stock" onAction="#handleUpdateStock" styleClass="primary-button"/>
             <Button text="Add New Stock" onAction="#handleAddStock" styleClass="primary-button"/>
         </HBox>

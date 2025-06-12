@@ -66,6 +66,7 @@
                         <configuration>
                             <mainClass>com.example.t/com.example.t.RunFX</mainClass>
                             <launcher>app</launcher>
+                            <jvmArgs>--enable-native-access=ALL-UNNAMED</jvmArgs>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
                             <noManPages>true</noManPages>

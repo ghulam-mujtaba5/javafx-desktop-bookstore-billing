@@ -11,6 +11,9 @@ public class Product {
     private final BooleanProperty status;
     private final DoubleProperty purchasePrice;
     private final DoubleProperty discountedPrice;
+    private final StringProperty author;
+    private final StringProperty publisher;
+    private final StringProperty edition;
 
     public Product(int productId, String productName, int quantity, double price, double purchasePrice) {
         this.productId = new SimpleIntegerProperty(productId);
@@ -21,6 +24,9 @@ public class Product {
         this.status = new SimpleBooleanProperty(true);
         this.purchasePrice = new SimpleDoubleProperty(purchasePrice);
         this.discountedPrice = new SimpleDoubleProperty(0.0);
+        this.author = new SimpleStringProperty("");
+        this.publisher = new SimpleStringProperty("");
+        this.edition = new SimpleStringProperty("");
     }
 
     public int getProductId() {
@@ -117,6 +123,42 @@ public class Product {
 
     public void setDiscountedPrice(double discountedPrice) {
         this.discountedPrice.set(discountedPrice);
+    }
+
+    public String getAuthor() {
+        return author.get();
+    }
+
+    public void setAuthor(String value) {
+        author.set(value);
+    }
+
+    public StringProperty authorProperty() {
+        return author;
+    }
+
+    public String getPublisher() {
+        return publisher.get();
+    }
+
+    public void setPublisher(String value) {
+        publisher.set(value);
+    }
+
+    public StringProperty publisherProperty() {
+        return publisher;
+    }
+
+    public String getEdition() {
+        return edition.get();
+    }
+
+    public void setEdition(String value) {
+        edition.set(value);
+    }
+
+    public StringProperty editionProperty() {
+        return edition;
     }
 
     public void calculateDiscountedPrice() {
