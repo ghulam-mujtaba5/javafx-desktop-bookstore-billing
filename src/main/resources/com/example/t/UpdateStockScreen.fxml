@@ -15,8 +15,12 @@
     </TableView>
     <HBox spacing="12">
         <Label text="New Quantity:" />
-        <TextField fx:id="quantityField" promptText="0" />
-        <Button fx:id="updateButton" text="Update" styleClass="button" />
+        <TextField fx:id="quantityField" promptText="0">
+            <tooltip><Tooltip text="Enter the new quantity (positive integer)."/></tooltip>
+        </TextField>
+        <Button fx:id="updateButton" text="Update" styleClass="button">
+            <tooltip><Tooltip text="Click to update the selected product's quantity."/></tooltip>
+        </Button>
         <Label fx:id="messageLabel" textFill="#0078d7" />
     </HBox>
 </VBox>

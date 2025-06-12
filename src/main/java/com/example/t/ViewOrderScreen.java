@@ -28,7 +28,7 @@ public class ViewOrderScreen {
         List<Order> orderList = Order.readOrdersFromFile();
         data = FXCollections.observableArrayList(orderList);
         orderTable.setItems(data);
-        orderTable.setPlaceholder(new Label("No orders available"));
+        orderTable.setPlaceholder(new Label("No orders found. Create a new order to get started!"));
 
         refreshButton.setOnAction(e -> refreshOrders());
     }

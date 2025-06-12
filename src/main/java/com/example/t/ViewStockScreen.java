@@ -44,7 +44,7 @@ public class ViewStockScreen {
         List<Product> stockList = stock.readStockFromFile();
         data = FXCollections.observableArrayList(stockList);
         stockTable.setItems(data);
-        stockTable.setPlaceholder(new Label("No products available"));
+        stockTable.setPlaceholder(new Label("No products in stock. Add new stock to get started!"));
 
         refreshButton.setOnAction(e -> refreshStock());
         exportButton.setOnAction(e -> exportStockToCSV());

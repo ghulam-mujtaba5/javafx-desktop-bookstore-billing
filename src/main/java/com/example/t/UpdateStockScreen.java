@@ -35,7 +35,7 @@ public class UpdateStockScreen {
         List<Product> stockList = stock.readStockFromFile();
         data = FXCollections.observableArrayList(stockList);
         stockTable.setItems(data);
-        stockTable.setPlaceholder(new Label("No products available"));
+        stockTable.setPlaceholder(new Label("No products in stock. Add new stock to get started!"));
 
         stockTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {

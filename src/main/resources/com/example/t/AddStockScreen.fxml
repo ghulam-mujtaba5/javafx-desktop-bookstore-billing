@@ -6,18 +6,30 @@
     <Label text="Add New Product" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
     <GridPane hgap="16" vgap="12">
         <Label text="Product Name:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-        <TextField fx:id="productNameField" promptText="Enter product name" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+        <TextField fx:id="productNameField" promptText="Enter product name" GridPane.rowIndex="0" GridPane.columnIndex="1">
+            <tooltip><Tooltip text="Required. Enter the product name."/></tooltip>
+        </TextField>
         <Label text="Quantity:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-        <TextField fx:id="quantityField" promptText="0" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+        <TextField fx:id="quantityField" promptText="0" GridPane.rowIndex="1" GridPane.columnIndex="1">
+            <tooltip><Tooltip text="Required. Enter a positive integer quantity."/></tooltip>
+        </TextField>
         <Label text="Price:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-        <TextField fx:id="priceField" promptText="0.00" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+        <TextField fx:id="priceField" promptText="0.00" GridPane.rowIndex="2" GridPane.columnIndex="1">
+            <tooltip><Tooltip text="Required. Enter the selling price (e.g., 19.99)."/></tooltip>
+        </TextField>
         <Label text="Purchase Price:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-        <TextField fx:id="purchasePriceField" promptText="0.00" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+        <TextField fx:id="purchasePriceField" promptText="0.00" GridPane.rowIndex="3" GridPane.columnIndex="1">
+            <tooltip><Tooltip text="Required. Enter the purchase price (e.g., 10.00)."/></tooltip>
+        </TextField>
         <Label text="Status:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
-        <CheckBox fx:id="statusCheckBox" text="Active" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+        <CheckBox fx:id="statusCheckBox" text="Active" GridPane.rowIndex="4" GridPane.columnIndex="1">
+            <tooltip><Tooltip text="Check if this product is active and available for sale."/></tooltip>
+        </CheckBox>
     </GridPane>
     <HBox spacing="12">
-        <Button fx:id="addButton" text="Add Product" styleClass="button" />
+        <Button fx:id="addButton" text="Add Product" styleClass="button">
+            <tooltip><Tooltip text="Click to add the new product."/></tooltip>
+        </Button>
         <Label fx:id="messageLabel" textFill="#0078d7" />
     </HBox>
 </VBox>

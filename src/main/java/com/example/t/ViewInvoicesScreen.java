@@ -53,7 +53,7 @@ public class ViewInvoicesScreen {
         data = FXCollections.observableArrayList(invoiceList);
         invoices = data;
         invoiceTable.setItems(data);
-        invoiceTable.setPlaceholder(new Label("No invoices available"));
+        invoiceTable.setPlaceholder(new Label("No invoices found. Generate an invoice to see it here!"));
 
         refreshButton.setOnAction(e -> refreshInvoices());
         exportButton.setOnAction(e -> exportInvoicesToCSV());

@@ -4,10 +4,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 public class MenuController {
     @FXML private Button btnAddStock;
@@ -19,7 +19,6 @@ public class MenuController {
     @FXML private Button btnSettings;
     @FXML private Button btnLogout;
     @FXML private StackPane contentArea;
-    // @FXML private Label settingsIcon;
 
     @FXML
     private void initialize() {
@@ -48,7 +47,18 @@ public class MenuController {
     }
 
     private void logout() {
-        // Simple logout: close the window (or implement return to login)
-        contentArea.getScene().getWindow().hide();
+        // Confirmation dialog for logout
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to logout?", ButtonType.YES, ButtonType.NO);
+        alert.setTitle("Confirm Logout");
+        alert.setHeaderText(null);
+        alert.initOwner(contentArea.getScene().getWindow());
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                NotificationUtil.showToast(contentArea.getScene(), "Logged out successfully.");
+                contentArea.getScene().getWindow().hide();
+            } else {
+                NotificationUtil.showToast(contentArea.getScene(), "Logout cancelled.");
+            }
+        });
     }
 }

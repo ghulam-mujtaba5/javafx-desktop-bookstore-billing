@@ -5,12 +5,20 @@
     <Label text="Create Order" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
     <GridPane hgap="16" vgap="12">
         <Label text="Customer Name:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-        <TextField fx:id="customerNameField" promptText="Enter customer name" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+        <TextField fx:id="customerNameField" promptText="Enter customer name" GridPane.rowIndex="0" GridPane.columnIndex="1">
+            <tooltip><Tooltip text="Required. Enter the customer's name."/></tooltip>
+        </TextField>
         <Label text="Product ID:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-        <TextField fx:id="productIdField" promptText="Enter product ID" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+        <TextField fx:id="productIdField" promptText="Enter product ID" GridPane.rowIndex="1" GridPane.columnIndex="1">
+            <tooltip><Tooltip text="Required. Enter the product ID to add to the order."/></tooltip>
+        </TextField>
         <Label text="Quantity:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-        <TextField fx:id="quantityField" promptText="0" GridPane.rowIndex="2" GridPane.columnIndex="1" />
-        <Button fx:id="addProductButton" text="Add Product" GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="button" />
+        <TextField fx:id="quantityField" promptText="0" GridPane.rowIndex="2" GridPane.columnIndex="1">
+            <tooltip><Tooltip text="Required. Enter the quantity for this product."/></tooltip>
+        </TextField>
+        <Button fx:id="addProductButton" text="Add Product" GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="button">
+            <tooltip><Tooltip text="Add this product to the order."/></tooltip>
+        </Button>
     </GridPane>
     <TableView fx:id="orderTable" prefHeight="200" styleClass="table-view">
         <columns>
@@ -21,7 +29,9 @@
         </columns>
     </TableView>
     <HBox spacing="12">
-        <Button fx:id="createOrderButton" text="Create Order" styleClass="button" />
+        <Button fx:id="createOrderButton" text="Create Order" styleClass="button">
+            <tooltip><Tooltip text="Click to create the order with the listed products."/></tooltip>
+        </Button>
         <Label fx:id="messageLabel" textFill="#0078d7" />
     </HBox>
 </VBox>
