@@ -4,7 +4,16 @@ import java.time.LocalDate;
 import java.util.List;
 // ...existing code...
 
+import java.util.ArrayList;
+// import java.io.*;
+
 public class Order {
+    // Add a static method to read orders from file (stub for now)
+    public static List<Order> readOrdersFromFile() {
+        // TODO: Implement actual file reading logic
+        // For now, return an empty list or mock data
+        return new ArrayList<>();
+    }
     private int orderId;
     private LocalDate orderDate;
     private String customerName;

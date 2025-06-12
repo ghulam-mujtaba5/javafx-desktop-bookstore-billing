@@ -1,19 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.t.MenuController" styleClass="root">
     <left>
         <VBox fx:id="sidebar" styleClass="sidebar" spacing="8" alignment="TOP_LEFT" prefWidth="180">
             <Label text="Bookstore" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-padding: 24 0 24 24;" />
-            <Button fx:id="btnAddStock" text="Add Stock" styleClass="sidebar-button"/>
-            <Button fx:id="btnViewStock" text="View Stock" styleClass="sidebar-button"/>
-            <Button fx:id="btnUpdateStock" text="Update Stock" styleClass="sidebar-button"/>
-            <Button fx:id="btnCreateOrder" text="Create Order" styleClass="sidebar-button"/>
-            <Button fx:id="btnViewOrder" text="View Orders" styleClass="sidebar-button"/>
-            <Button fx:id="btnViewInvoices" text="View Invoices" styleClass="sidebar-button"/>
-            <Button fx:id="btnSettings" text="Settings" styleClass="sidebar-button"/>
-            <Button fx:id="btnLogout" text="Logout" styleClass="sidebar-button"/>
+            <Button fx:id="btnAddStock" styleClass="sidebar-button">
+                <graphic>
+                    <Label text="📦" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Add new stock items" />
+                </tooltip>
+                Add Stock
+            </Button>
+            <Button fx:id="btnViewStock" styleClass="sidebar-button">
+                <graphic>
+                    <Label text="📚" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
+                </graphic>
+                <tooltip>
+                    <Tooltip text="View current stock" />
+                </tooltip>
+                View Stock
+            </Button>
+            <Button fx:id="btnUpdateStock" styleClass="sidebar-button">
+                <graphic>
+                    <Label text="✏️" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Update stock details" />
+                </tooltip>
+                Update Stock
+            </Button>
+            <Button fx:id="btnCreateOrder" styleClass="sidebar-button">
+                <graphic>
+                    <Label text="🛒" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Create a new order" />
+                </tooltip>
+                Create Order
+            </Button>
+            <Button fx:id="btnViewOrder" styleClass="sidebar-button">
+                <graphic>
+                    <Label text="📄" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
+                </graphic>
+                <tooltip>
+                    <Tooltip text="View all orders" />
+                </tooltip>
+                View Orders
+            </Button>
+            <Button fx:id="btnViewInvoices" styleClass="sidebar-button">
+                <graphic>
+                    <Label text="🧾" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
+                </graphic>
+                <tooltip>
+                    <Tooltip text="View invoices" />
+                </tooltip>
+                View Invoices
+            </Button>
+            <Button fx:id="btnSettings" styleClass="sidebar-button">
+                <graphic>
+                    <Label text="⚙️" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Application settings" />
+                </tooltip>
+                Settings
+            </Button>
+            <Button fx:id="btnLogout" styleClass="sidebar-button">
+                <graphic>
+                    <Label text="⏻" style="-fx-font-size: 18px; -fx-padding: 0 8 0 0;" />
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Logout from the application" />
+                </tooltip>
+                Logout
+            </Button>
         </VBox>
     </left>
     <center>

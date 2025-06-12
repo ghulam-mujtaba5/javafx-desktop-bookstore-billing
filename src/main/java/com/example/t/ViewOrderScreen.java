@@ -1,59 +1,41 @@
 package com.example.t;
+
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.stage.Stage;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import java.util.List;
 
 public class ViewOrderScreen {
-    private TableView<Order> tableView;
+    @FXML private TableView<Order> orderTable;
+    @FXML private TableColumn<Order, Integer> colOrderId;
+    @FXML private TableColumn<Order, String> colCustomerName;
+    @FXML private TableColumn<Order, String> colDate;
+    @FXML private TableColumn<Order, Double> colTotal;
+    @FXML private Button refreshButton;
+    @FXML private Label messageLabel;
 
-    public void show() {
-        Stage stage = new Stage(); // Create a new Stage
+    private ObservableList<Order> data;
 
-        stage.setTitle("View Order");
+    @FXML
+    public void initialize() {
+        colOrderId.setCellValueFactory(new PropertyValueFactory<>("orderId"));
+        colCustomerName.setCellValueFactory(new PropertyValueFactory<>("customerName"));
+        colDate.setCellValueFactory(new PropertyValueFactory<>("orderDate"));
+        colTotal.setCellValueFactory(new PropertyValueFactory<>("totalAmount"));
 
-        tableView = new TableView<>();
-        tableView.setPrefWidth(400);
-        TableColumn<Order, String> nameColumn = new TableColumn<>("Product Name");
-        TableColumn<Order, Integer> quantityColumn = new TableColumn<>("Product Quantity");
-        // Suppress type safety warning for varargs TableColumn
-        @SuppressWarnings("unchecked")
-        TableColumn<Order, ?>[] columns = new TableColumn[] {nameColumn, quantityColumn};
-        tableView.getColumns().addAll(columns);
+        List<Order> orderList = Order.readOrdersFromFile();
+        data = FXCollections.observableArrayList(orderList);
+        orderTable.setItems(data);
+        orderTable.setPlaceholder(new Label("No orders available"));
 
-        // Modern overlay with background
-        javafx.scene.layout.StackPane root = new javafx.scene.layout.StackPane();
-        javafx.scene.image.Image backgroundImage = new javafx.scene.image.Image(com.example.t.FilePathManager.getBackgroundImagePath());
-        javafx.scene.layout.BackgroundImage background = new javafx.scene.layout.BackgroundImage(
-                backgroundImage,
-                javafx.scene.layout.BackgroundRepeat.NO_REPEAT,
-                javafx.scene.layout.BackgroundRepeat.NO_REPEAT,
-                javafx.scene.layout.BackgroundPosition.CENTER,
-                new javafx.scene.layout.BackgroundSize(1.0, 1.0, true, true, false, false)
-        );
-        root.setBackground(new javafx.scene.layout.Background(background));
-
-        javafx.scene.layout.VBox overlay = new javafx.scene.layout.VBox(24);
-        overlay.setAlignment(Pos.CENTER);
-        overlay.setMaxWidth(500);
-        overlay.setStyle("-fx-background-color: rgba(255,255,255,0.92); -fx-background-radius: 18px; -fx-padding: 30 30 30 30;");
-
-        javafx.scene.control.Label title = new javafx.scene.control.Label("View Orders");
-        title.getStyleClass().add("title-label");
-
-        overlay.getChildren().addAll(title, tableView);
-        root.getChildren().add(overlay);
-
-        Scene scene = new Scene(root, 500, 350);
-        scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
-        stage.setScene(scene);
-        stage.show();
+        refreshButton.setOnAction(e -> refreshOrders());
     }
 
-
-    public void updateOrders(ObservableList<Order> orders) {
-        tableView.setItems(orders);
+    private void refreshOrders() {
+        List<Order> orderList = Order.readOrdersFromFile();
+        data.setAll(orderList);
+        messageLabel.setText("Order list refreshed.");
     }
 }

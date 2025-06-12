@@ -11,7 +11,7 @@ import javafx.stage.Stage;
     public class Main extends Application {
         private Stage primaryStage;
         private Shop shop;
-        private Stock stock;
+        // private Stock stock;
         private Password password;
 
         public static void main(String[] args) {
@@ -58,13 +58,20 @@ import javafx.stage.Stage;
                 System.out.println("Menu.fxml loaded and shown.");
             } catch (Exception e) {
                 e.printStackTrace();
+                javafx.application.Platform.runLater(() -> {
+                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                    alert.setTitle("Error Loading Menu");
+                    alert.setHeaderText("Could not load the main menu screen");
+                    alert.setContentText(e.getMessage());
+                    alert.showAndWait();
+                });
             }
         }
 
         // Removed unused methods
 
         private void initializeStockAndShopObjects() {
-            stock = new Stock(); // Initialize the Stock object
+            // stock = new Stock(); // Removed unused Stock object
             shop = new Shop("Shop Name", "Address", "0300 000000"); // Initialize the Shop object with the default values
         }
     }

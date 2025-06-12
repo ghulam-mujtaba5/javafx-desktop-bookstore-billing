@@ -2,7 +2,16 @@ package com.example.t;
 import java.time.LocalDate;
 import java.util.List;
 
+import java.util.ArrayList;
+// import java.io.*;
+
 public class Invoice {
+    // Add a static method to read invoices from file (stub for now)
+    public static List<Invoice> readInvoicesFromFile() {
+        // TODO: Implement actual file reading logic
+        // For now, return an empty list or mock data
+        return new ArrayList<>();
+    }
     private int invoiceId;
     private int orderNum;
     private String customerName;

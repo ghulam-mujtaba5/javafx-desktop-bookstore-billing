@@ -1,3 +1,42 @@
+.table-row-cell:odd {
+    -fx-background-color: #f7fafd;
+    background-color: #f7fafd;
+}
+.table-row-cell:even {
+    -fx-background-color: #fff;
+    background-color: #fff;
+}
+.table-row-cell:selected {
+    -fx-background-color: #e5f1fb;
+    background-color: #e5f1fb;
+    -fx-text-fill: #0078d7;
+    color: #0078d7;
+}
+.table-row-cell:hover {
+    -fx-background-color: #e9eef5;
+    background-color: #e9eef5;
+}
+
+/* Table column alignment */
+.table-column {
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* Table header styling */
+.column-header-background {
+    -fx-background-color: #f3f6fa;
+    background-color: #f3f6fa;
+    -fx-border-color: #dbe6f3;
+    border-color: #dbe6f3;
+    -fx-border-width: 0 0 1 0;
+    border-width: 0 0 1px 0;
+}
+.table-view .column-header .label {
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-text-fill: #222;
+    color: #222;
+}
 /* modern-windows-theme.css - Modern Windows-style theme for JavaFX desktop app */
 
 /* Standard properties for compatibility */
@@ -25,16 +64,34 @@
     -fx-cursor: hand;
     cursor: pointer;
     -fx-effect: dropshadow(gaussian, #b0c4de, 2, 0.2, 0, 1);
+    -fx-transition: all 0.15s cubic-bezier(0.4,0,0.2,1);
+    transition: all 0.15s cubic-bezier(0.4,0,0.2,1);
 }
 .button:hover {
     -fx-background-color: #005fa3;
     background-color: #005fa3;
+    -fx-effect: dropshadow(gaussian, #0078d7, 8, 0.3, 0, 2);
+    -fx-scale-x: 1.04;
+    -fx-scale-y: 1.04;
 }
 .button:focused {
     -fx-border-color: #005fa3;
     border-color: #005fa3;
     -fx-border-width: 2px;
     border-width: 2px;
+    -fx-effect: dropshadow(gaussian, #0078d7, 12, 0.4, 0, 3);
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #0078d7;
+    border-color: #0078d7;
+    -fx-effect: dropshadow(gaussian, #b0c4de, 8, 0.2, 0, 2);
+    -fx-background-color: #f7fafd;
+    background-color: #f7fafd;
+}
+.text-field, .password-field {
+    -fx-transition: all 0.15s cubic-bezier(0.4,0,0.2,1);
+    transition: all 0.15s cubic-bezier(0.4,0,0.2,1);
 }
 
 .text-field, .password-field {
@@ -89,6 +146,7 @@
     color: #0078d7;
 }
 
+
 .table-view {
     -fx-background-color: #fff;
     background-color: #fff;
@@ -97,6 +155,38 @@
     padding: 8px;
     -fx-font-size: 14px;
     font-size: 14px;
+    -fx-table-header-border-color: #dbe6f3;
+}
+
+/* Alternate row colors */
+.table-row-cell:odd {
+    -fx-background-color: #f7fafd;
+}
+.table-row-cell:even {
+    -fx-background-color: #fff;
+}
+.table-row-cell:selected {
+    -fx-background-color: #e5f1fb;
+    -fx-text-fill: #0078d7;
+}
+.table-row-cell:hover {
+    -fx-background-color: #e9eef5;
+}
+
+/* Table column alignment */
+.table-column {
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* Table header styling */
+.column-header-background {
+    -fx-background-color: #f3f6fa;
+    -fx-border-color: #dbe6f3;
+    -fx-border-width: 0 0 1 0;
+}
+.table-view .column-header .label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #222;
 }
 
 .scroll-pane {

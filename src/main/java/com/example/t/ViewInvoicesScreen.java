@@ -25,124 +25,53 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class ViewInvoicesScreen {
+import javafx.fxml.FXML;
 
-    private TableView<Invoice> invoiceTable;
+
+public class ViewInvoicesScreen {
+    @FXML private TableView<Invoice> invoiceTable;
+    @FXML private TableColumn<Invoice, Integer> colInvoiceId;
+    @FXML private TableColumn<Invoice, String> colCustomerName;
+    @FXML private TableColumn<Invoice, String> colDate;
+    @FXML private TableColumn<Invoice, Double> colTotal;
+    @FXML private Button refreshButton;
+    @FXML private Button exportButton;
+    @FXML private Label messageLabel;
+
+    private ObservableList<Invoice> data;
     private ObservableList<Invoice> invoices;
 
-    public void show() {
-        Stage primaryStage = new Stage();
-        primaryStage.setTitle("Invoice History");
 
-        invoiceTable = new TableView<>();
-        invoiceTable.setPrefHeight(400);
+    @FXML
+    public void initialize() {
+        colInvoiceId.setCellValueFactory(new PropertyValueFactory<>("invoiceId"));
+        colCustomerName.setCellValueFactory(new PropertyValueFactory<>("customerName"));
+        colDate.setCellValueFactory(new PropertyValueFactory<>("invoiceDate"));
+        colTotal.setCellValueFactory(new PropertyValueFactory<>("orderTotal"));
 
-        TableColumn<Invoice, Integer> invoiceIdColumn = new TableColumn<>("Invoice ID");
-        invoiceIdColumn.setCellValueFactory(new PropertyValueFactory<>("invoiceId"));
+        List<Invoice> invoiceList = Invoice.readInvoicesFromFile();
+        data = FXCollections.observableArrayList(invoiceList);
+        invoices = data;
+        invoiceTable.setItems(data);
+        invoiceTable.setPlaceholder(new Label("No invoices available"));
 
-        TableColumn<Invoice, Integer> orderNumColumn = new TableColumn<>("Order Number");
-        orderNumColumn.setCellValueFactory(new PropertyValueFactory<>("orderNum"));
-
-        TableColumn<Invoice, String> customerNameColumn = new TableColumn<>("Customer Name");
-        customerNameColumn.setCellValueFactory(new PropertyValueFactory<>("customerName"));
-
-        TableColumn<Invoice, LocalDate> invoiceDateColumn = new TableColumn<>("Invoice Date");
-        invoiceDateColumn.setCellValueFactory(new PropertyValueFactory<>("invoiceDate"));
-
-        TableColumn<Invoice, Double> orderTotalColumn = new TableColumn<>("Order Total");
-        orderTotalColumn.setCellValueFactory(new PropertyValueFactory<>("orderTotal"));
-
-        // Suppress type safety warning for varargs TableColumn
-        @SuppressWarnings("unchecked")
-        TableColumn<Invoice, ?>[] columns = new TableColumn[] {invoiceIdColumn, orderNumColumn, customerNameColumn, invoiceDateColumn, orderTotalColumn};
-        invoiceTable.getColumns().addAll(columns);
-
-        // Enable sorting by clicking on column headers
-        invoiceTable.getSortOrder().add(invoiceIdColumn);
-        invoiceTable.getSortOrder().add(orderNumColumn);
-        invoiceTable.getSortOrder().add(customerNameColumn);
-        invoiceTable.getSortOrder().add(invoiceDateColumn);
-        invoiceTable.getSortOrder().add(orderTotalColumn);
-        invoiceTable.setSortPolicy(param -> true);
-
-        // Set a selection listener to open the selected invoice details
-        invoiceTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                openInvoiceDetails(newSelection);
-            }
-        });
-
-        VBox vbox = new VBox();
-        vbox.setPadding(new Insets(10));
-        vbox.setSpacing(10);
-
-        // Create a HBox to hold the search bars
-        HBox searchBarsBox = new HBox();
-        searchBarsBox.setSpacing(10);
-
-        TextField invoiceIdSearchField = new TextField();
-        invoiceIdSearchField.setPromptText("Search Invoice ID...");
-        invoiceIdSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filterInvoicesByInvoiceId(newValue);
-        });
-
-        TextField orderNumSearchField = new TextField();
-        orderNumSearchField.setPromptText("Search Order Number...");
-        orderNumSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filterInvoicesByOrderNum(newValue);
-        });
-
-        TextField customerNameSearchField = new TextField();
-        customerNameSearchField.setPromptText("Search Customer Name...");
-        customerNameSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filterInvoicesByCustomerName(newValue);
-        });
-
-        DatePicker invoiceDateDatePicker = new DatePicker();
-        invoiceDateDatePicker.setPromptText("Select Invoice Date");
-        invoiceDateDatePicker.setOnAction(event -> {
-            LocalDate selectedDate = invoiceDateDatePicker.getValue();
-            filterInvoicesByInvoiceDate(selectedDate);
-        });
-
-        TextField orderTotalSearchField = new TextField();
-        orderTotalSearchField.setPromptText("Search Order Total...");
-        orderTotalSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filterInvoicesByOrderTotal(newValue);
-        });
-
-        searchBarsBox.getChildren().addAll(
-                invoiceIdSearchField,
-                orderNumSearchField,
-                customerNameSearchField,
-                invoiceDateDatePicker,
-                orderTotalSearchField
-        );
-
-        vbox.getChildren().add(searchBarsBox);
-        vbox.getChildren().add(invoiceTable);
-
-        Scene scene = new Scene(vbox, 600, 500);
-        scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
-        loadInvoices(); // Load the invoices when the stage is shown
+        refreshButton.setOnAction(e -> refreshInvoices());
+        exportButton.setOnAction(e -> exportInvoicesToCSV());
     }
 
-    private void loadInvoices() {
-        try {
-            invoices = readInvoiceHistory();
-            if (invoices != null) {
-                invoiceTable.setItems(invoices);
-            } else {
-                showAlert("Error", "Failed to load invoices. Please check the invoice history file.");
-            }
-        } catch (IOException e) {
-            showAlert("Error", "An error occurred while loading the invoices: " + e.getMessage());
-        }
+    private void refreshInvoices() {
+        List<Invoice> invoiceList = Invoice.readInvoicesFromFile();
+        data.setAll(invoiceList);
+        invoices = data;
+        messageLabel.setText("Invoice list refreshed.");
     }
 
+    private void exportInvoicesToCSV() {
+        // TODO: Implement export logic
+        messageLabel.setText("Export to CSV not implemented yet.");
+    }
+
+    
     private ObservableList<Invoice> readInvoiceHistory() throws IOException {
         List<Invoice> invoices = new ArrayList<>();
 

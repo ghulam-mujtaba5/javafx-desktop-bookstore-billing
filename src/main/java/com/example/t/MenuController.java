@@ -4,6 +4,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
 public class MenuController {
@@ -16,9 +19,12 @@ public class MenuController {
     @FXML private Button btnSettings;
     @FXML private Button btnLogout;
     @FXML private StackPane contentArea;
+    // @FXML private Label settingsIcon;
 
     @FXML
     private void initialize() {
+
+
         btnAddStock.setOnAction(e -> loadScreen("/com/example/t/AddStockScreen.fxml"));
         btnViewStock.setOnAction(e -> loadScreen("/com/example/t/ViewStockScreen.fxml"));
         btnUpdateStock.setOnAction(e -> loadScreen("/com/example/t/UpdateStockScreen.fxml"));
