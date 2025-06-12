@@ -1,0 +1,77 @@
+/* modern-windows-theme.css - Modern Windows-style theme for JavaFX desktop app */
+
+.root {
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-background-color: linear-gradient(to bottom, #f3f6fa, #e9eef5);
+    -fx-text-fill: #222;
+}
+
+.button {
+    -fx-background-color: #0078d7;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8 18 8 18;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, #b0c4de, 2, 0.2, 0, 1);
+}
+.button:hover {
+    -fx-background-color: #005fa3;
+}
+.button:focused {
+    -fx-border-color: #005fa3;
+    -fx-border-width: 2px;
+}
+
+.text-field, .password-field {
+    -fx-background-radius: 6px;
+    -fx-background-color: #fff;
+    -fx-border-color: #b0c4de;
+    -fx-border-radius: 6px;
+    -fx-padding: 8 10 8 10;
+    -fx-font-size: 15px;
+}
+
+.label {
+    -fx-font-size: 15px;
+    -fx-text-fill: #222;
+}
+
+.sidebar {
+    -fx-background-color: #f7fafd;
+    -fx-border-width: 0 1 0 0;
+    -fx-border-color: #dbe6f3;
+    -fx-padding: 0 0 0 0;
+}
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #222;
+    -fx-font-size: 16px;
+    -fx-padding: 14 24 14 24;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+}
+.sidebar-button:selected, .sidebar-button:focused {
+    -fx-background-color: #e5f1fb;
+    -fx-text-fill: #0078d7;
+}
+
+.table-view {
+    -fx-background-color: #fff;
+    -fx-table-cell-border-color: #e5e5e5;
+    -fx-padding: 8;
+    -fx-font-size: 14px;
+}
+
+.scroll-pane {
+    -fx-background: #f3f6fa;
+}
+
+.dialog-pane {
+    -fx-background-color: #fff;
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(gaussian, #b0c4de, 8, 0.2, 0, 2);
+}
+
+/* Add more as needed for your controls */

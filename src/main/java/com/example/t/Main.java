@@ -50,7 +50,9 @@ import java.util.Optional;
 
             PasswordScreen passwordScreen = new PasswordScreen(password);
             passwordScreen.setOnPasswordCorrect(() -> {
+                System.out.println("Password correct, loading menu...");
                 showMenuScreen();
+                System.out.println("Menu loaded!");
                 primaryStage.show();
             });
 
@@ -66,138 +68,21 @@ import java.util.Optional;
         }
 
         private void showMenuScreen() {
-            initializeStockAndShopObjects(); // Initialize the stock and shop objects
-
-            primaryStage.setTitle("Menu");
-            primaryStage.setOnCloseRequest(event -> {
-                if (shop != null) {
-                    shop.saveData(); // Save shop data to file before exiting
-                }
-                // System.exit(0); // Remove this to prevent app from closing automatically
-            });
-
-            StackPane root = new StackPane();
-            // Background image is set below
-
-            VBox overlay = new VBox(30);
-            overlay.setAlignment(Pos.CENTER);
-            overlay.setMaxWidth(400);
-            overlay.setStyle("-fx-background-color: rgba(255,255,255,0.85); -fx-background-radius: 18px; -fx-padding: 40 40 40 40;");
-
-            // Date and time at the top
-            HBox dateTimeBox = new HBox(20);
-            dateTimeBox.setAlignment(Pos.CENTER);
-
-            Text dateText = new Text();
-            dateText.getStyleClass().add("label");
-            dateText.setFont(Font.font("Segoe UI", FontWeight.BOLD, 20));
-
-            Text digitalClock = new Text();
-            digitalClock.getStyleClass().add("label");
-            digitalClock.setFont(Font.font("Segoe UI", FontWeight.BOLD, 20));
-
-            dateTimeBox.getChildren().addAll(dateText, digitalClock);
-
-            // Update the date and digital clock every second
-            Thread dateTimeUpdateThread = new Thread(() -> {
-                while (true) {
-                    LocalDateTime now = LocalDateTime.now();
-                    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
-                    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
-                    String formattedDate = now.format(dateFormatter);
-                    String formattedTime = now.format(timeFormatter);
-
-                    javafx.application.Platform.runLater(() -> {
-                        dateText.setText(formattedDate);
-                        digitalClock.setText(formattedTime);
-                    });
-
-                    // Use JavaFX PauseTransition instead of Thread.sleep
-                    try {
-                        javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(1));
-                        final boolean[] finished = {false};
-                        pause.setOnFinished(event -> finished[0] = true);
-                        pause.play();
-                        while (!finished[0]) {
-                            Thread.onSpinWait();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-            dateTimeUpdateThread.setDaemon(true);
-            dateTimeUpdateThread.start();
-
-            // Add settings icon (bottom right floating button)
-            Image settingsImage = new Image(FilePathManager.getSettingsIconPath());
-            ImageView settingsIcon = new ImageView(settingsImage);
-            settingsIcon.setFitWidth(32);
-            settingsIcon.setFitHeight(32);
-            StackPane.setAlignment(settingsIcon, Pos.BOTTOM_RIGHT);
-            StackPane settingsButton = new StackPane(settingsIcon);
-            settingsButton.setStyle("-fx-border-color: transparent; -fx-border-width: 1;");
-            DropShadow dropShadow = new DropShadow(10, Color.GRAY);
-            settingsButton.setOnMousePressed(event -> settingsButton.setEffect(dropShadow));
-            settingsButton.setOnMouseReleased(event -> settingsButton.setEffect(null));
-            settingsButton.setOnMouseEntered(event -> settingsButton.setEffect(dropShadow));
-            settingsButton.setOnMouseExited(event -> settingsButton.setEffect(null));
-            settingsButton.setOnMouseClicked(event -> openSettingsScreen());
-
-            StackPane settingsContainer = new StackPane(settingsButton);
-            settingsContainer.setAlignment(Pos.BOTTOM_RIGHT);
-            settingsContainer.setPadding(new Insets(0, 30, 30, 0));
-
-            VBox buttonsContainer = new VBox(18);
-            buttonsContainer.setAlignment(Pos.CENTER);
-            buttonsContainer.setFillWidth(true);
-
-            String[] buttonNames = {"Add Stock", "View Stock", "Update Stock", "Create Order", "View Order", "View Invoices", "Logout"};
-            Runnable[] actions = {
-                this::openAddStockScreen,
-                this::openViewStockScreen,
-                this::openUpdateStockScreen,
-                this::openCreateOrderScreen,
-                this::openViewOrderScreen,
-                this::openViewInvoicesScreen,
-                () -> {
-                    if (shop != null) shop.saveData();
-                    openPasswordScreen();
-                }
-            };
-            for (int i = 0; i < buttonNames.length; i++) {
-                Button btn = new Button(buttonNames[i]);
-                btn.setPrefWidth(220);
-                btn.setPrefHeight(40);
-                btn.setStyle("-fx-font-size: 16px;");
-                int idx = i;
-                btn.setOnAction(e -> actions[idx].run());
-                buttonsContainer.getChildren().add(btn);
+            initializeStockAndShopObjects();
+            try {
+                System.out.println("Loading Menu.fxml...");
+                javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/example/t/Menu.fxml"));
+                javafx.scene.Parent root = loader.load();
+                javafx.scene.Scene scene = new javafx.scene.Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-windows-theme.css").toExternalForm());
+                primaryStage.setScene(scene);
+                primaryStage.setTitle("Bookstore Billing - Menu");
+                primaryStage.setMaximized(true);
+                primaryStage.show();
+                System.out.println("Menu.fxml loaded and shown.");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-            // Set the background image
-            Image backgroundImage = new Image(FilePathManager.getBackgroundImagePath());
-            BackgroundImage background = new BackgroundImage(
-                    backgroundImage,
-                    BackgroundRepeat.NO_REPEAT,
-                    BackgroundRepeat.NO_REPEAT,
-                    BackgroundPosition.CENTER, new BackgroundSize(1.0, 1.0, true, true, false, false)
-            );
-            root.setBackground(new Background(background));
-
-            overlay.getChildren().addAll(dateTimeBox, buttonsContainer);
-            root.getChildren().add(overlay);
-
-            double screenWidth = Screen.getPrimary().getBounds().getWidth();
-            double screenHeight = Screen.getPrimary().getBounds().getHeight();
-
-            Scene scene = new Scene(root, screenWidth, screenHeight);
-            scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
-            primaryStage.setMaximized(true);
-            primaryStage.setScene(scene);
-            primaryStage.setResizable(true);
-            primaryStage.show();
         }
         private void openSettingsScreen() {
             // Create a confirmation dialog for opening the settings screen

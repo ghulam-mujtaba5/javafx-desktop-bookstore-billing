@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.t.ViewOrderScreen" spacing="18" alignment="TOP_LEFT" style="-fx-padding: 32;">
+    <Label text="Order History" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+    <TableView fx:id="orderTable" prefHeight="400" styleClass="table-view">
+        <columns>
+            <TableColumn fx:id="colOrderId" text="Order ID" prefWidth="80" />
+            <TableColumn fx:id="colCustomerName" text="Customer" prefWidth="180" />
+            <TableColumn fx:id="colDate" text="Date" prefWidth="120" />
+            <TableColumn fx:id="colTotal" text="Total" prefWidth="100" />
+        </columns>
+    </TableView>
+    <HBox spacing="12">
+        <Button fx:id="refreshButton" text="Refresh" styleClass="button" />
+        <Label fx:id="messageLabel" textFill="#0078d7" />
+    </HBox>
+</VBox>

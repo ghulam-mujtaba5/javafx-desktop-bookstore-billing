@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.layout.VBox?>
-
-<VBox alignment="CENTER_LEFT" spacing="10" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.t.MenuController">
-    <Button fx:id="addStockButton" text="Add Stock" onAction="#addStockButtonClicked"/>
-    <Button fx:id="viewStockButton" text="View Stock" onAction="#viewStockButtonClicked"/>
-    <Button fx:id="createOrderButton" text="Create Order" onAction="#createOrderButtonClicked"/>
-    <Button fx:id="viewOrderButton" text="View Order" onAction="#viewOrderButtonClicked"/>
-    <Button fx:id="viewInvoicesButton" text="View Invoices" onAction="#viewInvoicesButtonClicked"/>
-    <Button fx:id="exitButton" text="Exit" onAction="#exitButtonClicked"/>
-</VBox>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.t.MenuController" styleClass="root">
+    <left>
+        <VBox fx:id="sidebar" styleClass="sidebar" spacing="8" alignment="TOP_LEFT" prefWidth="180">
+            <Label text="Bookstore" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-padding: 24 0 24 24;" />
+            <Button fx:id="btnAddStock" text="Add Stock" styleClass="sidebar-button"/>
+            <Button fx:id="btnViewStock" text="View Stock" styleClass="sidebar-button"/>
+            <Button fx:id="btnUpdateStock" text="Update Stock" styleClass="sidebar-button"/>
+            <Button fx:id="btnCreateOrder" text="Create Order" styleClass="sidebar-button"/>
+            <Button fx:id="btnViewOrder" text="View Orders" styleClass="sidebar-button"/>
+            <Button fx:id="btnViewInvoices" text="View Invoices" styleClass="sidebar-button"/>
+            <Button fx:id="btnSettings" text="Settings" styleClass="sidebar-button"/>
+            <Button fx:id="btnLogout" text="Logout" styleClass="sidebar-button"/>
+        </VBox>
+    </left>
+    <center>
+        <StackPane fx:id="contentArea" style="-fx-padding: 32;" />
+    </center>
+</BorderPane>

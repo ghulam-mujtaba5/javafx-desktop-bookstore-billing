@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.t.CreateOrderScreen" spacing="18" alignment="TOP_LEFT" style="-fx-padding: 32;">
+    <Label text="Create Order" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+    <GridPane hgap="16" vgap="12">
+        <Label text="Customer Name:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+        <TextField fx:id="customerNameField" promptText="Enter customer name" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+        <Label text="Product ID:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+        <TextField fx:id="productIdField" promptText="Enter product ID" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+        <Label text="Quantity:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+        <TextField fx:id="quantityField" promptText="0" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+        <Button fx:id="addProductButton" text="Add Product" GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="button" />
+    </GridPane>
+    <TableView fx:id="orderTable" prefHeight="200" styleClass="table-view">
+        <columns>
+            <TableColumn fx:id="colProductId" text="Product ID" prefWidth="80" />
+            <TableColumn fx:id="colProductName" text="Name" prefWidth="180" />
+            <TableColumn fx:id="colQuantity" text="Quantity" prefWidth="100" />
+            <TableColumn fx:id="colPrice" text="Price" prefWidth="100" />
+        </columns>
+    </TableView>
+    <HBox spacing="12">
+        <Button fx:id="createOrderButton" text="Create Order" styleClass="button" />
+        <Label fx:id="messageLabel" textFill="#0078d7" />
+    </HBox>
+</VBox>
