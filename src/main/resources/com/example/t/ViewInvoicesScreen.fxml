@@ -1,19 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.t.ViewInvoicesScreen" spacing="18" alignment="TOP_LEFT" style="-fx-padding: 32;">
-    <Label text="Invoices" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-    <TableView fx:id="invoiceTable" prefHeight="400" styleClass="table-view">
-        <columns>
-            <TableColumn fx:id="colInvoiceId" text="Invoice ID" prefWidth="80" />
-            <TableColumn fx:id="colCustomerName" text="Customer" prefWidth="180" />
-            <TableColumn fx:id="colDate" text="Date" prefWidth="120" />
-            <TableColumn fx:id="colTotal" text="Total" prefWidth="100" />
-        </columns>
-    </TableView>
-    <HBox spacing="12">
-        <Button fx:id="refreshButton" text="Refresh" styleClass="button" />
-        <Button fx:id="exportButton" text="Export CSV" styleClass="button" />
-        <Label fx:id="messageLabel" textFill="#0078d7" />
-    </HBox>
+<?import javafx.geometry.*?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Text?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.t.ViewInvoicesScreen" 
+      spacing="20" styleClass="content-container">
+    
+    <!-- Header Card -->
+    <VBox styleClass="card">
+        <VBox spacing="15">
+            <!-- Title and Search Row -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <SVGPath content="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"
+                        styleClass="header-icon"/>
+                <Label text="Invoice History" styleClass="screen-title"/>
+                
+                <!-- Search Box -->
+                <Region HBox.hgrow="ALWAYS" />
+                <TextField fx:id="searchField" promptText="Search invoices..." 
+                          styleClass="search-field" prefWidth="250">
+                    <tooltip>
+                        <Tooltip text="Search by Invoice ID, Customer Name, or Date"/>
+                    </tooltip>
+                </TextField>
+            </HBox>
+            
+            <!-- Quick Stats -->
+            <HBox spacing="20" styleClass="quick-stats">
+                <VBox styleClass="stat-card">
+                    <Label text="Total Sales" styleClass="stat-label"/>
+                    <Text fx:id="totalSalesText" styleClass="stat-value"/>
+                </VBox>
+                <VBox styleClass="stat-card">
+                    <Label text="Today's Invoices" styleClass="stat-label"/>
+                    <Text fx:id="todayInvoicesText" styleClass="stat-value"/>
+                </VBox>
+                <VBox styleClass="stat-card">
+                    <Label text="Average Sale" styleClass="stat-label"/>
+                    <Text fx:id="avgSaleText" styleClass="stat-value"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </VBox>
+
+    <!-- Table Card -->
+    <VBox styleClass="card" VBox.vgrow="ALWAYS">
+        <TableView fx:id="invoiceTable" styleClass="modern-table-view" VBox.vgrow="ALWAYS">
+            <placeholder>
+                <Label text="No invoices found" styleClass="table-placeholder"/>
+            </placeholder>
+            <columns>
+                <TableColumn fx:id="colInvoiceId" text="Invoice ID" prefWidth="120"/>
+                <TableColumn fx:id="colCustomerName" text="Customer" prefWidth="200"/>
+                <TableColumn fx:id="colDate" text="Date" prefWidth="150"/>
+                <TableColumn fx:id="colTotal" text="Total" prefWidth="120"/>
+            </columns>
+            <contextMenu>
+                <ContextMenu>
+                    <items>
+                        <MenuItem text="View Details" onAction="#viewInvoiceDetails"/>
+                        <MenuItem text="Print Invoice" onAction="#printSelectedInvoice"/>
+                        <SeparatorMenuItem />
+                        <MenuItem text="Copy Invoice ID"/>
+                    </items>
+                </ContextMenu>
+            </contextMenu>
+        </TableView>
+
+        <!-- Actions Footer -->
+        <HBox spacing="12" styleClass="card-footer">
+            <Button fx:id="refreshButton" text="Refresh" 
+                    styleClass="action-button">
+                <graphic>
+                    <SVGPath content="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Refresh invoice list (F5)"/>
+                </tooltip>
+            </Button>
+
+            <Button fx:id="printButton" text="Print" 
+                    styleClass="action-button">
+                <graphic>
+                    <SVGPath content="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Print selected invoice(s) (Ctrl+P)"/>
+                </tooltip>
+            </Button>
+
+            <Button fx:id="exportButton" text="Export" 
+                    styleClass="action-button">
+                <graphic>
+                    <SVGPath content="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Export invoices to CSV/PDF"/>
+                </tooltip>
+            </Button>
+
+            <Button fx:id="statsButton" text="Statistics" 
+                    styleClass="action-button">
+                <graphic>
+                    <SVGPath content="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Show sales statistics (Ctrl+S)"/>
+                </tooltip>
+            </Button>
+
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="messageLabel" styleClass="status-label"/>
+        </HBox>
+    </VBox>
 </VBox>
