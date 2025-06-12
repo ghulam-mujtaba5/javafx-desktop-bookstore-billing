@@ -6,14 +6,10 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.print.*;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -53,13 +49,11 @@ public class ViewInvoicesScreen {
         setupButtons();
         setupKeyboardShortcuts();
         updatePlaceholderText();
-    }
-
-    private void setupTableColumns() {
-        colInvoiceId.setCellValueFactory(new PropertyValueFactory<>("invoiceId"));
-        colCustomerName.setCellValueFactory(new PropertyValueFactory<>("customerName"));
-        colDate.setCellValueFactory(new PropertyValueFactory<>("invoiceDate"));
-        colTotal.setCellValueFactory(new PropertyValueFactory<>("orderTotal"));
+    }    private void setupTableColumns() {
+        colInvoiceId.setCellValueFactory(cellData -> cellData.getValue().invoiceIdProperty().asObject());
+        colCustomerName.setCellValueFactory(cellData -> cellData.getValue().customerNameProperty());
+        colDate.setCellValueFactory(cellData -> cellData.getValue().invoiceDateProperty());
+        colTotal.setCellValueFactory(cellData -> cellData.getValue().orderTotalProperty().asObject());
 
         colInvoiceId.setSortType(TableColumn.SortType.DESCENDING);
 
