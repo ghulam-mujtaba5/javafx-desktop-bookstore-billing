@@ -35,7 +35,7 @@
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
 | M1.1-A | Baseline Fix, Migration V2 & Infrastructure | Fix UAE currency symbol, module-info http dependency, Migration V2 (catalog_cache, invoice_payments, z_reports), DAOs | none | DONE |
-| M1.1-B | Intelligent Online/Offline ISBN Engine (R1) | IsbnValidator (Mod 11/10 & conversion), MetadataService (Google Books/OpenLibrary fallback), cover caching, Stock UI integration | M1.1-A | PLANNED |
+| M1.1-B | Intelligent Online/Offline ISBN Engine (R1) | IsbnValidator (Mod 11/10 & conversion), MetadataService (Google Books/OpenLibrary fallback), cover caching, Stock UI integration | M1.1-A | DONE |
 | M1.1-C | Keyboard-First POS & Split Tender (R2) | F1-F12 shortcuts, barcode scanner buffer, split tender math & DAO, Park/Resume carts, item notes, gift receipt | M1.1-A | PLANNED |
 | M1.1-D | Thermal ESC/POS & Label Printing (R3) | EscPosBuilder (80mm/58mm, cut, drawer kick), pluggable transport, 50x30mm shelf/spine labels via OpenPDF | M1.1-A | PLANNED |
 | M1.1-E | Inventory Intelligence, Z-Reports & Full Pass (R4, R5) | Dead Stock Radar by publisher, dynamic safety stock, Z-Report reconciliation & audit ledger, 100% test suite pass | M1.1-B, M1.1-C, M1.1-D | PLANNED |

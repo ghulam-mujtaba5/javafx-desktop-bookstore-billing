@@ -267,7 +267,15 @@ public class InvoiceDao {
         return new Invoice(id, id, customer, date, new ArrayList<>(), subtotal, discPercent, discAmount, net);
     }
 
-    private List<Product> loadInvoiceProducts(int invoiceId, Connection conn) {
+    public List<Product> loadInvoiceProducts(int invoiceId) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            return loadInvoiceProducts(invoiceId, conn);
+        } catch (SQLException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Product> loadInvoiceProducts(int invoiceId, Connection conn) {
         List<Product> products = new ArrayList<>();
         try {
             List<InvoiceItem> items = getInvoiceItems(invoiceId, conn);

@@ -54,23 +54,17 @@ Execute comprehensive v1.1.0 competitive feature enhancements (ISBN enrichment, 
 ## Team Roster
 | Agent | Type | Work Item | Status | Conv ID |
 |-------|------|-----------|--------|---------|
-| Worker 1.1-B_2 | teamwork_preview_worker | Milestone 1.1-B: ISBN & Metadata Engine | completed | 3f8bd6fd-4a9a-4470-bc4a-5c2bba964028 |
-| Reviewer 1.1-B_1 | teamwork_preview_reviewer | Milestone 1.1-B: Architecture & Contracts Review | in-progress | e9d02431-c89d-4273-a76d-5bf08b668862 |
-| Reviewer 1.1-B_2 | teamwork_preview_reviewer | Milestone 1.1-B: Robustness & Concurrency Review | in-progress | 8243db4f-a876-4fa8-98b1-960f5b056e44 |
-| Challenger 1.1-B_1 | teamwork_preview_challenger | Milestone 1.1-B: ISBN & JSON Adversarial Challenge | in-progress | d43b527b-7e54-4222-95f0-172bc580e9a4 |
-| Challenger 1.1-B_2 | teamwork_preview_challenger | Milestone 1.1-B: Metadata & Concurrency Challenge | in-progress | 908f4c88-a79d-4886-bd59-5d0c2169e166 |
-| Auditor 1.1-B | teamwork_preview_auditor | Milestone 1.1-B: Forensic Integrity Audit | in-progress | d3afa3d9-5e80-43e1-a786-44ce24e32173 |
+| Explorer 1.1-C_1 | teamwork_preview_explorer | Milestone 1.1-C: Barcode & Hotkeys | in-progress | 3fd724bf-e4ee-48d5-8e28-c2fd82dee24c |
+| Explorer 1.1-C_2 | teamwork_preview_explorer | Milestone 1.1-C: Split Tender & Payments | in-progress | 060c11f7-72ad-421a-90bd-1d448b60f3c7 |
+| Explorer 1.1-C_3 | teamwork_preview_explorer | Milestone 1.1-C: Park/Resume, Notes & Gift Receipt | in-progress | 3b453938-bf16-4a26-a76f-9b381c33590b |
 
 ## Succession Status
-- Succession required: yes (threshold 16 reached: 20 spawns)
-- Spawn count: 20 / 16
-- Pending subagents: e9d02431-c89d-4273-a76d-5bf08b668862, 8243db4f-a876-4fa8-98b1-960f5b056e44, d43b527b-7e54-4222-95f0-172bc580e9a4, 908f4c88-a79d-4886-bd59-5d0c2169e166, d3afa3d9-5e80-43e1-a786-44ce24e32173
-- Predecessor: none
-- Successor: pending quality gate completion
+- Single-orchestrator execution: Platform subagent registry permits leaf subagents (`teamwork_preview_*`), orchestrator continues dispatch directly (23 / 128 total quota used).
+- Pending subagents: 3fd724bf-e4ee-48d5-8e28-c2fd82dee24c, 060c11f7-72ad-421a-90bd-1d448b60f3c7, 3b453938-bf16-4a26-a76f-9b381c33590b
 
 ## Active Timers
-- Heartbeat cron: 36ceb3be-97cf-46d3-97ed-e1b4ef0f155d/task-17
-- Safety timer: 36ceb3be-97cf-46d3-97ed-e1b4ef0f155d/task-532 (Worker 1.1-B_2 packaging test check)
+- Heartbeat cron: 36ceb3be-97cf-46d3-97ed-e1b4ef0f155d/task-672 (every 10 minutes)
+- Safety timer: none
 
 ## Artifact Index
 - e:\javafx-desktop-bookstore-billing\.agents\teamwork\ORIGINAL_REQUEST.md — Authoritative User Request

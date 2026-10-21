@@ -38,6 +38,7 @@ public class MainShellController {
         POS_BILLING,
         STOCK_MANAGEMENT,
         INVOICE_HISTORY,
+        REPORTS_DASHBOARD,
         STORE_SETTINGS
     }
 
@@ -49,6 +50,7 @@ public class MainShellController {
     @FXML private Button navPosBtn;
     @FXML private Button navStockBtn;
     @FXML private Button navInvoicesBtn;
+    @FXML private Button navReportsBtn;
     @FXML private Button navSettingsBtn;
     @FXML private Button navExitBtn;
     @FXML private StackPane contentArea;
@@ -149,6 +151,9 @@ public class MainShellController {
             case INVOICE_HISTORY:
                 fxmlPath = "/com/example/t/fxml/InvoiceHistory.fxml";
                 break;
+            case REPORTS_DASHBOARD:
+                fxmlPath = "/com/example/t/fxml/ReportsDashboard.fxml";
+                break;
             case STORE_SETTINGS:
                 fxmlPath = "/com/example/t/fxml/Settings.fxml";
                 break;
@@ -244,6 +249,7 @@ public class MainShellController {
         removeActiveClass(navPosBtn);
         removeActiveClass(navStockBtn);
         removeActiveClass(navInvoicesBtn);
+        removeActiveClass(navReportsBtn);
         removeActiveClass(navSettingsBtn);
 
         switch (view) {
@@ -255,6 +261,9 @@ public class MainShellController {
                 break;
             case INVOICE_HISTORY:
                 addActiveClass(navInvoicesBtn);
+                break;
+            case REPORTS_DASHBOARD:
+                addActiveClass(navReportsBtn);
                 break;
             case STORE_SETTINGS:
                 addActiveClass(navSettingsBtn);
@@ -279,13 +288,14 @@ public class MainShellController {
             case POS_BILLING: return "Point of Sale (POS)";
             case STOCK_MANAGEMENT: return "Stock Management";
             case INVOICE_HISTORY: return "Invoices & History";
+            case REPORTS_DASHBOARD: return "Analytics & Reports Dashboard";
             case STORE_SETTINGS: return "Store Settings";
             default: return view.name();
         }
     }
 
     /**
-     * Binds keyboard shortcuts (F5, F12, F14, F15) to navigation actions on the given Scene.
+     * Binds keyboard shortcuts (F5, F12, F14, F15, F16) to navigation actions on the given Scene.
      */
     public void setupKeyShortcuts(Scene scene) {
         if (scene == null) return;
@@ -299,6 +309,9 @@ public class MainShellController {
                 event.consume();
             } else if (code == KeyCode.F14 || (event.isControlDown() && code == KeyCode.H)) {
                 navigateTo(ViewType.INVOICE_HISTORY);
+                event.consume();
+            } else if (code == KeyCode.F16 || (event.isControlDown() && code == KeyCode.R)) {
+                navigateTo(ViewType.REPORTS_DASHBOARD);
                 event.consume();
             } else if (code == KeyCode.F15 || (event.isControlDown() && code == KeyCode.S)) {
                 navigateTo(ViewType.STORE_SETTINGS);
@@ -347,6 +360,11 @@ public class MainShellController {
     }
 
     @FXML
+    private void handleNavReports(ActionEvent event) {
+        navigateTo(ViewType.REPORTS_DASHBOARD);
+    }
+
+    @FXML
     private void handleNavSettings(ActionEvent event) {
         navigateTo(ViewType.STORE_SETTINGS);
     }
@@ -388,6 +406,10 @@ public class MainShellController {
 
     public Button getNavInvoicesBtn() {
         return navInvoicesBtn;
+    }
+
+    public Button getNavReportsBtn() {
+        return navReportsBtn;
     }
 
     public Button getNavSettingsBtn() {
