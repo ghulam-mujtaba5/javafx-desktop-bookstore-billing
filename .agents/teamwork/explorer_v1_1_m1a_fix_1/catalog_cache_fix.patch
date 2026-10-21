@@ -1,0 +1,72 @@
+--- a/src/main/java/com/example/t/dao/CatalogCacheDao.java
++++ b/src/main/java/com/example/t/dao/CatalogCacheDao.java
+@@ -32,7 +32,7 @@ public class CatalogCacheDao {
+ 
+         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             pstmt.setString(1, metadata.getIsbn13().trim());
+-            pstmt.setString(2, metadata.getIsbn10() != null ? metadata.getIsbn10().trim() : null);
++            pstmt.setString(2, metadata.getIsbn10() != null ? metadata.getIsbn10().trim().toUpperCase() : null);
+             pstmt.setString(3, metadata.getTitle() != null ? metadata.getTitle() : "Unknown Title");
+             pstmt.setString(4, metadata.getSubtitle());
+             pstmt.setString(5, metadata.getAuthors());
+@@ -68,16 +68,16 @@ public class CatalogCacheDao {
+             return Optional.empty();
+         }
+ 
+-        String clean = rawIsbn.replaceAll("[^0-9X-x]", "").trim();
++        String clean = rawIsbn.replaceAll("[^0-9Xx]", "").trim().toUpperCase();
+         String sql = "SELECT * FROM catalog_cache WHERE " +
+-                "isbn13 = ? OR isbn10 = ? OR " +
+-                "REPLACE(isbn13, '-', '') = ? OR REPLACE(isbn10, '-', '') = ? " +
++                "isbn13 = ? OR isbn10 = ? COLLATE NOCASE OR " +
++                "REPLACE(isbn13, '-', '') = ? OR REPLACE(isbn10, '-', '') = ? COLLATE NOCASE " +
+                 "LIMIT 1;";
+ 
+         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             pstmt.setString(1, rawIsbn.trim());
+-            pstmt.setString(2, rawIsbn.trim());
++            pstmt.setString(2, rawIsbn.trim().toUpperCase());
+             pstmt.setString(3, clean);
+             pstmt.setString(4, clean);
+ 
+@@ -100,15 +100,15 @@ public class CatalogCacheDao {
+             return false;
+         }
+ 
+-        String clean = isbn.replaceAll("[^0-9X-x]", "").trim();
++        String clean = isbn.replaceAll("[^0-9Xx]", "").trim().toUpperCase();
+         String sql = "DELETE FROM catalog_cache WHERE " +
+-                "isbn13 = ? OR isbn10 = ? OR " +
+-                "REPLACE(isbn13, '-', '') = ? OR REPLACE(isbn10, '-', '') = ?;";
++                "isbn13 = ? OR isbn10 = ? COLLATE NOCASE OR " +
++                "REPLACE(isbn13, '-', '') = ? OR REPLACE(isbn10, '-', '') = ? COLLATE NOCASE;";
+ 
+         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             pstmt.setString(1, isbn.trim());
+-            pstmt.setString(2, isbn.trim());
++            pstmt.setString(2, isbn.trim().toUpperCase());
+             pstmt.setString(3, clean);
+             pstmt.setString(4, clean);
+             return pstmt.executeUpdate() > 0;
+--- a/src/main/resources/com/example/t/db/V2__v1_1_enhancements.sql
++++ b/src/main/resources/com/example/t/db/V2__v1_1_enhancements.sql
+@@ -3,7 +3,7 @@
+ -- 1. Catalog Cache for Intelligent Online/Offline ISBN Bibliographic Enrichment
+ CREATE TABLE IF NOT EXISTS catalog_cache (
+     isbn13 TEXT PRIMARY KEY,
+-    isbn10 TEXT,
++    isbn10 TEXT COLLATE NOCASE,
+     title TEXT NOT NULL,
+     subtitle TEXT,
+     authors TEXT,
+--- a/src/main/java/com/example/t/database/SchemaMigrationManager.java
++++ b/src/main/java/com/example/t/database/SchemaMigrationManager.java
+@@ -196,7 +196,7 @@ public class SchemaMigrationManager {
+         try (Statement stmt = connection.createStatement()) {
+             stmt.execute("CREATE TABLE IF NOT EXISTS catalog_cache (" +
+                     "isbn13 TEXT PRIMARY KEY, " +
+-                    "isbn10 TEXT, " +
++                    "isbn10 TEXT COLLATE NOCASE, " +
+                     "title TEXT NOT NULL, " +
+                     "subtitle TEXT, " +
+                     "authors TEXT, " +

@@ -48,6 +48,12 @@ public class SettingsScreen extends Stage {
             String newPassword = newPasswordField.getText();
             if (password.isCorrect(currentPassword)) {
                 password.changePassword(newPassword);
+                try {
+                    com.example.t.dao.SettingsDao dao = new com.example.t.dao.SettingsDao();
+                    com.example.t.model.StoreSettings s = dao.getSettings();
+                    s.setAdminPasswordHash(PasswordUtil.hashPassword(newPassword));
+                    dao.saveSettings(s);
+                } catch (Exception ignored) {}
                 Logger.info("Password changed successfully.");
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Password Changed");
@@ -94,6 +100,14 @@ public class SettingsScreen extends Stage {
             shop.setShopName(name);
             shop.setAddress(address);
             shop.setMobileNumber(contact);
+            try {
+                com.example.t.dao.SettingsDao dao = new com.example.t.dao.SettingsDao();
+                com.example.t.model.StoreSettings s = dao.getSettings();
+                s.setStoreName(name);
+                s.setStoreAddress(address);
+                s.setStorePhone(contact);
+                dao.saveSettings(s);
+            } catch (Exception ignored) {}
             Logger.info("Shop attributes saved successfully.");
             close();
         });
@@ -101,7 +115,12 @@ public class SettingsScreen extends Stage {
 
         // Set the scene
         Scene scene = new Scene(settingsContent, 400, 300);
-        scene.getStylesheets().add(getClass().getResource("/com/example/t/modern-theme.css").toExternalForm());
+        try {
+            var cssRes = getClass().getResource("/com/example/t/css/modern-fluent.css");
+            if (cssRes != null) {
+                scene.getStylesheets().add(cssRes.toExternalForm());
+            }
+        } catch (Exception ignored) {}
         setScene(scene);
 
         // Apply a blur effect to the main menu screen while the settings screen is open

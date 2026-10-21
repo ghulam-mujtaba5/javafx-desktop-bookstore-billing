@@ -108,7 +108,13 @@ public class ViewInvoicesScreen {
 
     private void loadData() {
         try {
-            List<Invoice> invoiceList = Invoice.readInvoicesFromFile();
+            List<Invoice> invoiceList = null;
+            try {
+                invoiceList = new com.example.t.dao.InvoiceDao().getAllInvoices();
+            } catch (Exception ignored) {}
+            if (invoiceList == null || invoiceList.isEmpty()) {
+                invoiceList = Invoice.readInvoicesFromFile();
+            }
             masterData = FXCollections.observableArrayList(invoiceList);
             filteredData = new FilteredList<>(masterData, p -> true);
             sortedData = new SortedList<>(filteredData);
@@ -535,4 +541,42 @@ public class ViewInvoicesScreen {
             NotificationUtil.showWarning("No Selection", "Please select an invoice to view details.");
         }
     }
+
+    public void show() {
+        try {
+            Stage stage = new Stage();
+            stage.setTitle("View Invoices");
+
+            invoiceTable = new TableView<>();
+            colInvoiceId = new TableColumn<>("Invoice ID");
+            colCustomerName = new TableColumn<>("Customer Name");
+            colDate = new TableColumn<>("Date");
+            colTotal = new TableColumn<>("Total Amount");
+            invoiceTable.getColumns().addAll(colInvoiceId, colCustomerName, colDate, colTotal);
+
+            refreshButton = new Button("Refresh");
+            exportButton = new Button("Export CSV");
+            printButton = new Button("Print");
+            statsButton = new Button("Statistics");
+            messageLabel = new Label();
+            searchField = new TextField();
+
+            initialize();
+
+            HBox topBar = new HBox(10, searchField, refreshButton, exportButton, printButton, statsButton);
+            topBar.setPadding(new Insets(10));
+            topBar.setAlignment(Pos.CENTER_LEFT);
+
+            VBox layout = new VBox(10, topBar, invoiceTable, messageLabel);
+            layout.setPadding(new Insets(10));
+            javafx.scene.layout.VBox.setVgrow(invoiceTable, javafx.scene.layout.Priority.ALWAYS);
+
+            Scene scene = new Scene(layout, 900, 600);
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            Logger.error("Failed to show ViewInvoicesScreen", e);
+        }
+    }
 }
+

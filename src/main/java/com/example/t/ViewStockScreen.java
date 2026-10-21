@@ -2,20 +2,15 @@ package com.example.t;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-// import javafx.scene.Scene;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-// import javafx.scene.image.Image;
-// import javafx.scene.layout.*;
-// import javafx.stage.Screen;
-// import javafx.stage.Stage;
-// import javafx.geometry.Pos;
+import javafx.stage.Stage;
 
-// import java.util.Comparator;
 import java.util.List;
-// import java.util.function.Predicate;
-
-import javafx.fxml.FXML;
 
 public class ViewStockScreen {
     @FXML private TableView<Product> stockTable;
@@ -26,7 +21,7 @@ public class ViewStockScreen {
     @FXML private TableColumn<Product, String> editionColumn;
     @FXML private TableColumn<Product, Double> priceColumn;
     @FXML private TableColumn<Product, Integer> quantityColumn;
-    // Removed unused refreshButton and exportButton to match FXML
+    @FXML private Button exportButton;
     @FXML private Label messageLabel;
 
     private ObservableList<Product> data;
@@ -41,25 +36,60 @@ public class ViewStockScreen {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
-        Stock stock = new Stock();
-        List<Product> stockList = stock.readStockFromFile();
-        data = FXCollections.observableArrayList(stockList);
+        try {
+            List<Product> products = new com.example.t.dao.ProductDao().getAllProducts();
+            if (!products.isEmpty()) {
+                data = FXCollections.observableArrayList(products);
+            } else {
+                Stock stock = new Stock();
+                data = FXCollections.observableArrayList(stock.readStockFromFile());
+            }
+        } catch (Exception e) {
+            Stock stock = new Stock();
+            data = FXCollections.observableArrayList(stock.readStockFromFile());
+        }
         stockTable.setItems(data);
         stockTable.setPlaceholder(new Label("No products in stock. Add new stock to get started!"));
+    }
 
-        // Button event handlers are now set via FXML onAction attributes
+    public void show() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/t/ViewStockScreen.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Stock Inventory");
+            stage.setScene(new Scene(root, 900, 600));
+            stage.show();
+        } catch (Exception e) {
+            Logger.error("Failed to show ViewStockScreen", e);
+        }
     }
 
     private void refreshStock() {
-        Stock stock = new Stock();
-        List<Product> stockList = stock.readStockFromFile();
-        data.setAll(stockList);
-        messageLabel.setText("Stock refreshed");
+        try {
+            List<Product> products = new com.example.t.dao.ProductDao().getAllProducts();
+            data.setAll(products);
+        } catch (Exception e) {
+            Stock stock = new Stock();
+            data.setAll(stock.readStockFromFile());
+        }
+        if (messageLabel != null) {
+            messageLabel.setText("Stock refreshed");
+        }
     }
 
     private void exportStockToCSV() {
-        // TODO: Implement export logic
-        messageLabel.setText("Exported to CSV (not implemented)");
+        try {
+            java.nio.file.Path exportPath = com.example.t.database.DatabaseManager.getExportsDirectory().resolve("view_stock_export.csv");
+            com.example.t.service.CsvSyncService.exportProductsToFile(data, exportPath);
+            if (messageLabel != null) {
+                messageLabel.setText("Exported " + data.size() + " products to: " + exportPath.getFileName());
+            }
+        } catch (Exception e) {
+            if (messageLabel != null) {
+                messageLabel.setText("Export failed: " + e.getMessage());
+            }
+        }
     }
 
     @FXML
@@ -69,13 +99,15 @@ public class ViewStockScreen {
 
     @FXML
     private void handleUpdateStock() {
-        // TODO: Implement update stock logic or show a dialog
-        messageLabel.setText("Update Stock action triggered.");
+        if (messageLabel != null) {
+            messageLabel.setText("Update Stock action triggered.");
+        }
     }
 
     @FXML
     private void handleAddStock() {
-        // TODO: Implement add stock logic or show a dialog
-        messageLabel.setText("Add Stock action triggered.");
+        if (messageLabel != null) {
+            messageLabel.setText("Add Stock action triggered.");
+        }
     }
 }

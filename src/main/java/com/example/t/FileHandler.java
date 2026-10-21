@@ -1,64 +1,79 @@
 package com.example.t;
 
+import com.example.t.dao.ProductDao;
+import com.example.t.database.DatabaseManager;
+
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * FileHandler adapted to resolve files under AppData and optionally synchronize with DatabaseManager.
+ */
 public class FileHandler {
-    private static final String STOCK_FILE_NAME = "stock.txt";
-    private static final String STOCK_FILE_PATH = "D:\\t\\src\\main\\stock.txt";
-    private static final String INVOICE_FILE_NAME = "invoice.csv";
 
     static String getStockFilePath() {
-        String filePath = STOCK_FILE_PATH + File.separator + STOCK_FILE_NAME;
-        File file = new File(filePath);
-
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                System.out.println("Failed to create stock file: " + e.getMessage());
-            }
-        }
-
-        return filePath;
+        return FilePathManager.getStockFilePath();
     }
 
     static String getInvoiceFilePath() {
-        String filePath = STOCK_FILE_PATH + File.separator + INVOICE_FILE_NAME;
-        File file = new File(filePath);
-
-        if (!file.exists()) {
+        Path invFile = DatabaseManager.getDataDirectory().resolve("invoice.csv");
+        if (!Files.exists(invFile)) {
             try {
-                file.createNewFile();
+                if (invFile.getParent() != null && !Files.exists(invFile.getParent())) {
+                    Files.createDirectories(invFile.getParent());
+                }
+                Files.createFile(invFile);
             } catch (IOException e) {
-                System.out.println("Failed to create invoice file: " + e.getMessage());
+                Logger.warn("Failed to create invoice file: " + e.getMessage());
             }
         }
-
-        return filePath;
+        return invFile.toAbsolutePath().toString();
     }
 
     public static List<Product> loadStock() {
+        // First try loading from DatabaseManager/ProductDao
+        try {
+            ProductDao productDao = new ProductDao();
+            List<Product> products = productDao.getAllProducts();
+            if (!products.isEmpty()) {
+                return products;
+            }
+        } catch (SQLException ignored) {}
+
+        // Fallback to reading flat file
         List<Product> stock = new ArrayList<>();
         String filePath = getStockFilePath();
+        File file = new File(filePath);
+        if (!file.exists()) {
+            return stock;
+        }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) continue;
                 String[] parts = line.split(",");
-                int productId = Integer.parseInt(parts[0]);
-                String productName = parts[1];
-                int quantity = Integer.parseInt(parts[2]);
-                double price = Double.parseDouble(parts[3]);
-                double purchasePrice = Double.parseDouble(parts[4]);
-                boolean status = Boolean.parseBoolean(parts[5]);
-                Product product = new Product(productId, productName, quantity, price, purchasePrice);
-                product.setStatus(status);
-                stock.add(product);
+                if (parts.length >= 5) {
+                    try {
+                        int productId = Integer.parseInt(parts[0].trim());
+                        String productName = parts[1].trim();
+                        int quantity = Integer.parseInt(parts[2].trim());
+                        double price = Double.parseDouble(parts[3].trim());
+                        double purchasePrice = Double.parseDouble(parts[4].trim());
+                        boolean status = parts.length > 5 ? Boolean.parseBoolean(parts[5].trim()) : true;
+                        Product product = new Product(productId, productName, quantity, price, purchasePrice);
+                        product.setStatus(status);
+                        stock.add(product);
+                    } catch (Exception ignored) {}
+                }
             }
         } catch (IOException e) {
-            System.out.println("Failed to load stock from file: " + e.getMessage());
+            Logger.warn("Failed to load stock from file: " + e.getMessage());
         }
         return stock;
     }
@@ -66,73 +81,44 @@ public class FileHandler {
     public static void saveStock(List<Product> stock) {
         String filePath = getStockFilePath();
         try {
-            PrintWriter writer = new PrintWriter(new FileWriter(filePath));
-
-            for (Product product : stock) {
-                writer.println(product.getProductId() + "," + product.getProductName() + ","
-                        + product.getQuantity() + "," + product.getPrice() + "," + product.getPurchasePrice() + "," + product.getStatus());
+            File f = new File(filePath);
+            if (f.getParentFile() != null && !f.getParentFile().exists()) {
+                f.getParentFile().mkdirs();
             }
-
-            writer.close();
-            System.out.println("Stock saved successfully.");
+            try (PrintWriter writer = new PrintWriter(new FileWriter(f))) {
+                for (Product product : stock) {
+                    writer.println(product.getProductId() + "," + product.getProductName() + ","
+                            + product.getQuantity() + "," + product.getPrice() + "," + product.getPurchasePrice() + "," + product.getStatus());
+                }
+            }
+            Logger.info("Stock saved successfully to " + filePath);
         } catch (IOException e) {
-            System.out.println("Failed to save stock to file: " + e.getMessage());
+            Logger.warn("Failed to save stock to file: " + e.getMessage());
         }
     }
 
     public static void saveInvoice(Invoice invoice) {
         String filePath = getInvoiceFilePath();
         try {
-            PrintWriter writer = new PrintWriter(new FileWriter(filePath, true));
-
-            writer.println(invoice.getInvoiceId() + "," + invoice.getOrderNum() + ","
-                    + invoice.getCustomerName() + "," + invoice.getInvoiceDate() + ","
-                    + invoice.getOrderTotal() + "," + invoice.getDiscountPercentage() + ","
-                    + invoice.getDiscount() + "," + invoice.getNetPrice());
-
-            for (Product product : invoice.getProducts()) {
-                writer.println(product.getProductId() + "," + product.getProductName() + ","
-                        + product.getQuantity() + "," + product.getPrice());
+            File f = new File(filePath);
+            if (f.getParentFile() != null && !f.getParentFile().exists()) {
+                f.getParentFile().mkdirs();
             }
+            try (PrintWriter writer = new PrintWriter(new FileWriter(f, true))) {
+                writer.println(invoice.getInvoiceId() + "," + invoice.getOrderNum() + ","
+                        + invoice.getCustomerName() + "," + invoice.getInvoiceDate() + ","
+                        + invoice.getOrderTotal() + "," + invoice.getDiscountPercentage() + ","
+                        + invoice.getDiscount() + "," + invoice.getNetPrice());
 
-            writer.close();
+                if (invoice.getProducts() != null) {
+                    for (Product product : invoice.getProducts()) {
+                        writer.println(product.getProductId() + "," + product.getProductName() + ","
+                                + product.getQuantity() + "," + product.getPrice());
+                    }
+                }
+            }
         } catch (IOException e) {
-            System.out.println("Failed to save invoice to file: " + e.getMessage());
+            Logger.warn("Failed to save invoice to file: " + e.getMessage());
         }
     }
-
-//    public static Invoice loadInvoice() {
-//        Invoice invoice = null;
-//        String filePath = getInvoiceFilePath();
-//        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-//            String line = reader.readLine();
-//            String[] parts = line.split(",");
-//            int invoiceId = Integer.parseInt(parts[0]);
-//            int orderNum = Integer.parseInt(parts[1]);
-//            String customerName = parts[2];
-//            LocalDate invoiceDate = LocalDate.parses(parts[3]);
-//            double orderTotal = Double.parseDouble(parts[4]);
-//            double discountPercentage = Double.parseDouble(parts[5]);
-//            double discount = Double.parseDouble(parts[6]);
-//            double netPrice = Double.parseDouble(parts[7]);
-//
-//            List<Product> products = new ArrayList<>();
-//            while ((line = reader.readLine()) != null) {
-//                parts = line.split(",");
-//                int productId = Integer.parseInt(parts[0]);
-//                String productName = parts[1];
-//                int quantity = Integer.parseInt(parts[2]);
-//                double price = Double.parseDouble(parts[3]);
-//                Product product = new Product(productId, productName, quantity, price);
-//                products.add(product);
-//            }
-//
-//            invoice = new Invoice(invoiceId, orderNum, customerName, invoiceDate, products, orderTotal, discountPercentage, discount, netPrice);
-//
-//        } catch (IOException e) {
-//            System.out.println("Failed to load invoice from file: " + e.getMessage());
-//        }
-//
-//        return invoice;
-//    }
 }

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="720.0" prefWidth="1050.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.t.controller.SettingsController">
+    <padding>
+        <Insets bottom="16.0" left="20.0" right="20.0" top="16.0" />
+    </padding>
+
+    <!-- Top Header -->
+    <top>
+        <VBox spacing="4.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="12.0" />
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                    <Label styleClass="card-title" text="⚙ Store Settings &amp; Multi-Regional Configuration" />
+                    <Label styleClass="card-subtitle" text="Configure regional presets (USA, UK, Middle East/Gulf), currency formatting, tax rates, store metadata, and admin security." />
+                </VBox>
+                <Label fx:id="lockStatusBadge" styleClass="badge-low-stock" text="🔒 Locked" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Center: StackPane with Lock Gate and Settings Content -->
+    <center>
+        <StackPane fx:id="containerStack" BorderPane.alignment="CENTER">
+            <!-- 1. Admin Password Unlock Overlay -->
+            <VBox fx:id="lockOverlayBox" alignment="CENTER" spacing="16.0" style="-fx-background-color: #f8fafc;">
+                <VBox alignment="CENTER" maxWidth="450.0" spacing="14.0" styleClass="card">
+                    <Label style="-fx-font-size: 28px;" text="🔒" />
+                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="Administrative Authentication Required" />
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-text-alignment: center;" text="Store settings and tax configurations are protected. Please enter your administrator password to unlock." wrapText="true" />
+
+                    <VBox alignment="CENTER_LEFT" spacing="6.0">
+                        <Label style="-fx-font-weight: bold; -fx-font-size: 11px; -fx-text-fill: #475569;" text="ADMIN PASSWORD" />
+                        <PasswordField fx:id="adminUnlockPasswordField" onAction="#handleUnlock" prefHeight="38.0" promptText="Enter admin password (default: admin)" />
+                    </VBox>
+
+                    <Button fx:id="btnUnlockSettings" maxWidth="Infinity" onAction="#handleUnlock" prefHeight="38.0" styleClass="btn-primary" text="🔓 Unlock Configuration" />
+                    <Label fx:id="unlockErrorLabel" style="-fx-text-fill: #dc2626; -fx-font-size: 12px;" text="" />
+                </VBox>
+            </VBox>
+
+            <!-- 2. Settings Content Form (Visible when unlocked) -->
+            <ScrollPane fx:id="settingsScrollPane" fitToWidth="true" visible="false">
+                <VBox spacing="16.0">
+                    <padding>
+                        <Insets bottom="16.0" left="8.0" right="8.0" top="8.0" />
+                    </padding>
+
+                    <!-- Card 1: Multi-Regional Presets -->
+                    <VBox spacing="12.0" styleClass="card">
+                        <Label styleClass="card-title" text="🌍 Multi-Regional Localization &amp; Tax Presets" />
+                        <Label styleClass="card-subtitle" text="Switch between USA, UK, and Gulf regional standards. Switching presets automatically adjusts currency symbols, tax nomenclature, and receipt languages." />
+                        <Separator />
+
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <Label prefWidth="160.0" style="-fx-font-weight: bold;" text="Select Regional Preset:" />
+                            <ComboBox fx:id="presetComboBox" onAction="#handlePresetChange" prefWidth="320.0" />
+                        </HBox>
+
+                        <GridPane hgap="16.0" vgap="12.0">
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="Currency Code:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <TextField fx:id="currencyCodeField" prefWidth="160.0" promptText="e.g. USD, GBP, AED" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="Currency Symbol:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                            <TextField fx:id="currencySymbolField" prefWidth="160.0" promptText="e.g. $, £, د.إ, SAR" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="Tax / VAT Name:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <TextField fx:id="taxNameField" prefWidth="160.0" promptText="Sales Tax or VAT" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="Tax / VAT Rate (%):" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                            <TextField fx:id="taxRateField" prefWidth="160.0" promptText="e.g. 8.25, 20.0, 5.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="Receipt Language:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                            <ComboBox fx:id="receiptLanguageComboBox" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        </GridPane>
+                    </VBox>
+
+                    <!-- Card 2: Store Branding & Metadata -->
+                    <VBox spacing="12.0" styleClass="card">
+                        <Label styleClass="card-title" text="🏪 Store Branding &amp; Receipt Metadata" />
+                        <Label styleClass="card-subtitle" text="These details appear at the top of printed receipts, PDF invoices, and the main window title header." />
+                        <Separator />
+
+                        <VBox spacing="6.0">
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="Store Name:" />
+                            <TextField fx:id="storeNameField" promptText="e.g. GM Bookstore &amp; Stationery" />
+                        </VBox>
+
+                        <VBox spacing="6.0">
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="Physical Address:" />
+                            <TextField fx:id="storeAddressField" promptText="e.g. 123 Main Street, Suite 400" />
+                        </VBox>
+
+                        <VBox spacing="6.0">
+                            <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="Store Phone / Contact:" />
+                            <TextField fx:id="storePhoneField" promptText="e.g. +1 (555) 019-2834" />
+                        </VBox>
+                    </VBox>
+
+                    <!-- Card 3: Security & Password Management -->
+                    <VBox spacing="12.0" styleClass="card">
+                        <Label styleClass="card-title" text="🛡 Admin Security &amp; Password Update" />
+                        <Label styleClass="card-subtitle" text="Update the master administrator password used to protect settings and restricted POS functions." />
+                        <Separator />
+
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="Current Password:" />
+                                <PasswordField fx:id="currentPasswordField" promptText="Enter current password" />
+                            </VBox>
+                            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="New Password:" />
+                                <PasswordField fx:id="newPasswordField" promptText="Enter new password" />
+                            </VBox>
+                            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="Confirm Password:" />
+                                <PasswordField fx:id="confirmPasswordField" promptText="Confirm new password" />
+                            </VBox>
+                            <VBox alignment="BOTTOM_LEFT">
+                                <Button fx:id="btnChangePassword" onAction="#handleChangePassword" styleClass="btn-warning" text="Update Password" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Action Toolbar -->
+                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <Button fx:id="btnSaveSettings" onAction="#handleSaveSettings" prefHeight="38.0" prefWidth="180.0" styleClass="btn-primary" text="💾 Save Configuration" />
+                        <Button fx:id="btnResetDefaults" onAction="#handleResetDefaults" prefHeight="38.0" styleClass="btn-secondary" text="Reset to Defaults" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnLockSettings" onAction="#handleLock" prefHeight="38.0" styleClass="btn-secondary" text="🔒 Lock Settings" />
+                    </HBox>
+                    <Label fx:id="saveStatusLabel" style="-fx-font-size: 12px; -fx-text-fill: #15803d; -fx-font-weight: bold;" text="" />
+                </VBox>
+            </ScrollPane>
+        </StackPane>
+    </center>
+</BorderPane>

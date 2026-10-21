@@ -37,15 +37,20 @@ public class CreateOrderScreen {
         stage.setTitle("Create Order");
 
         GridPane grid = new GridPane();
-        Image backgroundImage = new Image("D:\\t\\src\\main\\background1.jpg");  // Replace "your_image_path.jpg" with the actual path to your image
-        BackgroundImage background = new BackgroundImage(
-                backgroundImage,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundPosition.CENTER,
-                new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true)
-        );
-        grid.setBackground(new Background(background));
+        try {
+            String bgPath = FilePathManager.getBackgroundImagePath();
+            if (bgPath != null && !bgPath.isEmpty()) {
+                Image backgroundImage = new Image(bgPath);
+                BackgroundImage background = new BackgroundImage(
+                        backgroundImage,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundPosition.CENTER,
+                        new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true)
+                );
+                grid.setBackground(new Background(background));
+            }
+        } catch (Exception ignored) {}
         grid.setAlignment(Pos.CENTER_LEFT); // Align grid to the left side
         grid.setHgap(10);
         grid.setVgap(10);
@@ -278,15 +283,21 @@ public class CreateOrderScreen {
                     break;
                 }
             }
+            try {
+                new com.example.t.dao.ProductDao().decrementStock(orderedProduct.getProductId(), orderedProduct.getQuantity(), null);
+            } catch (Exception ignored) {}
         }
 
         stock.saveStockToFile(); // Save the updated stock to the file
     }
 
-
     private void saveInvoiceAsObject(Order order) {
         try {
-            File file = new File("D:\\t\\src\\main\\invoice_history.txt");
+            String invFilePath = FilePathManager.getInvoiceHistoryFilePath();
+            File file = new File(invFilePath != null ? invFilePath : "src/main/invoice_history.txt");
+            if (file.getParentFile() != null && !file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
             if (!file.exists()) {
                 file.createNewFile();
             }
@@ -307,7 +318,23 @@ public class CreateOrderScreen {
                 writer.println(); // Add a new line after each invoice
             }
 
-            showAlert("Invoice Saved", "Invoice has been saved successfully as a text file.");
+            // Also persist to SQLite
+            try {
+                com.example.t.Invoice inv = new com.example.t.Invoice(
+                        order.getOrderId(), order.getOrderId(), order.getCustomerName(),
+                        order.getOrderDate(), order.getProducts(),
+                        order.getTotalAmount(), 0.0, 0.0, order.getTotalAmount()
+                );
+                List<com.example.t.model.InvoiceItem> items = new ArrayList<>();
+                for (Product p : order.getProducts()) {
+                    items.add(new com.example.t.model.InvoiceItem(
+                            p.getProductId(), p.getProductName(), p.getSku(), p.getQuantity(), p.getPrice()
+                    ));
+                }
+                new com.example.t.dao.InvoiceDao().createInvoice(inv, items);
+            } catch (Exception ignored) {}
+
+            showAlert("Invoice Saved", "Invoice has been saved successfully.");
         } catch (IOException e) {
             e.printStackTrace();
         }

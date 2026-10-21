@@ -1,0 +1,430 @@
+/* Modern Windows 11 Fluent Theme Stylesheet for Bookstore & POS */
+
+.root {
+    -fx-font-family: "Segoe UI Variable Text", "Segoe UI", -apple-system, system-ui, sans-serif;
+    -fx-font-size: 13px;
+    -fx-base: #f8fafc;
+    -fx-background: #f8fafc;
+    -color-primary: #0067c0;
+    -color-primary-hover: #0f6cbd;
+    -color-surface: #ffffff;
+    -color-border: #e2e8f0;
+}
+
+/* Header Styles */
+.main-header {
+    -fx-background-color: #0f172a;
+    -fx-padding: 12px 20px;
+    -fx-border-color: transparent transparent #1e293b transparent;
+    -fx-border-width: 1px;
+}
+
+.header-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.header-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #94a3b8;
+}
+
+.preset-badge {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-background-radius: 14px;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-radius: 14px;
+    -fx-border-width: 1px;
+    -fx-padding: 4px 12px;
+    -fx-text-fill: #38bdf8;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.status-badge {
+    -fx-background-color: rgba(34, 197, 94, 0.15);
+    -fx-background-radius: 14px;
+    -fx-border-color: rgba(34, 197, 94, 0.3);
+    -fx-border-radius: 14px;
+    -fx-border-width: 1px;
+    -fx-padding: 4px 12px;
+    -fx-text-fill: #4ade80;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    -fx-background-color: #f1f5f9;
+    -fx-border-color: transparent #cbd5e1 transparent transparent;
+    -fx-border-width: 1px;
+    -fx-padding: 16px 12px;
+}
+
+.sidebar-title {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #64748b;
+    -fx-padding: 4px 8px 8px 8px;
+}
+
+.nav-button {
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-color: transparent;
+    -fx-background-radius: 6px;
+    -fx-padding: 10px 14px;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-text-fill: #1e293b;
+    -fx-cursor: hand;
+}
+
+.nav-button:hover {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #0f172a;
+}
+
+.nav-button.active {
+    -fx-background-color: #0067c0;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
+
+.nav-shortcut {
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+    -fx-font-weight: normal;
+}
+
+.nav-button.active .nav-shortcut {
+    -fx-text-fill: #bfdbfe;
+}
+
+/* Card & Surface Containers */
+.card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.04), 6, 0, 0, 2);
+}
+
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+}
+
+.card-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+/* KPI Summary Tiles */
+.kpi-tile {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 12px 16px;
+    -fx-min-width: 150px;
+}
+
+.kpi-value {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+}
+
+.kpi-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+    -fx-font-weight: 500;
+}
+
+/* Status Badges */
+.badge {
+    -fx-background-radius: 12px;
+    -fx-padding: 2px 8px;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER;
+}
+
+.badge-in-stock {
+    -fx-background-color: #dcfce7;
+    -fx-text-fill: #15803d;
+}
+
+.badge-low-stock {
+    -fx-background-color: #fef3c7;
+    -fx-text-fill: #b45309;
+}
+
+.badge-out-of-stock {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #b91c1c;
+}
+
+.badge-category {
+    -fx-background-color: #e0f2fe;
+    -fx-text-fill: #0369a1;
+}
+
+/* TableView Adjustments */
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 6px;
+}
+
+.table-view .column-header {
+    -fx-background-color: #f8fafc;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: #475569;
+    -fx-padding: 8px;
+    -fx-border-color: transparent transparent #cbd5e1 transparent;
+}
+
+.table-row-cell:filled:hover {
+    -fx-background-color: #f1f5f9;
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: #e0f2fe;
+    -fx-text-fill: #0f172a;
+}
+
+/* Action Buttons */
+.btn-primary {
+    -fx-background-color: #0067c0;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #0f6cbd;
+}
+
+.btn-secondary {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #334155;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 7px 14px;
+    -fx-cursor: hand;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #e2e8f0;
+}
+
+.btn-danger {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #dc2626;
+}
+
+.btn-warning {
+    -fx-background-color: #f59e0b;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.btn-warning:hover {
+    -fx-background-color: #d97706;
+}
+
+/* Toast container overlay */
+.toast-container {
+    -fx-padding: 16px;
+    -fx-alignment: BOTTOM_RIGHT;
+}
+
+/* ==========================================================================
+   Responsive Desktop Layout & Retail POS Component Enhancements
+   ========================================================================== */
+
+/* Seamless ScrollPanes */
+.transparent-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.transparent-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.transparent-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+
+.transparent-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #cbd5e1;
+    -fx-background-radius: 4px;
+}
+
+.transparent-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #94a3b8;
+}
+
+/* Category Filter Chips */
+.category-chip {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #334155;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-border-color: transparent;
+    -fx-padding: 5px 14px;
+    -fx-font-weight: 600;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.category-chip:hover {
+    -fx-background-color: #cbd5e1;
+    -fx-text-fill: #0f172a;
+}
+
+.category-chip.active {
+    -fx-background-color: #0067c0;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
+
+/* Interactive Product Tile Cards */
+.product-tile {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 10px;
+    -fx-min-width: 130px;
+    -fx-pref-width: 145px;
+    -fx-max-width: 165px;
+    -fx-min-height: 120px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);
+}
+
+.product-tile:hover {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #0067c0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 103, 192, 0.16), 8, 0, 0, 2);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.product-tile-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #0f172a;
+    -fx-wrap-text: true;
+}
+
+.product-tile-category {
+    -fx-font-size: 10px;
+    -fx-text-fill: #64748b;
+    -fx-text-transform: uppercase;
+}
+
+.product-tile-price {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0067c0;
+}
+
+.product-tile-stock {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-padding: 2px 6px;
+    -fx-background-radius: 4px;
+}
+
+.stock-in {
+    -fx-background-color: #ecfdf5;
+    -fx-text-fill: #059669;
+}
+
+.stock-low {
+    -fx-background-color: #fffbeb;
+    -fx-text-fill: #d97706;
+}
+
+.stock-out {
+    -fx-background-color: #fef2f2;
+    -fx-text-fill: #dc2626;
+}
+
+/* Quick Action Chips (Discounts & Cash) */
+.chip-btn {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #334155;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-padding: 4px 10px;
+    -fx-background-radius: 6px;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 6px;
+    -fx-cursor: hand;
+}
+
+.chip-btn:hover {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #0f172a;
+}
+
+.chip-btn.active {
+    -fx-background-color: #0067c0;
+    -fx-text-fill: white;
+    -fx-border-color: #0067c0;
+}
+
+/* Screen Resolution Adaptation Rules */
+.screen-compact .card {
+    -fx-padding: 10px 12px;
+}
+
+.screen-compact .kpi-tile {
+    -fx-padding: 8px 12px;
+}
+
+.screen-compact .kpi-value {
+    -fx-font-size: 18px;
+}
+
+.screen-compact .btn-primary, .screen-compact .btn-secondary {
+    -fx-padding: 6px 12px;
+}
+
+.screen-4k .card {
+    -fx-padding: 24px;
+}
+
+.screen-4k .kpi-value {
+    -fx-font-size: 32px;
+}
+

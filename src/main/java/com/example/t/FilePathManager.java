@@ -1,43 +1,79 @@
 package com.example.t;
 
+import com.example.t.database.DatabaseManager;
+
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+/**
+ * Manages runtime file paths using AppData resolution with fallback to source directories.
+ * Eliminates hardcoded drive paths (D:\, C:\) for full portability.
+ */
 public class FilePathManager {
-    private static final String APP_NAME = "GM Shop";
-    private static final String APP_DATA_PATH = System.getenv("APPDATA") + File.separator + APP_NAME;
-    private static final String STOCK_FILE_PATH ="D:\\t\\src\\main\\stock.txt";
-    private static final String BACKGROUND_IMAGE_PATH = "C:\\Program Files (x86)\\GM Shop\\src\\main\\background1.jpg";
-    private static final String SETTINGS_ICON_PATH = "C:\\Program Files (x86)\\GM Shop\\src\\main\\setting_icon.png";
-    private static final String PASSWORD_FILE_PATH = APP_DATA_PATH + File.separator + "password.txt";
-    private static final String INVOICE_HISTORY_FILE_PATH = APP_DATA_PATH + File.separator + "invoice_history.txt";
-
-    private static final String SHOP_DATA_FILE_PATH = APP_DATA_PATH + File.separator + "shop_data.txt";
-
-    // Add more file paths if needed
 
     public static String getStockFilePath() {
-        return STOCK_FILE_PATH;
+        Path appDataStock = DatabaseManager.getDataDirectory().resolve("stock.txt");
+        if (Files.exists(appDataStock)) {
+            return appDataStock.toAbsolutePath().toString();
+        }
+        Path srcStock = Paths.get("src", "main", "stock.txt");
+        if (Files.exists(srcStock)) {
+            return srcStock.toAbsolutePath().toString();
+        }
+        return appDataStock.toAbsolutePath().toString();
     }
 
     public static String getBackgroundImagePath() {
-        return BACKGROUND_IMAGE_PATH;
+        Path appDataImg = DatabaseManager.getDataDirectory().resolve("background1.jpg");
+        if (Files.exists(appDataImg)) {
+            return appDataImg.toUri().toString();
+        }
+        Path srcImg = Paths.get("src", "main", "background1.jpg");
+        if (Files.exists(srcImg)) {
+            return srcImg.toUri().toString();
+        }
+        return appDataImg.toUri().toString();
     }
 
     public static String getSettingsIconPath() {
-        return SETTINGS_ICON_PATH;
+        Path appDataIcon = DatabaseManager.getDataDirectory().resolve("setting_icon.png");
+        if (Files.exists(appDataIcon)) {
+            return appDataIcon.toUri().toString();
+        }
+        Path srcIcon = Paths.get("src", "main", "setting_icon.png");
+        if (Files.exists(srcIcon)) {
+            return srcIcon.toUri().toString();
+        }
+        return appDataIcon.toUri().toString();
     }
 
     public static String getPasswordFilePath() {
-        return PASSWORD_FILE_PATH;
+        Path appDataPassword = DatabaseManager.getDataDirectory().resolve("password.txt");
+        if (Files.exists(appDataPassword)) {
+            return appDataPassword.toAbsolutePath().toString();
+        }
+        Path srcPassword = Paths.get("src", "main", "password.txt");
+        if (Files.exists(srcPassword)) {
+            return srcPassword.toAbsolutePath().toString();
+        }
+        return appDataPassword.toAbsolutePath().toString();
     }
 
     public static String getInvoiceHistoryFilePath() {
-        return INVOICE_HISTORY_FILE_PATH;
+        return DatabaseManager.getDataDirectory().resolve("invoice_history.txt").toAbsolutePath().toString();
     }
 
     public static String getShopDataFilePath() {
-        return SHOP_DATA_FILE_PATH;
+        Path appDataShop = DatabaseManager.getDataDirectory().resolve("shop_data.txt");
+        if (Files.exists(appDataShop)) {
+            return appDataShop.toAbsolutePath().toString();
+        }
+        Path srcShop = Paths.get("src", "main", "Shop_Data.txt");
+        if (Files.exists(srcShop)) {
+            return srcShop.toAbsolutePath().toString();
+        }
+        return appDataShop.toAbsolutePath().toString();
     }
-
-    // Add more static methods to retrieve other file paths
 }

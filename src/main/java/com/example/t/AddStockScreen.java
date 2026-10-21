@@ -187,11 +187,16 @@ public class AddStockScreen {
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(40));
 
-        // Set background image
-        Image backgroundImage = new Image("file:///D:/t/src/main/background1.jpg");
-        BackgroundImage background = new BackgroundImage(backgroundImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
-                BackgroundPosition.CENTER, new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true));
-        root.setBackground(new Background(background));
+        // Set background image safely
+        try {
+            String bgPath = FilePathManager.getBackgroundImagePath();
+            if (bgPath != null && !bgPath.isEmpty()) {
+                Image backgroundImage = new Image(bgPath);
+                BackgroundImage background = new BackgroundImage(backgroundImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+                        BackgroundPosition.CENTER, new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true));
+                root.setBackground(new Background(background));
+            }
+        } catch (Exception ignored) {}
 
         double screenWidth = Screen.getPrimary().getBounds().getWidth()-100;
         double screenHeight = Screen.getPrimary().getBounds().getHeight()-100;
@@ -235,6 +240,9 @@ public class AddStockScreen {
 
                 Product product = new Product(id, name, quantity, price, purchasePrice);
                 stock.addProduct(product);
+                try {
+                    new com.example.t.dao.ProductDao().save(product);
+                } catch (Exception ignored) {}
 
                 // Clear the input fields after adding the product
                 idField.clear();

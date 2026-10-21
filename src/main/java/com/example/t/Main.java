@@ -1,320 +1,226 @@
 package com.example.t;
 
-import javafx.animation.Animation;
-import javafx.animation.FadeTransition;
+import atlantafx.base.theme.PrimerLight;
+import com.example.t.controller.MainShellController;
+import com.example.t.database.DatabaseManager;
 import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
+import java.io.IOException;
+import java.net.URL;
 
+/**
+ * Main application entry point for Modern Offline JavaFX Desktop Bookstore & Stationery Billing.
+ * Initializes SQLite DatabaseManager, applies AtlantaFX Windows 11 Fluent theme,
+ * and loads the unified MainShell single-stage navigation window.
+ */
+public class Main extends Application {
 
-    public class Main extends Application {
-        private Stage primaryStage;
-        private Shop shop;
-        private Stock stock;
-        private Password password;
+    private Stage primaryStage;
+    private MainShellController shellController;
+    private Shop shop;
+    private Stock stock;
+    private Password password;
 
-        public static void main(String[] args) {
-            launch(args);
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+
+        // 1. Initialize embedded SQLite database, schema migrations & sample catalog seeding
+        try {
+            DatabaseManager.initializeDatabase();
+        } catch (Exception e) {
+            System.err.println("Database initialization warning: " + e.getMessage());
         }
 
-        @Override
-        public void start(Stage primaryStage) {
-            this.primaryStage = primaryStage;
-
-            password = new Password(); // Initialize the password object
-
-            PasswordScreen passwordScreen = new PasswordScreen(password);
-            passwordScreen.setOnPasswordCorrect(this::showMenuScreen);
-
-            passwordScreen.start(primaryStage);
-            primaryStage.setOnShown(event -> primaryStage.setMaximized(true));
-            primaryStage.setOnCloseRequest(event -> {
-                if (shop != null) {
-                    shop.saveData(); // Save shop data to file before exiting
-                }
-                System.exit(0);
-            });
-            primaryStage.requestFocus();
+        // 2. Apply AtlantaFX modern Fluent theme
+        try {
+            Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+        } catch (Throwable t) {
+            System.err.println("Could not apply AtlantaFX PrimerLight theme: " + t.getMessage());
         }
 
-        private void showMenuScreen() {
-            initializeStockAndShopObjects(); // Initialize the stock and shop objects
+        // 3. Load Master Navigation Shell as primary single-window stage
+        loadMainShell();
 
-            primaryStage.setTitle("Menu");
-            primaryStage.setOnCloseRequest(event -> {
-                if (shop != null) {
-                    shop.saveData(); // Save shop data to file before exiting
-                }
-                System.exit(0);
-            });
+        primaryStage.setOnCloseRequest(event -> {
+            if (shop != null) {
+                shop.saveData();
+            }
+            Platform.exit();
+            System.exit(0);
+        });
+    }
 
-            VBox root = new VBox(10);
-            root.setAlignment(Pos.TOP_LEFT);
-            root.setPrefWidth(300); // Set the preferred width
-            root.setPrefHeight(300); // Set the preferred height
+    /**
+     * Loads the unified Master Navigation Shell into the primary stage.
+     */
+    public void loadMainShell() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/t/fxml/MainShell.fxml"));
+            Parent root = loader.load();
+            shellController = loader.getController();
 
-            // Create a StackPane for the date components
-            StackPane dateContainer = new StackPane();
-            dateContainer.setAlignment(Pos.TOP_LEFT);
-            dateContainer.setStyle("-fx-background-color: #212121;"); // Example: using light blue
+            Scene scene = new Scene(root, 1280, 800);
 
-            // Create a Text object to display the current date
-            Text dateText = new Text();
-            dateText.setFont(Font.font("Arial", FontWeight.BOLD, 28)); // Decrease font size to 28
-            dateText.setFill(Color.WHITE);
+            // Attach modern-fluent.css stylesheet
+            URL cssUrl = getClass().getResource("/com/example/t/css/modern-fluent.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
 
-            // Add the dateText to the dateContainer
-            dateContainer.getChildren().add(dateText);
+            // Bind keyboard shortcuts (F5, F12, F14, F15)
+            if (shellController != null) {
+                shellController.setupKeyShortcuts(scene);
+            }
 
-            // Create a StackPane for the digital clock components
-            StackPane clockContainer = new StackPane();
-            clockContainer.setAlignment(Pos.TOP_LEFT);
-            clockContainer.setStyle("-fx-background-color: #212121;"); // Example: using light blue
+            // Responsive font scaling across 1366x768, 1080p, and 2K/4K displays
+            scene.widthProperty().addListener((obs, oldW, newW) -> updateResponsiveStyles(root, newW.doubleValue(), scene.getHeight()));
+            scene.heightProperty().addListener((obs, oldH, newH) -> updateResponsiveStyles(root, scene.getWidth(), newH.doubleValue()));
+            updateResponsiveStyles(root, 1280, 800);
 
-            // Create a Text object to display the digital clock
-            Text digitalClock = new Text();
-            digitalClock.setFont(Font.font("Arial", FontWeight.BOLD, 28)); // Decrease font size to 28
-            digitalClock.setFill(Color.WHITE);
-
-            // Create fade-in and fade-out animations for the digital clock
-            FadeTransition fadeIn = new FadeTransition(Duration.seconds(1), digitalClock);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-            fadeIn.setCycleCount(Animation.INDEFINITE);
-            fadeIn.setAutoReverse(true);
-
-            FadeTransition fadeOut = new FadeTransition(Duration.seconds(1), digitalClock);
-            fadeOut.setFromValue(1);
-            fadeOut.setToValue(0);
-            fadeOut.setCycleCount(Animation.INDEFINITE);
-            fadeOut.setAutoReverse(true);
-
-            // Update the date and digital clock every second
-            Thread dateTimeUpdateThread = new Thread(() -> {
-                while (true) {
-                    LocalDateTime now = LocalDateTime.now();
-                    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
-                    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a"); // Remove the "ss" pattern for seconds
-                    String formattedDate = now.format(dateFormatter);
-                    String formattedTime = now.format(timeFormatter);
-
-                    // Update the date and digital clock on the JavaFX application thread
-                    javafx.application.Platform.runLater(() -> {
-                        dateText.setText(formattedDate);
-                        digitalClock.setText(formattedTime);
-                    });
-
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-            dateTimeUpdateThread.setDaemon(true);
-            dateTimeUpdateThread.start();
-
-
-            // Add the digitalClock to the clockContainer
-            clockContainer.getChildren().add(digitalClock);
-
-            // Create an HBox for the dateContainer and clockContainer
-            HBox dateTimeBox = new HBox(10);
-            dateTimeBox.getChildren().addAll(dateContainer, clockContainer);
-
-            // Add settings icon
-            Image settingsImage = new Image(FilePathManager.getSettingsIconPath());
-            ImageView settingsIcon = new ImageView(settingsImage);
-            settingsIcon.setFitWidth(32);
-            settingsIcon.setFitHeight(32);
-            StackPane.setAlignment(settingsIcon, Pos.BOTTOM_RIGHT);
-
-            // Create a border for the settings icon
-            StackPane settingsButton = new StackPane(settingsIcon);
-            settingsButton.setStyle("-fx-border-color: transparent; -fx-border-width: 1;");
-
-            // Add a click effect to the settings button
-            DropShadow dropShadow = new DropShadow(10, Color.GRAY);
-            settingsButton.setOnMousePressed(event -> settingsButton.setEffect(dropShadow));
-            settingsButton.setOnMouseReleased(event -> settingsButton.setEffect(null));
-            settingsButton.setOnMouseEntered(event -> settingsButton.setEffect(dropShadow));
-            settingsButton.setOnMouseExited(event -> settingsButton.setEffect(null));
-
-            settingsButton.setOnMouseClicked(event -> openSettingsScreen()); // Open the settings screen when clicked
-
-            StackPane settingsContainer = new StackPane(settingsButton);
-            settingsContainer.setAlignment(Pos.BOTTOM_RIGHT);
-            settingsContainer.setPadding(new Insets(180, 10, 8, 4)); // Adjust the paddings as needed
-
-            // Create a VBox for the menu buttons
-            VBox buttonsContainer = new VBox(10);
-            buttonsContainer.setAlignment(Pos.CENTER);
-            buttonsContainer.setPrefWidth(300);
-            buttonsContainer.setFillWidth(true);
-            // Set padding/margin from the top
-            int topPadding = 260; // Adjust the value as needed
-            buttonsContainer.setStyle("-fx-padding: " + topPadding + " 80 0 0;");
-
-            Button addStockButton = new Button("Add Stock");
-            addStockButton.setPrefWidth(120);
-            addStockButton.setOnAction(event -> openAddStockScreen());
-
-            Button viewStockButton = new Button("View Stock");
-            viewStockButton.setPrefWidth(120);
-            viewStockButton.setOnAction(event -> openViewStockScreen());
-
-            Button updateStockButton = new Button("Update Stock"); // New button for updating stock
-            updateStockButton.setPrefWidth(120);
-            updateStockButton.setOnAction(event -> openUpdateStockScreen());
-
-            Button createOrderButton = new Button("Create Order");
-            createOrderButton.setPrefWidth(120);
-            createOrderButton.setOnAction(event -> openCreateOrderScreen());
-
-            Button viewOrderButton = new Button("View Order");
-            viewOrderButton.setPrefWidth(120);
-            viewOrderButton.setOnAction(event -> openViewOrderScreen());
-
-            Button viewInvoicesButton = new Button("View Invoices");
-            viewInvoicesButton.setPrefWidth(120);
-            viewInvoicesButton.setOnAction(event -> openViewInvoicesScreen());
-
-            Button exitButton = new Button("Logout");
-            exitButton.setPrefWidth(120);
-            exitButton.setOnAction(event -> {
-                if (shop != null) {
-                    shop.saveData(); // Save shop data to file before logging out
-                }
-                openPasswordScreen();
-            });
-
-            buttonsContainer.getChildren().addAll(
-                    addStockButton, viewStockButton, updateStockButton, // Add the updateStockButton
-                    createOrderButton, viewOrderButton, viewInvoicesButton, exitButton
-            );
-
-            // Set the background image
-            Image backgroundImage = new Image(FilePathManager.getBackgroundImagePath());
-            BackgroundImage background = new BackgroundImage(
-                    backgroundImage,
-                    BackgroundRepeat.NO_REPEAT,
-                    BackgroundRepeat.NO_REPEAT,
-                    BackgroundPosition.CENTER, new BackgroundSize(1.0, 1.0, true, true, false, false)
-            );
-
-            StackPane.setMargin(settingsContainer, new Insets(0)); // Adjust the margins as needed
-            StackPane.setAlignment(settingsContainer, Pos.BOTTOM_RIGHT);
-            StackPane stackPane = new StackPane();
-            stackPane.getChildren().addAll(settingsContainer);
-            root.getChildren().addAll(dateTimeBox, buttonsContainer, stackPane);
-            root.setBackground(new Background(background));
-
-            double screenWidth = Screen.getPrimary().getBounds().getWidth();
-            double screenHeight = Screen.getPrimary().getBounds().getHeight();
-
-            Scene scene = new Scene(root, screenWidth, screenHeight);
-            primaryStage.setMaximized(true);
+            primaryStage.setTitle("Bookstore & Stationery Billing & Inventory v1.1.0");
+            primaryStage.setMinWidth(960);
+            primaryStage.setMinHeight(640);
             primaryStage.setScene(scene);
-            primaryStage.setResizable(true);
+            primaryStage.setMaximized(true);
             primaryStage.show();
+
+        } catch (IOException e) {
+            System.err.println("Failed to load MainShell.fxml: " + e.getMessage());
+            e.printStackTrace();
+            // Fallback to legacy menu screen if FXML fails
+            showLegacyMenuScreen();
         }
-        private void openSettingsScreen() {
-            // Create a confirmation dialog for opening the settings screen
-            Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmationDialog.setTitle("Confirmation");
-            confirmationDialog.setHeaderText(null);
-            confirmationDialog.setContentText("Are you sure you want to change the settings?");
+    }
 
-            // Show the confirmation dialog and proceed if the user chooses OK
-            Optional<ButtonType> result = confirmationDialog.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                SettingsScreen settingsScreen = new SettingsScreen(password);
-                settingsScreen.openSettingsScreen(primaryStage, shop);
-
-                // Add event handler to remove blur effect when the settings screen is closed
-                settingsScreen.setOnHidden(event -> {
-                    primaryStage.getScene().getRoot().setEffect(null); // Remove the blur effect
-                    primaryStage.show(); // Show the main screen
-                    if (shop != null) {
-                        shop.loadData(); // Reload shop data from file after closing the settings screen
-                    }
-                });
-
-                settingsScreen.show();
+    private void updateResponsiveStyles(Parent root, double width, double height) {
+        if (root == null) return;
+        double baseFontSize;
+        if (width < 1380 || height < 760) {
+            baseFontSize = 12.0; // Compact laptop / 1366x768 screen
+            root.getStyleClass().removeAll("screen-fhd", "screen-4k");
+            if (!root.getStyleClass().contains("screen-compact")) {
+                root.getStyleClass().add("screen-compact");
+            }
+        } else if (width <= 2100) {
+            baseFontSize = 13.5; // Standard FHD 1080p desktop
+            root.getStyleClass().removeAll("screen-compact", "screen-4k");
+            if (!root.getStyleClass().contains("screen-fhd")) {
+                root.getStyleClass().add("screen-fhd");
+            }
+        } else {
+            baseFontSize = 16.0; // Large 2K/4K UHD monitor
+            root.getStyleClass().removeAll("screen-compact", "screen-fhd");
+            if (!root.getStyleClass().contains("screen-4k")) {
+                root.getStyleClass().add("screen-4k");
             }
         }
-        private void openAddStockScreen() {
-            AddStockScreen addStockScreen = new AddStockScreen(stock);
+        root.setStyle("-fx-font-size: " + baseFontSize + "px;");
+    }
+
+    // --- Legacy Screen Compatibility Methods ---
+
+    public void showMenuScreen() {
+        if (primaryStage != null) {
+            loadMainShell();
+        }
+    }
+
+    private void showLegacyMenuScreen() {
+        initializeStockAndShopObjects();
+        primaryStage.setTitle("Bookstore POS (Fallback)");
+        primaryStage.show();
+    }
+
+    public void openSettingsScreen() {
+        if (shellController != null) {
+            shellController.navigateTo(MainShellController.ViewType.STORE_SETTINGS);
+        } else {
+            SettingsScreen settingsScreen = new SettingsScreen(password != null ? password : new Password());
+            settingsScreen.openSettingsScreen(primaryStage, shop != null ? shop : new Shop("Shop Name", "Address", "0300 000000"));
+        }
+    }
+
+    public void openAddStockScreen() {
+        if (shellController != null) {
+            shellController.navigateTo(MainShellController.ViewType.STOCK_MANAGEMENT);
+        } else {
+            AddStockScreen addStockScreen = new AddStockScreen(stock != null ? stock : new Stock());
             addStockScreen.show();
         }
+    }
 
-        private void openViewStockScreen() {
+    public void openViewStockScreen() {
+        if (shellController != null) {
+            shellController.navigateTo(MainShellController.ViewType.STOCK_MANAGEMENT);
+        } else {
             ViewStockScreen viewStockScreen = new ViewStockScreen();
             viewStockScreen.show();
         }
+    }
 
-        private void openUpdateStockScreen() {
-            UpdateStockScreen updateStockScreen = new UpdateStockScreen(); // Create an instance of the UpdateStockScreen
-            updateStockScreen.show(); // Show the UpdateStockScreen
+    public void openUpdateStockScreen() {
+        if (shellController != null) {
+            shellController.navigateTo(MainShellController.ViewType.STOCK_MANAGEMENT);
+        } else {
+            UpdateStockScreen updateStockScreen = new UpdateStockScreen();
+            updateStockScreen.show();
         }
+    }
 
-        private void openCreateOrderScreen() {
-            if (stock != null && shop != null) {  // Check if both stock and shop objects are initialized
-                CreateOrderScreen createOrderScreen = new CreateOrderScreen(stock, shop);
-                createOrderScreen.show();
-            } else {
-                System.out.println("Stock or Shop object is not initialized");
-            }
+    public void openCreateOrderScreen() {
+        if (shellController != null) {
+            shellController.navigateTo(MainShellController.ViewType.POS_BILLING);
+        } else {
+            initializeStockAndShopObjects();
+            CreateOrderScreen createOrderScreen = new CreateOrderScreen(stock, shop);
+            createOrderScreen.show();
         }
+    }
 
-        private void openViewOrderScreen() {
-            ViewOrderScreen viewOrderScreen = new ViewOrderScreen();
-            viewOrderScreen.show();
-        }
+    public void openViewOrderScreen() {
+        ViewOrderScreen viewOrderScreen = new ViewOrderScreen();
+        viewOrderScreen.show();
+    }
 
-        private void openViewInvoicesScreen() {
+    public void openViewInvoicesScreen() {
+        if (shellController != null) {
+            shellController.navigateTo(MainShellController.ViewType.INVOICE_HISTORY);
+        } else {
             ViewInvoicesScreen viewInvoicesScreen = new ViewInvoicesScreen();
             viewInvoicesScreen.show();
         }
+    }
 
-        private void openPasswordScreen() {
-            PasswordScreen passwordScreen = new PasswordScreen(password);
-            passwordScreen.setOnPasswordCorrect(this::showMenuScreen);
-
-            Stage passwordStage = new Stage();
-            passwordScreen.start(passwordStage);
+    public void openPasswordScreen() {
+        PasswordScreen passwordScreen = new PasswordScreen(password != null ? password : new Password());
+        passwordScreen.setOnPasswordCorrect(this::showMenuScreen);
+        Stage passwordStage = new Stage();
+        passwordScreen.start(passwordStage);
+        if (primaryStage != null) {
             primaryStage.close();
         }
-
-        private void initializeStockAndShopObjects() {
-            stock = new Stock(); // Initialize the Stock object
-            shop = new Shop("Shop Name", "Address", "0300 000000"); // Initialize the Shop object with the default values
-        }
     }
+
+    private void initializeStockAndShopObjects() {
+        if (stock == null) stock = new Stock();
+        if (shop == null) shop = new Shop("Shop Name", "Address", "0300 000000");
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public MainShellController getShellController() {
+        return shellController;
+    }
+}

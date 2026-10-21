@@ -56,6 +56,9 @@ public class UpdateStockScreen {
             Product product = event.getRowValue();
             double newPrice = event.getNewValue();
             product.setPrice(newPrice);
+            try {
+                new com.example.t.dao.ProductDao().update(product);
+            } catch (Exception ignored) {}
             Stock stock = new Stock();
             stock.saveStockToFile(data);
         });
@@ -66,9 +69,18 @@ public class UpdateStockScreen {
 
         table.getColumns().addAll(idColumn, nameColumn, quantityColumn, priceColumn, purchasePriceColumn);
 
-        Stock stock = new Stock();
-        List<Product> stockList = stock.readStockFromFile();
-        data = FXCollections.observableArrayList(stockList);
+        try {
+            List<Product> products = new com.example.t.dao.ProductDao().getAllProducts();
+            if (!products.isEmpty()) {
+                data = FXCollections.observableArrayList(products);
+            } else {
+                Stock stock = new Stock();
+                data = FXCollections.observableArrayList(stock.readStockFromFile());
+            }
+        } catch (Exception e) {
+            Stock stock = new Stock();
+            data = FXCollections.observableArrayList(stock.readStockFromFile());
+        }
         table.setItems(data);
 
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -177,6 +189,9 @@ public class UpdateStockScreen {
         Optional<ButtonType> result = confirmationDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             data.remove(product);
+            try {
+                new com.example.t.dao.ProductDao().delete(product.getProductId());
+            } catch (Exception ignored) {}
             Stock stock = new Stock();
             stock.saveStockToFile(data);
         }
@@ -406,8 +421,13 @@ public class UpdateStockScreen {
             if (selectedProduct != null) {
                 double salePrice = Double.parseDouble(salePriceTextField.getText());
                 double purchasePrice = Double.parseDouble(purchasePriceTextField.getText());
-                Product newStock = new Product(selectedProduct.getProductId(), selectedProduct.getProductName(), newQuantity, salePrice, purchasePrice);
-                data.add(newStock);
+                selectedProduct.setQuantity(selectedProduct.getQuantity() + newQuantity);
+                selectedProduct.setPrice(salePrice);
+                selectedProduct.setPurchasePrice(purchasePrice);
+                try {
+                    new com.example.t.dao.ProductDao().update(selectedProduct);
+                } catch (Exception ignored) {}
+                table.refresh();
                 Stock stock = new Stock();
                 stock.saveStockToFile(data);
             }

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="rootPane" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.t.controller.MainShellController">
+    <!-- Top Header -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="main-header" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="12.0" left="20.0" right="20.0" top="12.0" />
+            </padding>
+            <VBox spacing="2.0">
+                <Label fx:id="storeNameLabel" styleClass="header-title" text="GM Bookstore &amp; Stationery" />
+                <Label fx:id="storeTaglineLabel" styleClass="header-subtitle" text="Desktop POS &amp; Inventory Management System" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <Label fx:id="regionPresetLabel" styleClass="preset-badge" text="USA (USD $)" />
+                <Label fx:id="statusBadgeLabel" styleClass="status-badge" text="SQLite (WAL) • Ready" />
+            </HBox>
+        </HBox>
+    </top>
+
+    <!-- Left Sidebar Navigation -->
+    <left>
+        <VBox prefWidth="230.0" spacing="6.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="16.0" left="12.0" right="12.0" top="16.0" />
+            </padding>
+            <Label styleClass="sidebar-title" text="NAVIGATION" />
+            <Button fx:id="navPosBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleNavPos" styleClass="nav-button" text="🛒  Point of Sale [F5]" />
+            <Button fx:id="navStockBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleNavStock" styleClass="nav-button" text="📦  Stock Inventory [F12]" />
+            <Button fx:id="navInvoicesBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleNavInvoices" styleClass="nav-button" text="🧾  Invoices &amp; History [F14]" />
+            <Button fx:id="navSettingsBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleNavSettings" styleClass="nav-button" text="⚙  Store Settings [F15]" />
+            <Region VBox.vgrow="ALWAYS" />
+            <Separator />
+            <Label style="-fx-text-fill: -color-fg-muted; -fx-font-size: 11px; -fx-padding: 0 0 4 6;" text="Version 1.1.0 • Offline Ready" />
+            <Button fx:id="navExitBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleExit" styleClass="nav-button" text="🚪  Exit Application" />
+        </VBox>
+    </left>
+
+    <!-- Center Viewport for Dynamic Content -->
+    <center>
+        <StackPane fx:id="contentArea" style="-fx-background-color: #f8fafc;" BorderPane.alignment="CENTER">
+            <!-- Dynamically populated with view node (StockManagement.fxml, etc.) -->
+        </StackPane>
+    </center>
+
+    <!-- Bottom Status Bar -->
+    <bottom>
+        <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-background-color: #f1f5f9; -fx-padding: 6px 16px; -fx-border-color: #e2e8f0 transparent transparent transparent; -fx-border-width: 1px;" BorderPane.alignment="CENTER">
+            <Label fx:id="footerStatusLabel" style="-fx-font-size: 11px; -fx-text-fill: #64748b;" text="Ready | Press F5 for POS Billing • F12 for Stock Inventory" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="clockLabel" style="-fx-font-size: 11px; -fx-text-fill: #64748b;" text="Connected to embedded SQLite" />
+        </HBox>
+    </bottom>
+</BorderPane>
