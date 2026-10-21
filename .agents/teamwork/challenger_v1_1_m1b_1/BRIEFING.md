@@ -1,4 +1,4 @@
-# BRIEFING — 2026-10-21T06:44:00Z
+# BRIEFING — 2026-10-21T06:57:00Z
 
 ## Mission
 Adversarially challenge and stress-test IsbnValidator and SimpleJson implementations with empirical test execution.
@@ -27,15 +27,24 @@ Adversarially challenge and stress-test IsbnValidator and SimpleJson implementat
 - **Review criteria**: mathematical correctness of ISBN-10/13 checksums, prefix cleaning robustness, conversion integrity, JSON parser resilience against malformed/nested/escaped/unicode payloads
 
 ## Attack Surface
-- **Hypotheses tested**: TBD
-- **Vulnerabilities found**: TBD
-- **Untested angles**: TBD
+- **Hypotheses tested**:
+  - ISBN-10 Modulo 11 checksum calculation: valid check digit 'X' is accepted, but 'X' at index 0..8 is strictly rejected.
+  - ISBN-13 Modulo 10 alternating 1/3 math: checksum mutations off by 1..9 rejected; transposition errors detected; 'X' in ISBN-13 strictly rejected.
+  - Prefix cleaning: regex correctly handles mixed casing, strange spacing, dashes, brackets, and colons.
+  - Conversion: 979 prefix properly returns `Optional.empty()`; bidirectional round-trip conversion for 978 prefix is strictly reflexive.
+  - SimpleJson: malformed syntax and truncated tokens throw `IllegalArgumentException` without unhandled VM crashes; unicode (Arabic, Japanese, symbols, surrogate pairs) and deep nesting parse accurately.
+- **Vulnerabilities found**:
+  - None in implementation code. Both `IsbnValidator` and `SimpleJson` showed robust error handling, mathematical accuracy, and graceful degradation.
+- **Untested angles**:
+  - Real-world external HTTP API rate-limiting / socket drops (covered by MetadataService offline tests).
 
 ## Loaded Skills
 - None
 
 ## Key Decisions Made
-- Initial setup
+- Created empirical adversarial test suite `src/test/java/com/example/t/service/isbn/IsbnAndSimpleJsonEmpiricalChallengeTest.java` (29 tests).
+- Verified clean build and execution: 29/29 challenge tests passed; 59/59 package tests passed.
+- Verdict: APPROVE.
 
 ## Artifact Index
 - `DISPATCH.md` — Original dispatch instructions

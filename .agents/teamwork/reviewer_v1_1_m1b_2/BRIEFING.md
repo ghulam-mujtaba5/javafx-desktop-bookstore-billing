@@ -1,4 +1,4 @@
-# BRIEFING — 2026-10-21T06:45:00Z
+# BRIEFING — 2026-10-21T06:48:00Z
 
 ## Mission
 Objective review and adversarial challenge of Milestone 1.1-B (ISBN Metadata Enrichment Engine - R1), focusing on Robustness, Concurrency, Thread Safety, Connection/Resource Leaks, and System Resilience.
@@ -22,26 +22,38 @@ Objective review and adversarial challenge of Milestone 1.1-B (ISBN Metadata Enr
 
 ## Review Scope
 - **Files to review**:
-  - `src/main/java/com/bookstore/service/MetadataService.java`
-  - `src/main/java/com/bookstore/service/IsbnValidator.java`
-  - `src/main/java/com/bookstore/service/SimpleJson.java`
-  - `src/main/java/com/bookstore/dao/CatalogCacheDao.java`
-  - Relevant tests and UI integrations
+  - `src/main/java/com/example/t/service/isbn/MetadataService.java`
+  - `src/main/java/com/example/t/service/isbn/IsbnValidator.java`
+  - `src/main/java/com/example/t/service/isbn/SimpleJson.java`
+  - `src/main/java/com/example/t/dao/CatalogCacheDao.java`
+  - `src/main/java/com/example/t/dao/ProductDao.java`
+  - `src/main/java/com/example/t/controller/StockManagementController.java`
+  - `src/main/java/com/example/t/controller/PosBillingController.java`
 - **Interface contracts**: `PROJECT.md`, `ORIGINAL_REQUEST.md`, `worker_v1_1_m1b_2/handoff.md`
 - **Review criteria**: Robustness, thread safety, daemon executor handling, network timeouts (3s), offline fallback (<50ms non-blocking), resource/file stream leaks, SQLite statement/transaction safety, integrity violation check.
 
 ## Review Checklist
-- **Items reviewed**: [TBD]
-- **Verdict**: pending
-- **Unverified claims**: [TBD]
+- **Items reviewed**:
+  - `MetadataService.java`: Thread safety of ConcurrentHashMap L1 cache, daemon thread pool (`Executors.newFixedThreadPool(4)` with `t.setDaemon(true)`), 3s connection and request timeouts, safe offline fallback with `Optional.empty()`.
+  - `CatalogCacheDao.java`: PreparedStatement handling with try-with-resources, parameter binding, safe transactions.
+  - Resource Leaks: `HttpClient` reuse, automatic stream draining with `BodyHandlers.ofString()` / `BodyHandlers.ofByteArray()`, `Files.write` resource safety.
+  - UI Concurrency: `StockManagementController` safely dispatching UI changes to JavaFX thread via `Platform.runLater()`.
+  - Input guards: `ProductDao.findBySkuOrIsbn` guarding against empty/null ISBNs with `IsbnValidator.isValid(query)`.
+- **Verdict**: APPROVE
+- **Unverified claims**: None. All claims independently verified by code inspection and test execution.
 
 ## Attack Surface
-- **Hypotheses tested**: [TBD]
-- **Vulnerabilities found**: [TBD]
-- **Untested angles**: [TBD]
+- **Hypotheses tested**:
+  - Concurrent simultaneous lookup of identical ISBN: Handled gracefully via idempotent cache insertions and WAL mode SQLite.
+  - Offline network drop: Verified immediate return of `Optional.empty()` without UI freeze or uncaught exceptions.
+  - Corrupted/malformed JSON from upstream API: Caught cleanly by `try ... catch (Exception)` returning `Optional.empty()`.
+  - JVM termination blockage: Verified daemon threads prevent worker pool from hanging application shutdown.
+  - Resource exhaustion via unclosed streams: Verified `BodyHandlers` and `Files.write` close streams reliably.
+- **Vulnerabilities found**: None.
+- **Untested angles**: Hardware thermal printer connection (scheduled for Milestone 1.1-D).
 
 ## Key Decisions Made
-- Initialized review process focusing on concurrency, resilience, and resource leaks.
+- Concluded full verification: 30/30 ISBN suite tests and 21/21 POS billing tests pass cleanly. Issued APPROVE verdict.
 
 ## Artifact Index
 - `DISPATCH.md` — Inbound instruction from parent orchestrator

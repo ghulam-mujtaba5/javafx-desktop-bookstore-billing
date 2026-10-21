@@ -19,8 +19,8 @@ Milestone 1.1-A completed and fully verified with 100% test pass rate across 436
 |-------|------|---------|--------|
 | worker_v1_1_m1b_2 | teamwork_preview_worker | DONE (All unit & empirical tests pass) | handoff.md |
 | reviewer_v1_1_m1b_1 | teamwork_preview_reviewer | PENDING | [pending] |
-| reviewer_v1_1_m1b_2 | teamwork_preview_reviewer | PENDING | [pending] |
-| challenger_v1_1_m1b_1 | teamwork_preview_challenger | PENDING | [pending] |
+| reviewer_v1_1_m1b_2 | teamwork_preview_reviewer | APPROVE | handoff.md |
+| challenger_v1_1_m1b_1 | teamwork_preview_challenger | APPROVE | handoff.md |
 | challenger_v1_1_m1b_2 | teamwork_preview_challenger | PENDING | [pending] |
 | auditor_v1_1_m1b | teamwork_preview_auditor | PENDING | [pending] |
 
