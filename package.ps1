@@ -40,7 +40,7 @@ Set-Location $ScriptDir
 
 $AppName = "BookstoreBilling"
 $AppMainClass = "com.example.t.RunFX"
-$AppVersion = "1.0.0"
+$AppVersion = "1.1.0"
 $Vendor = "BookstoreBilling"
 $Description = "Bookstore & Stationery Billing POS Application"
 $IconFile = Join-Path $ScriptDir "icon.ico"

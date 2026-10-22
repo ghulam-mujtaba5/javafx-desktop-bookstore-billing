@@ -10,7 +10,7 @@ cd /d "%SCRIPT_DIR%"
 
 set APP_NAME=BookstoreBilling
 set APP_MAIN_CLASS=com.example.t.RunFX
-set APP_VERSION=1.0.0
+set APP_VERSION=1.1.0
 set VENDOR=BookstoreBilling
 set DESCRIPTION=Bookstore and Stationery Billing POS Application
 set ICON_FILE=%SCRIPT_DIR%icon.ico
