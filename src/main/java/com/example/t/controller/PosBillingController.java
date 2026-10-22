@@ -4,12 +4,18 @@ import com.example.t.Invoice;
 import com.example.t.NotificationUtil;
 import com.example.t.Product;
 import com.example.t.dao.CatalogCacheDao;
+import com.example.t.dao.CustomerDao;
 import com.example.t.dao.InvoiceDao;
 import com.example.t.dao.ProductDao;
 import com.example.t.dao.SettingsDao;
 import com.example.t.database.DatabaseManager;
 import com.example.t.model.BookMetadata;
+import com.example.t.model.Customer;
 import com.example.t.model.InvoiceItem;
+import com.example.t.model.InvoicePayment;
+import com.example.t.model.ParkedCart;
+import com.example.t.model.PaymentTender;
+import com.example.t.model.PaymentType;
 import com.example.t.model.StoreSettings;
 import com.example.t.service.BillingService;
 import com.example.t.service.PdfInvoiceService;
@@ -21,13 +27,18 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import com.example.t.util.BarcodeScannerBuffer;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -45,6 +56,7 @@ import java.util.Optional;
  */
 public class PosBillingController {
 
+    @FXML private BorderPane posRootPane;
     @FXML private Label posRegionBadge;
     @FXML private Label posTaxBadge;
     @FXML private TextField searchField;
@@ -66,6 +78,9 @@ public class PosBillingController {
     @FXML private Label cartItemCountLabel;
     @FXML private Button btnHoldOrder;
     @FXML private Button btnRecallOrder;
+    @FXML private Button btnItemDiscount;
+    @FXML private Button btnItemNote;
+    @FXML private Button btnSplitTender;
     @FXML private TableView<InvoiceItem> cartTable;
 
     private static class HeldOrder {
@@ -81,11 +96,16 @@ public class PosBillingController {
         }
     }
     private final List<HeldOrder> heldOrders = new ArrayList<>();
+    private final ObservableList<ParkedCart> parkedCarts = FXCollections.observableArrayList();
+    private List<InvoicePayment> appliedSplitPayments;
+    private BarcodeScannerBuffer scannerBuffer;
+    @FXML private CheckBox giftReceiptCheckBox;
     private String selectedCategory = "ALL";
     @FXML private TableColumn<InvoiceItem, String> colCartSku;
     @FXML private TableColumn<InvoiceItem, String> colCartName;
     @FXML private TableColumn<InvoiceItem, String> colCartPrice;
     @FXML private TableColumn<InvoiceItem, Integer> colCartQty;
+    @FXML private TableColumn<InvoiceItem, String> colCartDiscount;
     @FXML private TableColumn<InvoiceItem, String> colCartTotal;
 
     @FXML private TextField customerNameField;
@@ -221,6 +241,12 @@ public class PosBillingController {
         colCartPrice.setCellValueFactory(cellData ->
                 new SimpleStringProperty(formatMoney(cellData.getValue().getUnitPrice())));
         colCartQty.setCellValueFactory(cellData -> cellData.getValue().quantityProperty().asObject());
+        if (colCartDiscount != null) {
+            colCartDiscount.setCellValueFactory(cellData -> {
+                double disc = cellData.getValue().getDiscountPercent();
+                return new SimpleStringProperty(disc > 0 ? String.format(java.util.Locale.US, "%.1f%%", disc) : "-");
+            });
+        }
         colCartTotal.setCellValueFactory(cellData ->
                 new SimpleStringProperty(formatMoney(cellData.getValue().getLineTotal())));
 
@@ -429,9 +455,11 @@ public class PosBillingController {
     @FXML
     public void handleClearCart(ActionEvent event) {
         cartItems.clear();
+        appliedSplitPayments = null;
         if (checkoutStatusLabel != null) {
             checkoutStatusLabel.setText("Cart cleared");
         }
+        recalculateOrder();
     }
 
     @FXML
@@ -488,6 +516,15 @@ public class PosBillingController {
             cashTendered = parseDoubleSafe(cashTenderedField.getText(), 0.0);
         }
 
+        for (InvoiceItem item : cartItems) {
+            if (item.getDiscountPercent() > 0.0) {
+                double raw = item.getUnitPrice() * item.getQuantity();
+                double discAmt = Math.round(raw * (item.getDiscountPercent() / 100.0) * 100.0) / 100.0;
+                item.setDiscountAmount(discAmt);
+                item.setLineTotal(raw - discAmt);
+            }
+        }
+
         BillingService.CalculationResult result = BillingService.calculateInvoiceItems(
                 new ArrayList<>(cartItems), discountPercent, settings, cashTendered);
 
@@ -539,15 +576,23 @@ public class PosBillingController {
         BillingService.CalculationResult calc = BillingService.calculateInvoiceItems(
                 new ArrayList<>(cartItems), discountPercent, settings, cashTendered);
 
+        String determinedMethod = (appliedSplitPayments != null && !appliedSplitPayments.isEmpty()) ? "SPLIT" : paymentMethod;
         Invoice invoice = new Invoice(
                 0, 0, customer, LocalDate.now(), new ArrayList<>(),
                 calc.getSubtotal(), calc.getDiscountPercent(), calc.getDiscountAmount(), calc.getNetTotal()
         );
+        invoice.setPaymentMethod(determinedMethod);
 
         List<InvoiceItem> itemsToSave = new ArrayList<>(cartItems);
 
         try {
-            int invoiceId = invoiceDao.createInvoice(invoice, itemsToSave);
+            int invoiceId;
+            if (appliedSplitPayments != null && !appliedSplitPayments.isEmpty()) {
+                invoiceId = invoiceDao.createInvoice(invoice, itemsToSave, appliedSplitPayments);
+                appliedSplitPayments = null;
+            } else {
+                invoiceId = invoiceDao.createInvoice(invoice, itemsToSave);
+            }
             invoice.setInvoiceId(invoiceId);
             invoice.setOrderNum(invoiceId);
 
@@ -557,6 +602,14 @@ public class PosBillingController {
                     pdfPath = pdfInvoiceService.generateInvoicePdf(invoice, itemsToSave, settings);
                 } catch (IOException e) {
                     NotificationUtil.showWarning("PDF Warning", "Invoice saved to database, but PDF generation failed: " + e.getMessage());
+                }
+            }
+
+            if (giftReceiptCheckBox != null && giftReceiptCheckBox.isSelected() && pdfInvoiceService != null) {
+                try {
+                    pdfInvoiceService.generateGiftReceipt(invoice, itemsToSave, settings);
+                } catch (IOException e) {
+                    NotificationUtil.showWarning("PDF Warning", "Gift receipt failed: " + e.getMessage());
                 }
             }
 
@@ -732,6 +785,9 @@ public class PosBillingController {
         String disc = discountPercentField != null ? discountPercentField.getText() : "0";
         HeldOrder held = new HeldOrder(custName, cartItems, disc);
         heldOrders.add(held);
+        double discVal = parseDoubleSafe(disc, 0.0);
+        ParkedCart parked = new ParkedCart("CART-" + (parkedCarts.size() + 1), custName, new ArrayList<>(cartItems), discVal);
+        parkedCarts.add(parked);
         cartItems.clear();
         if (btnRecallOrder != null) {
             btnRecallOrder.setText("▶ Recall Cart (" + heldOrders.size() + ")");
@@ -775,5 +831,208 @@ public class PosBillingController {
         if (discountPercentField != null) {
             discountPercentField.setText(String.format("%.1f", pct));
         }
+    }
+
+    public void handleScannedBarcode(String barcode) {
+        if (barcode == null || barcode.trim().isEmpty()) return;
+        String trimmed = barcode.trim();
+        for (Product p : catalogData) {
+            if (trimmed.equalsIgnoreCase(p.getSku())) {
+                addProductToCart(p, 1);
+                if (checkoutStatusLabel != null) {
+                    checkoutStatusLabel.setText("Scanned & added: " + p.getProductName());
+                }
+                return;
+            }
+        }
+        if (productDao != null) {
+            try {
+                Optional<Product> direct = productDao.findBySkuOrIsbn(trimmed);
+                if (direct.isPresent()) {
+                    addProductToCart(direct.get(), 1);
+                    if (checkoutStatusLabel != null) {
+                        checkoutStatusLabel.setText("Scanned & added: " + direct.get().getProductName());
+                    }
+                    return;
+                }
+            } catch (SQLException ignored) {}
+        }
+        if (checkoutStatusLabel != null) {
+            checkoutStatusLabel.setText("Barcode not found: " + trimmed);
+        }
+    }
+
+    public ObservableList<ParkedCart> getParkedCarts() {
+        return parkedCarts;
+    }
+
+    public void recallCart(ParkedCart cart) {
+        if (cart == null) return;
+        parkedCarts.remove(cart);
+        cartItems.setAll(cart.restoreItemsSnapshot());
+        if (customerNameField != null) customerNameField.setText(cart.getCustomerName());
+        if (discountPercentField != null) {
+            discountPercentField.setText(String.format(java.util.Locale.US, "%.1f", cart.getCartDiscountPercent()));
+        }
+        if (btnRecallOrder != null) {
+            btnRecallOrder.setText("▶ Recall Cart (" + (parkedCarts.size() + heldOrders.size()) + ")");
+        }
+        recalculateOrder();
+    }
+
+    public void setupKeyboardAndScannerBuffer() {
+        scannerBuffer = new BarcodeScannerBuffer();
+
+        if (posRootPane != null) {
+            scannerBuffer.attachTo(posRootPane, barcode -> {
+                Platform.runLater(() -> handleScannedBarcode(barcode));
+            });
+
+            javafx.event.EventHandler<KeyEvent> keyHandler = event -> {
+                KeyCode code = event.getCode();
+                switch (code) {
+                    case F1 -> {
+                        if (searchField != null) {
+                            searchField.requestFocus();
+                            searchField.selectAll();
+                        }
+                        event.consume();
+                    }
+                    case F2 -> {
+                        handleIncreaseQty(null);
+                        event.consume();
+                    }
+                    case F3 -> {
+                        handleItemDiscount(null);
+                        event.consume();
+                    }
+                    case F4 -> {
+                        if (customerNameField != null) {
+                            customerNameField.requestFocus();
+                            customerNameField.selectAll();
+                        }
+                        event.consume();
+                    }
+                    case F5 -> {
+                        handleItemNote(null);
+                        event.consume();
+                    }
+                    case F6 -> {
+                        handleHoldCart(null);
+                        event.consume();
+                    }
+                    case F7 -> {
+                        handleRecallCart(null);
+                        event.consume();
+                    }
+                    case F8 -> {
+                        handleSplitTenderModal(null);
+                        event.consume();
+                    }
+                    case F9 -> {
+                        handleQuickExact(null);
+                        event.consume();
+                    }
+                    case F10 -> {
+                        handleCheckout(null);
+                        event.consume();
+                    }
+                    case F11 -> {
+                        if (giftReceiptCheckBox != null) {
+                            giftReceiptCheckBox.setSelected(!giftReceiptCheckBox.isSelected());
+                        }
+                        event.consume();
+                    }
+                    case F12 -> {
+                        handleClearCart(null);
+                        event.consume();
+                    }
+                    default -> {}
+                }
+            };
+
+            posRootPane.addEventHandler(KeyEvent.KEY_PRESSED, keyHandler);
+        }
+    }
+
+
+
+    public void setAppliedSplitPayments(List<InvoicePayment> payments) {
+        this.appliedSplitPayments = payments;
+    }
+
+    public List<InvoicePayment> getAppliedSplitPayments() {
+        return appliedSplitPayments;
+    }
+
+    public CheckBox getGiftReceiptCheckBox() {
+        if (giftReceiptCheckBox == null) giftReceiptCheckBox = new CheckBox();
+        return giftReceiptCheckBox;
+    }
+
+    @FXML
+    public void handleItemDiscount(ActionEvent event) {
+        InvoiceItem selected = cartTable != null ? cartTable.getSelectionModel().getSelectedItem() : null;
+        if (selected == null) {
+            NotificationUtil.showWarning("No Selection", "Please select an item in the cart to apply a line discount.");
+            return;
+        }
+        TextInputDialog dialog = new TextInputDialog(String.format("%.1f", selected.getDiscountPercent()));
+        dialog.setTitle("Line Item Discount");
+        dialog.setHeaderText("Set Discount for " + selected.getProductName());
+        dialog.setContentText("Discount Percentage (%):");
+        dialog.showAndWait().ifPresent(val -> {
+            try {
+                double pct = Double.parseDouble(val.trim());
+                if (pct < 0.0 || pct > 100.0) {
+                    NotificationUtil.showWarning("Invalid Discount", "Discount must be between 0% and 100%.");
+                    return;
+                }
+                selected.setDiscountPercent(pct);
+                double rawTotal = selected.getUnitPrice() * selected.getQuantity();
+                double discAmt = Math.round(rawTotal * (pct / 100.0) * 100.0) / 100.0;
+                selected.setDiscountAmount(discAmt);
+                selected.setLineTotal(rawTotal - discAmt);
+                if (cartTable != null) cartTable.refresh();
+                recalculateOrder();
+            } catch (NumberFormatException ex) {
+                NotificationUtil.showError("Invalid Input", "Please enter a valid numeric percentage.");
+            }
+        });
+    }
+
+    @FXML
+    public void handleItemNote(ActionEvent event) {
+        InvoiceItem selected = cartTable != null ? cartTable.getSelectionModel().getSelectedItem() : null;
+        if (selected == null) {
+            NotificationUtil.showWarning("No Selection", "Please select an item in the cart to add a note.");
+            return;
+        }
+        TextInputDialog dialog = new TextInputDialog(selected.getNotes() != null ? selected.getNotes() : "");
+        dialog.setTitle("Item Note");
+        dialog.setHeaderText("Special Instructions / Notes for " + selected.getProductName());
+        dialog.setContentText("Note:");
+        dialog.showAndWait().ifPresent(note -> {
+            selected.setNotes(note.trim());
+            if (cartTable != null) cartTable.refresh();
+        });
+    }
+
+    @FXML
+    public void handleSplitTenderModal(ActionEvent event) {
+        if (cartItems.isEmpty()) {
+            NotificationUtil.showWarning("Empty Cart", "Cannot process payment on an empty cart.");
+            return;
+        }
+        double half = Math.round((currentNetTotal / 2.0) * 100.0) / 100.0;
+        double remaining = currentNetTotal - half;
+        if (paymentMethodCombo != null) {
+            paymentMethodCombo.setValue("Split");
+        }
+        if (checkoutStatusLabel != null) {
+            checkoutStatusLabel.setText(String.format("Split Tender: Cash $%.2f + Card $%.2f", half, remaining));
+        }
+        NotificationUtil.showInfo("Split Tender Configured",
+                String.format("Order split across: Cash: $%.2f, Card: $%.2f", half, remaining));
     }
 }

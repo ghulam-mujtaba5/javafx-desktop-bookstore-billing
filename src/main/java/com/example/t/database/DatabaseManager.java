@@ -124,6 +124,11 @@ public class DatabaseManager {
         customJdbcUrl = null;
     }
 
+    public static synchronized void resetDatabasePath() {
+        resetToDefault();
+    }
+
+
     /**
      * Returns an active SQLite Connection configured with foreign keys and WAL mode.
      */

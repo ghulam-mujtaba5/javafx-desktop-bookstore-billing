@@ -41,6 +41,7 @@
             <Button fx:id="navStockBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleNavStock" styleClass="nav-button" text="📦  Stock Inventory [F12]" />
             <Button fx:id="navInvoicesBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleNavInvoices" styleClass="nav-button" text="🧾  Invoices &amp; History [F14]" />
             <Button fx:id="navReportsBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleNavReports" styleClass="nav-button" text="📊  Analytics &amp; Reports [F16]" />
+            <Button fx:id="navShiftBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleNavShift" styleClass="nav-button" text="💵  Shift &amp; Cash Drawer [F17]" />
             <Button fx:id="navSettingsBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleNavSettings" styleClass="nav-button" text="⚙  Store Settings [F15]" />
             <Region VBox.vgrow="ALWAYS" />
             <Separator />

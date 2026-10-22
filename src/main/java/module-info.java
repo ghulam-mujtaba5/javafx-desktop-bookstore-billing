@@ -19,4 +19,5 @@ module com.example.t {
     exports com.example.t.dao;
     exports com.example.t.service;
     exports com.example.t.service.isbn;
+    exports com.example.t.util;
 }

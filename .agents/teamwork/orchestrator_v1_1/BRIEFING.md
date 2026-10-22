@@ -54,13 +54,14 @@ Execute comprehensive v1.1.0 competitive feature enhancements (ISBN enrichment, 
 ## Team Roster
 | Agent | Type | Work Item | Status | Conv ID |
 |-------|------|-----------|--------|---------|
-| Explorer 1.1-C_1 | teamwork_preview_explorer | Milestone 1.1-C: Barcode & Hotkeys | in-progress | 3fd724bf-e4ee-48d5-8e28-c2fd82dee24c |
-| Explorer 1.1-C_2 | teamwork_preview_explorer | Milestone 1.1-C: Split Tender & Payments | in-progress | 060c11f7-72ad-421a-90bd-1d448b60f3c7 |
-| Explorer 1.1-C_3 | teamwork_preview_explorer | Milestone 1.1-C: Park/Resume, Notes & Gift Receipt | in-progress | 3b453938-bf16-4a26-a76f-9b381c33590b |
+| Explorer 1.1-C_1 | teamwork_preview_explorer | Milestone 1.1-C: Barcode & Hotkeys | completed | 3fd724bf-e4ee-48d5-8e28-c2fd82dee24c |
+| Explorer 1.1-C_2 | teamwork_preview_explorer | Milestone 1.1-C: Split Tender & Payments | completed | 060c11f7-72ad-421a-90bd-1d448b60f3c7 |
+| Explorer 1.1-C_3 | teamwork_preview_explorer | Milestone 1.1-C: Park/Resume, Notes & Gift Receipt | completed | 3b453938-bf16-4a26-a76f-9b381c33590b |
+| Worker 1.1-C | teamwork_preview_worker | Milestone 1.1-C: POS & Split Tender Implementation | in-progress | d411ef2f-bc48-4dc1-bb7f-dca0bb9c838d |
 
 ## Succession Status
-- Single-orchestrator execution: Platform subagent registry permits leaf subagents (`teamwork_preview_*`), orchestrator continues dispatch directly (23 / 128 total quota used).
-- Pending subagents: 3fd724bf-e4ee-48d5-8e28-c2fd82dee24c, 060c11f7-72ad-421a-90bd-1d448b60f3c7, 3b453938-bf16-4a26-a76f-9b381c33590b
+- Single-orchestrator execution: Platform subagent registry permits leaf subagents (`teamwork_preview_*`), orchestrator continues dispatch directly (24 / 128 total quota used).
+- Pending subagents: d411ef2f-bc48-4dc1-bb7f-dca0bb9c838d
 
 ## Active Timers
 - Heartbeat cron: 36ceb3be-97cf-46d3-97ed-e1b4ef0f155d/task-672 (every 10 minutes)

@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -39,6 +40,7 @@ public class MainShellController {
         STOCK_MANAGEMENT,
         INVOICE_HISTORY,
         REPORTS_DASHBOARD,
+        SHIFT_MANAGEMENT,
         STORE_SETTINGS
     }
 
@@ -51,6 +53,7 @@ public class MainShellController {
     @FXML private Button navStockBtn;
     @FXML private Button navInvoicesBtn;
     @FXML private Button navReportsBtn;
+    @FXML private Button navShiftBtn;
     @FXML private Button navSettingsBtn;
     @FXML private Button navExitBtn;
     @FXML private StackPane contentArea;
@@ -59,6 +62,7 @@ public class MainShellController {
 
     private SettingsDao settingsDao;
     private ViewType currentView;
+    private PosBillingController posBillingController;
     private final Map<ViewType, Node> cachedViews = new HashMap<>();
 
     @FXML
@@ -154,6 +158,9 @@ public class MainShellController {
             case REPORTS_DASHBOARD:
                 fxmlPath = "/com/example/t/fxml/ReportsDashboard.fxml";
                 break;
+            case SHIFT_MANAGEMENT:
+                fxmlPath = "/com/example/t/fxml/ShiftManagement.fxml";
+                break;
             case STORE_SETTINGS:
                 fxmlPath = "/com/example/t/fxml/Settings.fxml";
                 break;
@@ -175,12 +182,17 @@ public class MainShellController {
                         }
                         settingsCtrl.setOnSettingsSaved(this::refreshHeader);
                     } else if (controller instanceof PosBillingController posCtrl) {
+                        this.posBillingController = posCtrl;
                         if (settingsDao != null) {
                             posCtrl.setSettingsDao(settingsDao);
                         }
                     } else if (controller instanceof InvoiceHistoryController invCtrl) {
                         if (settingsDao != null) {
                             invCtrl.setSettingsDao(settingsDao);
+                        }
+                    } else if (controller instanceof ShiftManagementController shiftCtrl) {
+                        if (settingsDao != null) {
+                            shiftCtrl.setSettingsDao(settingsDao);
                         }
                     }
 
@@ -250,6 +262,7 @@ public class MainShellController {
         removeActiveClass(navStockBtn);
         removeActiveClass(navInvoicesBtn);
         removeActiveClass(navReportsBtn);
+        removeActiveClass(navShiftBtn);
         removeActiveClass(navSettingsBtn);
 
         switch (view) {
@@ -264,6 +277,9 @@ public class MainShellController {
                 break;
             case REPORTS_DASHBOARD:
                 addActiveClass(navReportsBtn);
+                break;
+            case SHIFT_MANAGEMENT:
+                addActiveClass(navShiftBtn);
                 break;
             case STORE_SETTINGS:
                 addActiveClass(navSettingsBtn);
@@ -289,6 +305,7 @@ public class MainShellController {
             case STOCK_MANAGEMENT: return "Stock Management";
             case INVOICE_HISTORY: return "Invoices & History";
             case REPORTS_DASHBOARD: return "Analytics & Reports Dashboard";
+            case SHIFT_MANAGEMENT: return "Shift & Cash Drawer";
             case STORE_SETTINGS: return "Store Settings";
             default: return view.name();
         }
@@ -302,16 +319,25 @@ public class MainShellController {
         scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             KeyCode code = event.getCode();
             if (code == KeyCode.F5) {
-                navigateTo(ViewType.POS_BILLING);
-                event.consume();
+                if (currentView != ViewType.POS_BILLING) {
+                    navigateTo(ViewType.POS_BILLING);
+                    event.consume();
+                }
             } else if (code == KeyCode.F12) {
-                navigateTo(ViewType.STOCK_MANAGEMENT);
-                event.consume();
+                if (currentView == ViewType.POS_BILLING && posBillingController != null && !posBillingController.getCartItems().isEmpty()) {
+                    // Let POS handle F12 to clear active cart without leaving POS
+                } else {
+                    navigateTo(ViewType.STOCK_MANAGEMENT);
+                    event.consume();
+                }
             } else if (code == KeyCode.F14 || (event.isControlDown() && code == KeyCode.H)) {
                 navigateTo(ViewType.INVOICE_HISTORY);
                 event.consume();
             } else if (code == KeyCode.F16 || (event.isControlDown() && code == KeyCode.R)) {
                 navigateTo(ViewType.REPORTS_DASHBOARD);
+                event.consume();
+            } else if (code == KeyCode.F17 || (event.isControlDown() && code == KeyCode.D)) {
+                navigateTo(ViewType.SHIFT_MANAGEMENT);
                 event.consume();
             } else if (code == KeyCode.F15 || (event.isControlDown() && code == KeyCode.S)) {
                 navigateTo(ViewType.STORE_SETTINGS);
@@ -365,6 +391,11 @@ public class MainShellController {
     }
 
     @FXML
+    private void handleNavShift(ActionEvent event) {
+        navigateTo(ViewType.SHIFT_MANAGEMENT);
+    }
+
+    @FXML
     private void handleNavSettings(ActionEvent event) {
         navigateTo(ViewType.STORE_SETTINGS);
     }
@@ -412,7 +443,20 @@ public class MainShellController {
         return navReportsBtn;
     }
 
+    public Button getNavShiftBtn() {
+        return navShiftBtn;
+    }
+
     public Button getNavSettingsBtn() {
         return navSettingsBtn;
     }
+
+    public PosBillingController getPosBillingController() {
+        return posBillingController;
+    }
+
+    public void setPosBillingController(PosBillingController posBillingController) {
+        this.posBillingController = posBillingController;
+    }
 }
+

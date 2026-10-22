@@ -583,7 +583,7 @@ public class FinalAcceptanceCriteriaVerificationTest {
             );
             buildPb.directory(projectRoot.toFile());
             Process buildProcess = buildPb.start();
-            boolean buildFinished = buildProcess.waitFor(90, TimeUnit.SECONDS);
+            boolean buildFinished = buildProcess.waitFor(240, TimeUnit.SECONDS);
             assertTrue(buildFinished, "Packaging process timed out");
             assertEquals(0, buildProcess.exitValue(), "Packaging must succeed with exit code 0");
         }

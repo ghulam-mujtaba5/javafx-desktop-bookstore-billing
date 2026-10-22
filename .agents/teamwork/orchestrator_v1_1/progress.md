@@ -1,7 +1,7 @@
 # Progress — Orchestrator v1.1
 
 ## Current Status
-Last visited: 2026-10-21T07:31:00Z
+Last visited: 2026-10-21T09:41:00Z
 - [x] Initialized orchestrator_v1_1 workspace and BRIEFING.md
 - [x] Started heartbeat cron (task-672)
 - [x] Dispatched 3 parallel Explorers (Phase 0: Survey & Technical Baseline)
@@ -28,9 +28,10 @@ Current iteration: 1 / 32
 ## Active Subagents
 | Agent | Role | Status | Started | Last Report |
 |-------|------|--------|---------|-------------|
-| 3fd724bf-e4ee-48d5-8e28-c2fd82dee24c | Explorer 1.1-C_1 (Barcode & Hotkeys) | RUNNING | 2026-10-21T07:20:00Z | Dispatched |
-| 060c11f7-72ad-421a-90bd-1d448b60f3c7 | Explorer 1.1-C_2 (Split Tender) | RUNNING | 2026-10-21T07:20:00Z | Dispatched |
-| 3b453938-bf16-4a26-a76f-9b381c33590b | Explorer 1.1-C_3 (Cart & Receipts) | RUNNING | 2026-10-21T07:20:00Z | Dispatched |
+| 3fd724bf-e4ee-48d5-8e28-c2fd82dee24c | Explorer 1.1-C_1 (Barcode & Hotkeys) | COMPLETED | 2026-10-21T07:20:00Z | Delivered handoff.md |
+| 060c11f7-72ad-421a-90bd-1d448b60f3c7 | Explorer 1.1-C_2 (Split Tender) | COMPLETED | 2026-10-21T07:20:00Z | Delivered handoff.md |
+| 3b453938-bf16-4a26-a76f-9b381c33590b | Explorer 1.1-C_3 (Cart & Receipts) | COMPLETED | 2026-10-21T07:20:00Z | Delivered handoff.md |
+| d411ef2f-bc48-4dc1-bb7f-dca0bb9c838d | Worker 1.1-C (POS & Split Tender) | RUNNING | 2026-10-21T07:38:33Z | Dispatched |
 | e9d02431-c89d-4273-a76d-5bf08b668862 | Reviewer 1 (M1.1-B Architecture) | RUNNING | 2026-10-21T06:43:24Z | Active reviewing architecture & contracts |
 | 8243db4f-a876-4fa8-98b1-960f5b056e44 | Reviewer 2 (M1.1-B Robustness) | COMPLETED | 2026-10-21T06:43:24Z | APPROVE delivered |
 | d43b527b-7e54-4222-95f0-172bc580e9a4 | Challenger 1 (M1.1-B ISBN & JSON) | COMPLETED | 2026-10-21T06:43:24Z | APPROVE delivered (29 tests pass) |

@@ -136,6 +136,174 @@ public class PdfInvoiceService {
     }
 
     /**
+     * Generates a price-suppressed gift receipt saved to the default invoices directory.
+     */
+    public Path generateGiftReceipt(Invoice invoice, List<InvoiceItem> items, StoreSettings settings) throws IOException {
+        String filename = "gift_receipt_" + (invoice.getInvoiceId() > 0 ? invoice.getInvoiceId() : System.currentTimeMillis()) + ".pdf";
+        Path targetPath = getInvoicesDirectory().resolve(filename);
+        return generateGiftReceipt(invoice, items, settings, false, targetPath);
+    }
+
+    /**
+     * Generates a price-suppressed gift receipt saved directly to the specified destination path.
+     */
+    public Path generateGiftReceipt(Invoice invoice, List<InvoiceItem> items, Path targetFile) throws IOException {
+        return generateGiftReceipt(invoice, items, StoreSettings.defaultSettings(), false, targetFile);
+    }
+
+    /**
+     * Generates a price-suppressed gift receipt PDF (either A4 or 80mm thermal).
+     * Suppresses unit prices, line totals, subtotal, discounts, tax, and grand totals.
+     * Renders store header, invoice #, Code-128 barcode, date, item descriptions, quantities,
+     * and a 30-day exchange policy notice.
+     */
+    public Path generateGiftReceipt(Invoice invoice, List<InvoiceItem> items, StoreSettings settings,
+                                    boolean thermal80mm, Path targetFile) throws IOException {
+        if (invoice == null) {
+            throw new IllegalArgumentException("Invoice cannot be null");
+        }
+        if (settings == null) {
+            settings = StoreSettings.defaultSettings();
+        }
+
+        if (targetFile.getParent() != null) {
+            Files.createDirectories(targetFile.getParent());
+        }
+
+        Rectangle pageSize = thermal80mm
+                ? new Rectangle(226.77f, 600f) // 80mm width in points
+                : PageSize.A4;
+
+        float margin = thermal80mm ? 12f : 36f;
+        Document document = new Document(pageSize, margin, margin, margin, margin);
+
+        try (FileOutputStream out = new FileOutputStream(targetFile.toFile())) {
+            PdfWriter writer = PdfWriter.getInstance(document, out);
+            document.open();
+
+            RegionalPreset preset = RegionalPreset.fromString(settings.getRegionPreset());
+            boolean isBilingual = preset.isBilingualArabic() || "BILINGUAL_AR_EN".equalsIgnoreCase(settings.getReceiptLanguage());
+
+            // Fonts
+            Font fontTitle = resolveFont(thermal80mm ? 13f : 18f, Font.BOLD, PRIMARY_COLOR);
+            Font fontSubtitle = resolveFont(thermal80mm ? 8f : 10f, Font.NORMAL, SECONDARY_COLOR);
+            Font fontHeader = resolveFont(thermal80mm ? 8f : 10f, Font.BOLD, PRIMARY_COLOR);
+            Font fontBody = resolveFont(thermal80mm ? 8f : 9.5f, Font.NORMAL, PRIMARY_COLOR);
+            Font fontBold = resolveFont(thermal80mm ? 8.5f : 10f, Font.BOLD, PRIMARY_COLOR);
+
+            // 1. Store Header
+            Paragraph storeName = new Paragraph(settings.getStoreName(), fontTitle);
+            storeName.setAlignment(Element.ALIGN_CENTER);
+            document.add(storeName);
+
+            if (settings.getStoreAddress() != null && !settings.getStoreAddress().trim().isEmpty()) {
+                Paragraph storeAddr = new Paragraph(settings.getStoreAddress(), fontSubtitle);
+                storeAddr.setAlignment(Element.ALIGN_CENTER);
+                document.add(storeAddr);
+            }
+
+            if (settings.getStorePhone() != null && !settings.getStorePhone().trim().isEmpty()) {
+                Paragraph storePhone = new Paragraph("Phone: " + settings.getStorePhone(), fontSubtitle);
+                storePhone.setAlignment(Element.ALIGN_CENTER);
+                document.add(storePhone);
+            }
+
+            // Gift Receipt Title
+            String giftTitleText = isBilingual ? "GIFT RECEIPT / إيصال هدية" : "GIFT RECEIPT";
+            Paragraph pTitle = new Paragraph(giftTitleText, fontBold);
+            pTitle.setAlignment(Element.ALIGN_CENTER);
+            pTitle.setSpacingBefore(thermal80mm ? 6f : 10f);
+            pTitle.setSpacingAfter(thermal80mm ? 4f : 8f);
+            document.add(pTitle);
+
+            // 2. Invoice Meta Table
+            PdfPTable metaTable = new PdfPTable(2);
+            metaTable.setWidthPercentage(100);
+            metaTable.setSpacingAfter(thermal80mm ? 6f : 10f);
+            metaTable.setWidths(new float[]{1f, 1f});
+
+            String invNum = "INV-" + (invoice.getInvoiceId() > 0 ? invoice.getInvoiceId() : invoice.getOrderNum());
+            String dateStr = invoice.getInvoiceDate() != null ? invoice.getInvoiceDate().toString() : LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String customer = (invoice.getCustomerName() != null && !invoice.getCustomerName().trim().isEmpty())
+                    ? invoice.getCustomerName() : "Walk-in Customer";
+
+            PdfPCell cellLeft = new PdfPCell();
+            cellLeft.setBorder(Rectangle.NO_BORDER);
+            cellLeft.addElement(new Paragraph("Invoice #: " + invNum, fontBold));
+            cellLeft.addElement(new Paragraph("Date: " + dateStr, fontSubtitle));
+
+            PdfPCell cellRight = new PdfPCell();
+            cellRight.setBorder(Rectangle.NO_BORDER);
+            cellRight.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            cellRight.addElement(new Paragraph("Customer: " + customer, fontBold));
+
+            metaTable.addCell(cellLeft);
+            metaTable.addCell(cellRight);
+            document.add(metaTable);
+
+            // 3. Code-128 Barcode of Invoice Number
+            try {
+                Barcode128 barcode = new Barcode128();
+                barcode.setCode(invNum);
+                barcode.setCodeType(Barcode128.CODE128);
+                barcode.setFont(null);
+                com.lowagie.text.Image barcodeImage = barcode.createImageWithBarcode(writer.getDirectContent(), null, null);
+                barcodeImage.setAlignment(Element.ALIGN_CENTER);
+                barcodeImage.scalePercent(thermal80mm ? 90f : 110f);
+                barcodeImage.setSpacingBefore(thermal80mm ? 4f : 8f);
+                barcodeImage.setSpacingAfter(thermal80mm ? 6f : 10f);
+                document.add(barcodeImage);
+            } catch (Exception ignored) {}
+
+            // 4. Line Items Table (Price-Suppressed: 3 columns only)
+            PdfPTable itemsTable = new PdfPTable(3);
+            itemsTable.setWidthPercentage(100);
+            itemsTable.setSpacingAfter(thermal80mm ? 8f : 14f);
+            itemsTable.setWidths(new float[]{4.2f, 2.2f, 1.2f});
+
+            String colItem = isBilingual ? "Item / الصنف" : "Item Description";
+            String colSku = isBilingual ? "SKU / الرمز" : "SKU";
+            String colQty = isBilingual ? "Qty / الكمية" : "Qty";
+
+            addTableHeaderCell(itemsTable, colItem, fontHeader, Element.ALIGN_LEFT);
+            addTableHeaderCell(itemsTable, colSku, fontHeader, Element.ALIGN_LEFT);
+            addTableHeaderCell(itemsTable, colQty, fontHeader, Element.ALIGN_CENTER);
+
+            if (items != null) {
+                for (InvoiceItem item : items) {
+                    String desc = item.getProductName();
+                    if (item.getNotes() != null && !item.getNotes().trim().isEmpty()) {
+                        desc += " (" + item.getNotes() + ")";
+                    }
+                    addTableCell(itemsTable, desc, fontBody, Element.ALIGN_LEFT);
+                    addTableCell(itemsTable, item.getSku(), fontBody, Element.ALIGN_LEFT);
+                    addTableCell(itemsTable, String.valueOf(item.getQuantity()), fontBody, Element.ALIGN_CENTER);
+                }
+            }
+            document.add(itemsTable);
+
+            // 5. Gift Policy Notice (NO financial totals table)
+            Paragraph pPolicy = new Paragraph("Gift Receipt: Exchangeable within 30 days with receipt.\nItems must be in original condition.", fontBold);
+            pPolicy.setAlignment(Element.ALIGN_CENTER);
+            pPolicy.setSpacingBefore(thermal80mm ? 8f : 14f);
+            document.add(pPolicy);
+
+            Paragraph pSystem = new Paragraph("Generated by Bookstore & Stationery POS • " +
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), fontSubtitle);
+            pSystem.setAlignment(Element.ALIGN_CENTER);
+            pSystem.setSpacingBefore(6);
+            document.add(pSystem);
+
+            document.close();
+            writer.close();
+        } catch (DocumentException e) {
+            throw new IOException("OpenPDF Document error: " + e.getMessage(), e);
+        }
+
+        return targetFile;
+    }
+
+    /**
      * Generates either an A4 invoice or an 80mm thermal receipt PDF.
      */
     public Path generateReceiptPdf(Invoice invoice, List<InvoiceItem> items, StoreSettings settings,

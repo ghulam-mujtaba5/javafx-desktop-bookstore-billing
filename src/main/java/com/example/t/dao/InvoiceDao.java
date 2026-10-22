@@ -4,6 +4,7 @@ import com.example.t.Invoice;
 import com.example.t.Product;
 import com.example.t.database.DatabaseManager;
 import com.example.t.model.InvoiceItem;
+import com.example.t.model.InvoicePayment;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -14,21 +15,29 @@ import java.util.Optional;
 
 /**
  * Data Access Object for Invoices and Line Items.
- * Enforces atomic transactions across invoice generation and stock decrement.
+ * Enforces atomic transactions across invoice generation, stock decrement, and split payments.
  */
 public class InvoiceDao {
 
     /**
      * Atomically creates an invoice, decrements inventory for all items,
-     * and inserts line items. Rolls back on any failure or insufficient stock.
+     * and inserts line items and default payment. Rolls back on any failure or insufficient stock.
      */
     public int createInvoice(Invoice invoice, List<InvoiceItem> items) throws SQLException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            return createInvoice(invoice, items, conn);
-        }
+        return createInvoice(invoice, items, (List<InvoicePayment>) null);
     }
 
     public int createInvoice(Invoice invoice, List<InvoiceItem> items, Connection conn) throws SQLException {
+        return createInvoice(invoice, items, (List<InvoicePayment>) null, conn);
+    }
+
+    public int createInvoice(Invoice invoice, List<InvoiceItem> items, List<InvoicePayment> payments) throws SQLException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            return createInvoice(invoice, items, payments, conn);
+        }
+    }
+
+    public int createInvoice(Invoice invoice, List<InvoiceItem> items, List<InvoicePayment> payments, Connection conn) throws SQLException {
         boolean autoCommit = conn.getAutoCommit();
         conn.setAutoCommit(false);
         try {
@@ -49,7 +58,32 @@ public class InvoiceDao {
                 }
             }
 
-            // 2. Insert invoice header
+            // 2. Resolve payment method, cash tendered, and change due
+            String paymentMethod;
+            double cashTendered;
+            double changeDue;
+
+            if (payments != null && !payments.isEmpty()) {
+                if (payments.size() > 1) {
+                    paymentMethod = "SPLIT";
+                } else {
+                    paymentMethod = payments.get(0).getPaymentType() != null ? payments.get(0).getPaymentType().toUpperCase() : "CASH";
+                }
+                cashTendered = payments.stream()
+                        .filter(p -> "CASH".equalsIgnoreCase(p.getPaymentType()))
+                        .mapToDouble(InvoicePayment::getTenderedAmount)
+                        .sum();
+                changeDue = payments.stream()
+                        .filter(p -> "CASH".equalsIgnoreCase(p.getPaymentType()))
+                        .mapToDouble(InvoicePayment::getChangeDue)
+                        .sum();
+            } else {
+                paymentMethod = invoice.getPaymentMethod() != null ? invoice.getPaymentMethod() : "CASH";
+                cashTendered = invoice.getCashTendered() > 0 ? invoice.getCashTendered() : invoice.getNetPrice();
+                changeDue = invoice.getChangeDue();
+            }
+
+            // 3. Insert invoice header
             int invoiceId;
             String invNum = "INV-" + System.currentTimeMillis();
             String customer = invoice.getCustomerName();
@@ -63,7 +97,7 @@ public class InvoiceDao {
             String invSql = "INSERT INTO invoices (invoice_number, customer_name, invoice_date, subtotal, " +
                     "discount_percent, discount_amount, tax_rate, tax_amount, net_total, cash_tendered, " +
                     "change_due, payment_method, currency_code, region) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, 0.0, 0.0, ?, ?, 0.0, 'CASH', 'USD', 'USA');";
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
             try (PreparedStatement invStmt = conn.prepareStatement(invSql, Statement.RETURN_GENERATED_KEYS)) {
                 invStmt.setString(1, invNum);
@@ -72,8 +106,14 @@ public class InvoiceDao {
                 invStmt.setDouble(4, invoice.getOrderTotal());
                 invStmt.setDouble(5, invoice.getDiscountPercentage());
                 invStmt.setDouble(6, invoice.getDiscount());
-                invStmt.setDouble(7, invoice.getNetPrice());
-                invStmt.setDouble(8, invoice.getNetPrice()); // tendered default
+                invStmt.setDouble(7, invoice.getTaxRate());
+                invStmt.setDouble(8, invoice.getTaxAmount());
+                invStmt.setDouble(9, invoice.getNetPrice());
+                invStmt.setDouble(10, cashTendered);
+                invStmt.setDouble(11, changeDue);
+                invStmt.setString(12, paymentMethod);
+                invStmt.setString(13, invoice.getCurrencyCode() != null ? invoice.getCurrencyCode() : "USD");
+                invStmt.setString(14, invoice.getRegion() != null ? invoice.getRegion() : "USA");
                 invStmt.executeUpdate();
 
                 try (ResultSet rs = invStmt.getGeneratedKeys()) {
@@ -87,10 +127,11 @@ public class InvoiceDao {
                 }
             }
 
-            // 3. Insert line items
+            // 4. Insert line items
             if (items != null && !items.isEmpty()) {
-                String itemSql = "INSERT INTO invoice_items (invoice_id, product_id, quantity, unit_price, line_total) " +
-                        "VALUES (?, ?, ?, ?, ?);";
+                String itemSql = "INSERT INTO invoice_items " +
+                        "(invoice_id, product_id, quantity, unit_price, line_total, discount_percent, discount_amount, notes) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
                 try (PreparedStatement itemStmt = conn.prepareStatement(itemSql)) {
                     for (InvoiceItem item : items) {
                         itemStmt.setInt(1, invoiceId);
@@ -98,10 +139,25 @@ public class InvoiceDao {
                         itemStmt.setInt(3, item.getQuantity());
                         itemStmt.setDouble(4, item.getUnitPrice());
                         itemStmt.setDouble(5, item.getLineTotal());
+                        itemStmt.setDouble(6, item.getDiscountPercent());
+                        itemStmt.setDouble(7, item.getDiscountAmount());
+                        itemStmt.setString(8, item.getNotes() != null ? item.getNotes() : "");
                         itemStmt.addBatch();
                     }
                     itemStmt.executeBatch();
                 }
+            }
+
+            // 5. Insert invoice payments
+            InvoicePaymentDao paymentDao = new InvoicePaymentDao();
+            if (payments != null && !payments.isEmpty()) {
+                paymentDao.savePayments(invoiceId, payments, conn);
+            } else if (invoice.getCashTendered() > 0.0) {
+                String defaultType = invoice.getPaymentMethod() != null && !invoice.getPaymentMethod().trim().isEmpty()
+                        ? invoice.getPaymentMethod().toUpperCase() : (paymentMethod != null ? paymentMethod : "CASH");
+                double amt = invoice.getNetPrice();
+                InvoicePayment defaultPayment = new InvoicePayment(invoiceId, defaultType, amt, invoice.getCashTendered(), invoice.getChangeDue(), "");
+                paymentDao.savePayments(invoiceId, java.util.List.of(defaultPayment), conn);
             }
 
             conn.commit();
@@ -227,7 +283,10 @@ public class InvoiceDao {
                             rs.getString("sku"),
                             rs.getInt("quantity"),
                             rs.getDouble("unit_price"),
-                            rs.getDouble("line_total")
+                            rs.getDouble("line_total"),
+                            rs.getDouble("discount_percent"),
+                            rs.getDouble("discount_amount"),
+                            rs.getString("notes")
                     ));
                 }
             }
@@ -264,7 +323,10 @@ public class InvoiceDao {
         double discAmount = rs.getDouble("discount_amount");
         double net = rs.getDouble("net_total");
 
-        return new Invoice(id, id, customer, date, new ArrayList<>(), subtotal, discPercent, discAmount, net);
+        return new Invoice(id, id, customer, date, new ArrayList<>(), subtotal, discPercent, discAmount, net,
+                rs.getDouble("tax_rate"), rs.getDouble("tax_amount"),
+                rs.getDouble("cash_tendered"), rs.getDouble("change_due"),
+                rs.getString("payment_method"), rs.getString("currency_code"), rs.getString("region"));
     }
 
     public List<Product> loadInvoiceProducts(int invoiceId) {

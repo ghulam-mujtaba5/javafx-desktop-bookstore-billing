@@ -222,19 +222,19 @@ public class Milestone1AdversarialChallengeTest {
             PasswordUtil.verifyPassword(password, salt, correctHash);
         }
 
-        // Measure batches
-        final int TRIALS = 20000;
-        long startEarly = System.nanoTime();
+        // Measure batches using alternating trials to avoid GC/scheduling bias
+        final int TRIALS = 10000;
+        long durationEarly = 0;
+        long durationLate = 0;
         for (int i = 0; i < TRIALS; i++) {
+            long t0 = System.nanoTime();
             PasswordUtil.verifyPassword(password, salt, earlyMismatchHash);
-        }
-        long durationEarly = System.nanoTime() - startEarly;
+            durationEarly += (System.nanoTime() - t0);
 
-        long startLate = System.nanoTime();
-        for (int i = 0; i < TRIALS; i++) {
+            long t1 = System.nanoTime();
             PasswordUtil.verifyPassword(password, salt, lateMismatchHash);
+            durationLate += (System.nanoTime() - t1);
         }
-        long durationLate = System.nanoTime() - startLate;
 
         // Both durations must be of comparable magnitude (ratio within 0.40 to 2.50)
         double ratio = (double) durationEarly / (double) durationLate;

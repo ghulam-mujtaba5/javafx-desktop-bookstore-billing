@@ -26,6 +26,13 @@ public class Invoice {
     private final DoubleProperty discountPercentage;
     private final DoubleProperty discount;
     private final DoubleProperty netPrice;
+    private final DoubleProperty taxRate;
+    private final DoubleProperty taxAmount;
+    private final DoubleProperty cashTendered;
+    private final DoubleProperty changeDue;
+    private final StringProperty paymentMethod;
+    private final StringProperty currencyCode;
+    private final StringProperty region;
 
     public Invoice() {
         this(0, 0, "Walk-in Customer", LocalDate.now(), new ArrayList<>(), 0.0, 0.0, 0.0, 0.0);
@@ -34,6 +41,15 @@ public class Invoice {
     public Invoice(int invoiceId, int orderNum, String customerName, LocalDate invoiceDate,
                    List<Product> products, double orderTotal, double discountPercentage,
                    double discount, double netPrice) {
+        this(invoiceId, orderNum, customerName, invoiceDate, products, orderTotal,
+                discountPercentage, discount, netPrice, 0.0, 0.0, 0.0, 0.0, "CASH", "USD", "USA");
+    }
+
+    public Invoice(int invoiceId, int orderNum, String customerName, LocalDate invoiceDate,
+                   List<Product> products, double orderTotal, double discountPercentage,
+                   double discount, double netPrice, double taxRate, double taxAmount,
+                   double cashTendered, double changeDue, String paymentMethod,
+                   String currencyCode, String region) {
         this.invoiceId = new SimpleIntegerProperty(invoiceId);
         this.orderNum = new SimpleIntegerProperty(orderNum);
         this.customerName = new SimpleStringProperty(customerName != null ? customerName : "Walk-in Customer");
@@ -43,6 +59,13 @@ public class Invoice {
         this.discountPercentage = new SimpleDoubleProperty(discountPercentage);
         this.discount = new SimpleDoubleProperty(discount);
         this.netPrice = new SimpleDoubleProperty(netPrice);
+        this.taxRate = new SimpleDoubleProperty(taxRate);
+        this.taxAmount = new SimpleDoubleProperty(taxAmount);
+        this.cashTendered = new SimpleDoubleProperty(cashTendered);
+        this.changeDue = new SimpleDoubleProperty(changeDue);
+        this.paymentMethod = new SimpleStringProperty(paymentMethod != null ? paymentMethod : "CASH");
+        this.currencyCode = new SimpleStringProperty(currencyCode != null ? currencyCode : "USD");
+        this.region = new SimpleStringProperty(region != null ? region : "USA");
     }
 
     // --- Property Accessors ---
@@ -149,6 +172,90 @@ public class Invoice {
 
     public void setNetPrice(double netPrice) {
         this.netPrice.set(netPrice);
+    }
+
+    public double getTaxRate() {
+        return taxRate.get();
+    }
+
+    public DoubleProperty taxRateProperty() {
+        return taxRate;
+    }
+
+    public void setTaxRate(double taxRate) {
+        this.taxRate.set(taxRate);
+    }
+
+    public double getTaxAmount() {
+        return taxAmount.get();
+    }
+
+    public DoubleProperty taxAmountProperty() {
+        return taxAmount;
+    }
+
+    public void setTaxAmount(double taxAmount) {
+        this.taxAmount.set(taxAmount);
+    }
+
+    public double getCashTendered() {
+        return cashTendered.get();
+    }
+
+    public DoubleProperty cashTenderedProperty() {
+        return cashTendered;
+    }
+
+    public void setCashTendered(double cashTendered) {
+        this.cashTendered.set(cashTendered);
+    }
+
+    public double getChangeDue() {
+        return changeDue.get();
+    }
+
+    public DoubleProperty changeDueProperty() {
+        return changeDue;
+    }
+
+    public void setChangeDue(double changeDue) {
+        this.changeDue.set(changeDue);
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod.get();
+    }
+
+    public StringProperty paymentMethodProperty() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod.set(paymentMethod != null ? paymentMethod : "CASH");
+    }
+
+    public String getCurrencyCode() {
+        return currencyCode.get();
+    }
+
+    public StringProperty currencyCodeProperty() {
+        return currencyCode;
+    }
+
+    public void setCurrencyCode(String currencyCode) {
+        this.currencyCode.set(currencyCode != null ? currencyCode : "USD");
+    }
+
+    public String getRegion() {
+        return region.get();
+    }
+
+    public StringProperty regionProperty() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region.set(region != null ? region : "USA");
     }
 
     /**

@@ -19,13 +19,26 @@ public class InvoiceItem {
     private final IntegerProperty quantity;
     private final DoubleProperty unitPrice;
     private final DoubleProperty lineTotal;
+    private final DoubleProperty discountPercent;
+    private final DoubleProperty discountAmount;
+    private final StringProperty notes;
 
     public InvoiceItem() {
-        this(0, 0, 0, "", "", 1, 0.0, 0.0);
+        this(0, 0, 0, "", "", 1, 0.0, 0.0, 0.0, 0.0, "");
     }
 
     public InvoiceItem(int itemId, int invoiceId, int productId, String productName,
                        String sku, int quantity, double unitPrice, double lineTotal) {
+        this(itemId, invoiceId, productId, productName, sku, quantity, unitPrice, lineTotal, 0.0, 0.0, "");
+    }
+
+    public InvoiceItem(int productId, String productName, String sku, int quantity, double unitPrice) {
+        this(0, 0, productId, productName, sku, quantity, unitPrice, roundMoney(quantity * unitPrice), 0.0, 0.0, "");
+    }
+
+    public InvoiceItem(int itemId, int invoiceId, int productId, String productName,
+                       String sku, int quantity, double unitPrice, double lineTotal,
+                       double discountPercent, double discountAmount, String notes) {
         this.itemId = new SimpleIntegerProperty(itemId);
         this.invoiceId = new SimpleIntegerProperty(invoiceId);
         this.productId = new SimpleIntegerProperty(productId);
@@ -33,11 +46,25 @@ public class InvoiceItem {
         this.sku = new SimpleStringProperty(sku != null ? sku : "");
         this.quantity = new SimpleIntegerProperty(quantity);
         this.unitPrice = new SimpleDoubleProperty(unitPrice);
-        this.lineTotal = new SimpleDoubleProperty(lineTotal > 0 ? lineTotal : roundMoney(quantity * unitPrice));
+        this.discountPercent = new SimpleDoubleProperty(discountPercent);
+        this.discountAmount = new SimpleDoubleProperty(discountAmount);
+        double calculatedTotal;
+        if (lineTotal > 0) {
+            calculatedTotal = lineTotal;
+        } else {
+            double raw = roundMoney(quantity * unitPrice);
+            double disc = roundMoney(raw * (discountPercent / 100.0));
+            calculatedTotal = roundMoney(raw - disc);
+        }
+        this.lineTotal = new SimpleDoubleProperty(calculatedTotal);
+        this.notes = new SimpleStringProperty(notes != null ? notes : "");
     }
 
-    public InvoiceItem(int productId, String productName, String sku, int quantity, double unitPrice) {
-        this(0, 0, productId, productName, sku, quantity, unitPrice, roundMoney(quantity * unitPrice));
+    public InvoiceItem(InvoiceItem other) {
+        this(other.getItemId(), other.getInvoiceId(), other.getProductId(),
+                other.getProductName(), other.getSku(), other.getQuantity(),
+                other.getUnitPrice(), other.getLineTotal(),
+                other.getDiscountPercent(), other.getDiscountAmount(), other.getNotes());
     }
 
     public int getItemId() {
@@ -138,8 +165,48 @@ public class InvoiceItem {
         this.lineTotal.set(lineTotal);
     }
 
+    public double getDiscountPercent() {
+        return discountPercent.get();
+    }
+
+    public DoubleProperty discountPercentProperty() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(double discountPercent) {
+        this.discountPercent.set(discountPercent);
+        recalculateLineTotal();
+    }
+
+    public double getDiscountAmount() {
+        return discountAmount.get();
+    }
+
+    public DoubleProperty discountAmountProperty() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(double discountAmount) {
+        this.discountAmount.set(discountAmount);
+    }
+
+    public String getNotes() {
+        return notes.get();
+    }
+
+    public StringProperty notesProperty() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes.set(notes != null ? notes : "");
+    }
+
     public void recalculateLineTotal() {
-        setLineTotal(roundMoney(getQuantity() * getUnitPrice()));
+        double raw = roundMoney(getQuantity() * getUnitPrice());
+        double disc = roundMoney(raw * (getDiscountPercent() / 100.0));
+        setDiscountAmount(disc);
+        setLineTotal(roundMoney(raw - disc));
     }
 
     private static double roundMoney(double val) {
