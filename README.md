@@ -327,30 +327,6 @@ Machine-readable JSON-LD metadata for AI search discovery, indexing engines, and
 
 ---
 
-### 🌐 Related Ecosystem & Apps by Ghulam Mujtaba
-
-<table>
-  <tr>
-    <td width="80" align="center">
-      <img src="assets/campusaxis/campusaxis_logo_150x150.png" width="64" height="64" alt="CampusAxis Logo" />
-    </td>
-    <td>
-      <strong><a href="https://apps.microsoft.com/detail/9PC9P5QGPG7D">CampusAxis</a></strong> — <em>All-in-One University Student Platform</em><br />
-      Pakistan's premier campus portal for university students featuring GPA & Merit calculators, past papers archive, verified faculty reviews, student marketplace, and academic tools. Available on the web and Microsoft Store.
-      <br /><br />
-      <a href="https://apps.microsoft.com/detail/9PC9P5QGPG7D">
-        <img src="https://img.shields.io/badge/Microsoft_Store-CampusAxis_App_(9PC9P5QGPG7D)-0078D4?logo=windows&logoColor=white" alt="CampusAxis on Microsoft Store" />
-      </a>
-      &nbsp;
-      <a href="https://campusaxis.pk">
-        <img src="https://img.shields.io/badge/Web-campusaxis.pk-F79606?logo=googlechrome&logoColor=white" alt="CampusAxis Web" />
-      </a>
-    </td>
-  </tr>
-</table>
-
----
-
 <p align="center">
   <strong>© 2026 Bookstore POS & Stationery Billing by <a href="https://github.com/ghulam-mujtaba5">Ghulam Mujtaba</a>. Released under the MIT License.</strong>
 </p>
