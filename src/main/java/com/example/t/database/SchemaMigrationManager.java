@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  */
 public class SchemaMigrationManager {
 
-    public static final int CURRENT_SCHEMA_VERSION = 2;
+    public static final int CURRENT_SCHEMA_VERSION = 3;
 
     /**
      * Executes pending migrations on the given connection.
@@ -46,6 +46,12 @@ public class SchemaMigrationManager {
                     applyV2Schema(connection);
                     recordMigration(connection, 2, "V2 enhancements: catalog_cache, invoice_payments, financial_z_reports, and invoice_items additions");
                     Logger.info("Schema migration to version 2 successfully applied.");
+                }
+
+                if (currentVersion < 3) {
+                    applyV3Schema(connection);
+                    recordMigration(connection, 3, "V3 enhancements: add ui_theme column to store_settings table");
+                    Logger.info("Schema migration to version 3 successfully applied.");
                 }
 
                 connection.commit();
@@ -262,6 +268,10 @@ public class SchemaMigrationManager {
         addColumnIfNotExists(connection, "invoice_items", "notes", "TEXT");
     }
 
+    private static void applyV3Schema(Connection connection) throws SQLException {
+        addColumnIfNotExists(connection, "store_settings", "ui_theme", "TEXT DEFAULT 'LIGHT'");
+    }
+
     private static void executeFallbackDdl(Connection connection) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("CREATE TABLE IF NOT EXISTS categories (" +
@@ -326,7 +336,8 @@ public class SchemaMigrationManager {
                     "tax_name TEXT NOT NULL DEFAULT 'Sales Tax', " +
                     "tax_rate REAL NOT NULL DEFAULT 0.0, " +
                     "receipt_language TEXT NOT NULL DEFAULT 'EN', " +
-                    "admin_password_hash TEXT NOT NULL" +
+                    "admin_password_hash TEXT NOT NULL, " +
+                    "ui_theme TEXT DEFAULT 'LIGHT'" +
                     ");");
         }
     }

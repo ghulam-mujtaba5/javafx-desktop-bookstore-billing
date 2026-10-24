@@ -24,6 +24,7 @@
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
             <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                <Button fx:id="btnThemeToggle" mnemonicParsing="false" onAction="#handleThemeToggle" styleClass="chip-btn" text="🌙 Dark Mode" />
                 <Label fx:id="regionPresetLabel" styleClass="preset-badge" text="USA (USD $)" />
                 <Label fx:id="statusBadgeLabel" styleClass="status-badge" text="SQLite (WAL) • Ready" />
             </HBox>
@@ -45,24 +46,25 @@
             <Button fx:id="navSettingsBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleNavSettings" styleClass="nav-button" text="⚙  Store Settings [F15]" />
             <Region VBox.vgrow="ALWAYS" />
             <Separator />
-            <Label style="-fx-text-fill: -color-fg-muted; -fx-font-size: 11px; -fx-padding: 0 0 4 6;" text="Version 1.1.0 • Offline Ready" />
+            <Label fx:id="versionLabel" onMouseClicked="#handleAboutDialog" style="-fx-text-fill: -color-fg-muted; -fx-font-size: 11px; -fx-padding: 0 0 4 6; -fx-cursor: hand;" text="Version 1.2.0 • Offline Ready" />
+            <Button fx:id="navAboutBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAboutDialog" styleClass="nav-button" text="ℹ  About &amp; Benchmark" />
             <Button fx:id="navExitBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleExit" styleClass="nav-button" text="🚪  Exit Application" />
         </VBox>
     </left>
 
     <!-- Center Viewport for Dynamic Content -->
     <center>
-        <StackPane fx:id="contentArea" style="-fx-background-color: #f8fafc;" BorderPane.alignment="CENTER">
+        <StackPane fx:id="contentArea" styleClass="content-area" BorderPane.alignment="CENTER">
             <!-- Dynamically populated with view node (StockManagement.fxml, etc.) -->
         </StackPane>
     </center>
 
     <!-- Bottom Status Bar -->
     <bottom>
-        <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-background-color: #f1f5f9; -fx-padding: 6px 16px; -fx-border-color: #e2e8f0 transparent transparent transparent; -fx-border-width: 1px;" BorderPane.alignment="CENTER">
-            <Label fx:id="footerStatusLabel" style="-fx-font-size: 11px; -fx-text-fill: #64748b;" text="Ready | Press F5 for POS Billing • F12 for Stock Inventory" />
+        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="footer-bar" BorderPane.alignment="CENTER">
+            <Label fx:id="footerStatusLabel" styleClass="footer-label" text="Ready | Press F5 for POS Billing • F12 for Stock Inventory" />
             <Region HBox.hgrow="ALWAYS" />
-            <Label fx:id="clockLabel" style="-fx-font-size: 11px; -fx-text-fill: #64748b;" text="Connected to embedded SQLite" />
+            <Label fx:id="clockLabel" styleClass="footer-label" text="Connected to embedded SQLite" />
         </HBox>
     </bottom>
 </BorderPane>

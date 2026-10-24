@@ -134,7 +134,7 @@
 
             <!-- Right Side: Order Summary & Checkout Card (Wrapped in ScrollPane for Full Screen Responsiveness) -->
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxWidth="540.0" minWidth="310.0" styleClass="transparent-scroll-pane" vbarPolicy="AS_NEEDED">
-                <VBox spacing="10.0" styleClass="card">
+                <VBox spacing="10.0" styleClass="card order-summary-card">
                     <padding>
                         <Insets bottom="12.0" left="14.0" right="14.0" top="12.0" />
                     </padding>
@@ -167,11 +167,11 @@
                                 <Label fx:id="discountAmountLabel" style="-fx-text-fill: #dc2626; -fx-font-weight: bold;" text="- \$ 0.00" />
                             </HBox>
                             <HBox spacing="4.0">
-                                <Button onAction="#handleDiscount0" styleClass="chip-btn" text="0%" />
-                                <Button onAction="#handleDiscount5" styleClass="chip-btn" text="5%" />
-                                <Button onAction="#handleDiscount10" styleClass="chip-btn" text="10%" />
-                                <Button onAction="#handleDiscount15" styleClass="chip-btn" text="15%" />
-                                <Button onAction="#handleDiscount20" styleClass="chip-btn" text="20%" />
+                                <Button onAction="#handleDiscount0" styleClass="chip-btn" text="-0%" />
+                                <Button onAction="#handleDiscount5" styleClass="chip-btn" text="-5%" />
+                                <Button onAction="#handleDiscount10" styleClass="chip-btn" text="-10%" />
+                                <Button onAction="#handleDiscount15" styleClass="chip-btn" text="-15%" />
+                                <Button onAction="#handleDiscount20" styleClass="chip-btn" text="-20%" />
                             </HBox>
                         </VBox>
 
@@ -191,10 +191,10 @@
                         <Separator />
 
                         <!-- Grand Total -->
-                        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #f1f5f9; -fx-padding: 8px; -fx-background-radius: 6px;">
-                            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="GRAND TOTAL:" />
+                        <HBox alignment="CENTER_LEFT" style="-fx-background-color: rgba(0, 103, 192, 0.08); -fx-padding: 10px 12px; -fx-background-radius: 8px; -fx-border-color: rgba(0, 103, 192, 0.25); -fx-border-radius: 8px;">
+                            <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="GRAND TOTAL:" />
                             <Region HBox.hgrow="ALWAYS" />
-                            <Label fx:id="grandTotalLabel" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0067c0;" text="\$ 0.00" />
+                            <Label fx:id="grandTotalLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #0067c0;" text="\$ 0.00" />
                         </HBox>
                     </VBox>
 

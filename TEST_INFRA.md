@@ -1,138 +1,220 @@
-# Comprehensive End-to-End Test Infrastructure (TEST_INFRA)
+# Comprehensive End-to-End Test Infrastructure (TEST_INFRA) — v1.2.0
 
-## 1. Test Philosophy
+## 1. Test Philosophy & Dual-Track Verification
 
-The Bookstore & Stationery POS Billing application follows a **Dual-Track Testing Architecture** where the E2E verification suite is designed and maintained concurrently with the system implementation milestones.
+The JavaFX Desktop Bookstore & Stationery Billing & Inventory system follows an uncompromising **Dual-Track Testing Architecture**, where end-to-end verification and quality assurance run concurrently with active feature development.
 
-### Key Principles:
-1. **Opaque-Box Verification**: The test suite evaluates system behavior from an external perspective, verifying observable state mutations in embedded SQLite tables (`bookstore.db`), RFC 4180 CSV ledgers, receipt documents, and pure mathematical calculation results.
-2. **Deterministic Mathematical Oracle**: All expected values for pricing, discounts, multi-regional sales tax / VAT, and cash change are derived strictly from the formal equations specified in `PROJECT.md` and `ORIGINAL_REQUEST.md`:
+### Core Principles
+1. **Opaque-Box & Requirement-Driven Verification**:
+   Tests evaluate observable external contracts: SQLite database tables and schema migrations (`bookstore.db`), RFC 4180 CSV export/import ledgers, vector PDF invoices, raw ESC/POS bytecode streams, and UI state models without depending on internal implementation details.
+2. **Deterministic Mathematical Oracle**:
+   All financial, tax, discount, split-tender, and cash change calculations are derived strictly from authoritative mathematical formulas using `BigDecimal` with `RoundingMode.HALF_UP` to exactly 2 decimal places ($0.01$):
    - $\text{subtotal} = \sum (\text{unit\_price} \times \text{quantity})$
    - $\text{discount\_amount} = \text{subtotal} \times \left(\frac{\text{discount\_percent}}{100.0}\right)$
    - $\text{taxable\_amount} = \text{subtotal} - \text{discount\_amount}$
    - $\text{tax\_amount} = \text{taxable\_amount} \times \left(\frac{\text{tax\_rate}}{100.0}\right)$
    - $\text{net\_total} = \text{taxable\_amount} + \text{tax\_amount}$
-   - $\text{change\_due} = \text{cash\_tendered} - \text{net\_total}$
-   - *Monetary Precision Rule*: All intermediate calculations and final currency amounts are rounded half-up to exactly 2 decimal places ($0.01$).
-3. **Complete Environmental Isolation**: Tests execute in hermetic sandboxes using isolated temporary SQLite databases and temporary directories. No test mutates production `%LOCALAPPDATA%` paths or leaves persistent residue.
-4. **Adversarial & Regression Defense**: Tests explicitly verify fixes for historical defects (such as the legacy semester project's double-discount calculation bug, duplicate stock ID insertions, and unescaped CSV parsing).
+   - $\text{split\_tender\_balance} = \text{net\_total} - \sum \text{tendered\_amounts}$
+   - $\text{cash\_change\_due} = \text{cash\_tendered} - (\text{net\_total} - \sum \text{non\_cash\_tenders})$
+3. **Headless Execution Safety & Complete Isolation**:
+   Tests must run hermetically on both developer workstations and headless CI environments (Windows, Linux, macOS). JavaFX platform initialization occurs once via `Platform.startup(() -> {})`, audio synthesis is verified safely in daemon threads without blocking UI or requiring physical soundcards, and all persistence operations use temporary SQLite databases with automated teardown.
+4. **Progressive Testability & Zero Regressions**:
+   New v1.2.0 test classes strictly maintain 100% backward compatibility with all 544 pre-existing tests across core services, DAOs, controllers, and v1.0/v1.1 E2E tiers.
 
 ---
 
-## 2. Feature Inventory
+## 2. Feature Inventory (v1.2.0)
 
-The test suite systematically verifies all 8 core functional areas defined in `PROJECT.md`:
-
-| Feature # | Feature Name | Target Scope | Interface / Contract |
-|---|---|---|---|
-| **F1** | **Product & Catalog Management** | Add, update, delete, barcode/SKU lookup, Books vs Stationery classification | `ProductDao`, `Product`, `Category` |
-| **F2** | **Stock Update & Inventory Visibility** | Restock, atomic stock decrement, low-stock threshold warning, out-of-stock guards | `ProductDao.decrementStock`, stock guards |
-| **F3** | **POS Billing Calculations** | Multi-item subtotal, tax math, tendered cash validation, change calculation | `BillingService.calculateOrder` |
-| **F4** | **Discounting Engine** | 0%–100% discount, single-application guarantee (eliminating double-discount bug) | `BillingService`, `CalculationResult` |
-| **F5** | **Multi-Regional Tax & Currency Switching** | Presets for USA (USD / Sales Tax), UK (GBP / VAT), UAE (AED / 5% VAT), Saudi (SAR / 15% VAT), Qatar (QAR / 0% VAT) | `StoreSettings`, `RegionalPreset` |
-| **F6** | **Invoicing & Ledger History** | Transaction recording, line item persistence, invoice ID lookup, date/customer search | `InvoiceDao`, `Invoice`, `InvoiceItem` |
-| **F7** | **SQLite Persistence & Schema Migrations** | 6-table normalized schema, WAL mode, foreign keys, transaction rollbacks | `DatabaseManager`, SQLite DDL |
-| **F8** | **Bidirectional CSV Synchronization** | RFC 4180 compliant export/import, quote/comma escaping, round-trip fidelity | `CsvSyncService` |
+| Requirement | Feature ID | Feature Name | Target Scope | Key Contracts & Interfaces |
+|---|---|---|---|---|
+| **R1** | **F1.1** | **Competitor Benchmark Matrix** | Comprehensive 25-criteria benchmark against Square for Retail, Loyverse, Lightspeed Retail, BookManager, and Basil | `docs/COMPETITOR_MATRIX.md` |
+| **R1** | **F1.2** | **In-App About & Superiority Modal** | Modal dialog displaying version, offline architecture, and competitor differentiators | `MainShellController.handleAboutDialog`, `AboutDialog.fxml` |
+| **R1** | **F1.3** | **Core Differentiator Validation** | Validation of $0 SaaS lifetime fees, <1ms local SQLite WAL latency, 100% offline sovereignty, and direct ESC/POS hardware control | `DatabaseManager`, `EscPosPrintService`, system architecture |
+| **R2** | **F2.1** | **Dark & Light Commercial Themes** | Runtime switching between AtlantaFX `PrimerLight` and `PrimerDark` with CSS root variable remapping | `ThemeManager`, `modern-fluent.css` |
+| **R2** | **F2.2** | **Theme Preference Persistence** | Schema Migration V3 adding `ui_theme` column to `store_settings` and DAO synchronization | `SchemaMigrationManager`, `SettingsDao`, `StoreSettings` |
+| **R2** | **F2.3** | **Visual Product Card Grid** | 155x195px responsive cards with cover art thumbnails, category glyphs, title, author, price, and 3-state stock badges | `PosBillingController.renderProductTiles`, `Product` |
+| **R2** | **F2.4** | **Category Filter Pills** | One-tap catalog chips (`All Items`, `Fiction`, `Non-Fiction`, `Academic`, `Stationery`, `Magazines`, `Best Sellers`) | `PosBillingController.setupCategoryChips`, `FilteredList` |
+| **R2** | **F2.5** | **Premium Order Summary Card** | Elevation drop shadow, line-item badges, -5%/-10%/-20% quick discount chips, and bold 28px total readout | `PosBilling.fxml`, `modern-fluent.css` |
+| **R3** | **F3.1** | **Dual-Mode POS Architecture** | Seamless toggle between `TOUCH_GRID` and `TURBO_KEYBOARD` via `F2` and toolbar button without cart reset | `PosBillingController.PosMode`, `togglePosMode()` |
+| **R3** | **F3.2** | **Scanner Wedge & Keyboard Hook** | Continuous hardware barcode scan buffering and F1–F12 quick action handling | `PosBillingController.setupKeyboardAndScannerBuffer`, `BarcodeScannerBuffer` |
+| **R3** | **F3.3** | **Tactile & Synthesized Audio Feedback** | Card click `ScaleTransition` pulse, repeated-click quantity increments, and non-blocking PCM audio tones via `javax.sound.sampled` | `PosAudioService.playItemAdded()`, `playError()` |
+| **R3** | **F3.4** | **Interactive Split Tender Modal** | Multi-tender checkout modal across Cash, Card, and Store Credit with exact cash change math | `SplitTenderDialog`, `InvoiceDao.createInvoice`, `invoice_payments` |
+| **R4** | **F4.1** | **Semantic Versioning v1.2.0** | Version bump across `pom.xml`, Windows packaging scripts, window titles, and system metadata | `pom.xml`, `installer.iss`, `package.bat`, `package.ps1`, `Main.java` |
+| **R4** | **F4.2** | **Continuous Verification Guard** | 100% test pass rate maintained across 544+ baseline tests with zero regressions | `mvnw.cmd test` |
+| **R4** | **F4.3** | **Offline Dev-Mode Sovereignty** | Modular, network-independent local launch in development mode | `mvnw.cmd javafx:run`, `RunFX`, `Main` |
 
 ---
 
-## 3. Architecture & Test Suite Hierarchy
+## 3. 4-Tier Test Architecture (v1.2.0 Track)
 
-The test suite is structured into four progressive tiers implemented under `src/test/java/com/example/t/e2e/`:
+The v1.2.0 E2E test suite resides in package `com.example.t.e2e.v12` and organizes verification into four structured tiers:
 
 ```
-src/test/java/com/example/t/e2e/
-├── harness/
-│   ├── E2ETestHarness.java              # Sandbox environment, temp DB/CSV manager
-│   ├── CalculationOracle.java           # Independent high-precision mathematical oracle
-│   ├── SqliteTestDatabase.java          # SQLite schema runner & assertion engine
-│   └── CsvTestHelper.java               # RFC 4180 CSV parser and validation utility
-├── tier1/                               # Feature Coverage (>=5 test cases per feature)
-│   ├── ProductManagementE2ETest.java    # F1: 6 test cases
-│   ├── StockUpdateE2ETest.java          # F2: 6 test cases
-│   ├── PosBillingE2ETest.java           # F3: 6 test cases
-│   ├── DiscountCalculationE2ETest.java  # F4: 6 test cases
-│   ├── MultiRegionalTaxE2ETest.java     # F5: 6 test cases
-│   ├── InvoiceHistoryE2ETest.java       # F6: 6 test cases
-│   ├── SqlitePersistenceE2ETest.java    # F7: 6 test cases
-│   └── CsvSyncE2ETest.java              # F8: 6 test cases
-├── tier2/                               # Boundary & Corner Cases (>=5 test cases per feature)
-│   ├── ProductBoundariesE2ETest.java    # Boundary tests for catalog
-│   ├── StockBoundariesE2ETest.java      # Zero, max, negative decrement boundaries
-│   ├── BillingBoundariesE2ETest.java    # Empty cart, single unit, exact cash change
-│   ├── DiscountBoundariesE2ETest.java   # 0%, 100%, negative, >100% rejection
-│   ├── RegionalTaxBoundariesE2ETest.java# 0%, 5%, 15%, 20% boundaries, rounding
-│   ├── InvoiceBoundariesE2ETest.java    # Non-existent invoice, walk-in customer, max items
-│   ├── SqliteBoundariesE2ETest.java     # Constraint violations, rollback, SQL injection
-│   └── CsvBoundariesE2ETest.java        # Embedded commas, double quotes, newlines, empty
-├── tier3/                               # Cross-Feature Combinations (Pairwise & Multi-way)
-│   └── CrossFeaturePairwiseE2ETest.java # 15 pairwise interaction tests
-└── tier4/                               # Real-World Application Scenarios
-    ├── UsaBookstoreScenarioE2ETest.java # University bookstore rush (USD, 8.25% Sales Tax)
-    ├── UkBookshopScenarioE2ETest.java   # High-street bookshop (GBP, 20% VAT stationery, 0% books)
-    ├── GulfUaeStationeryScenarioE2ETest.java # Dubai Mall store (AED, 5% VAT, bilingual)
-    ├── GulfSaudiEducationalScenarioE2ETest.java # Riyadh educational supply (SAR, 15% VAT)
-    └── EndOfDayReconciliationScenarioE2ETest.java # Multi-transaction reconciliation & inventory audit
+src/test/java/com/example/t/e2e/v12/
+├── V12CompetitorMatrixE2ETest.java       # R1 & R4: Competitor benchmark, versioning & differentiators
+├── V12CommercialLookFeelE2ETest.java     # R2: Themes, visual cards, category pills, order summary
+└── V12DualModePosE2ETest.java            # R3: Dual-mode POS, scanner wedge, audio tones, split tender
+```
+
+```
+                                  [ Tier 4 ]
+                         Real-World Retail Scenarios
+                    Peak Retail Rush • Night Shift Workflow
+                  Multi-Tender High-Volume • Dual-Mode Counter
+               ─────────────────────────────────────────────────
+                                  [ Tier 3 ]
+                        Cross-Feature Pairwise Matrix
+                     Theme Switch during Active Split Cart
+                      Dual-Mode Toggle with Parked Carts
+                     Barcode Wedge Scan in Touch-Grid Mode
+               ─────────────────────────────────────────────────
+                                  [ Tier 2 ]
+                        Boundary & Corner Case Stress
+                     Over-tender / Under-tender Split Math
+                     Rapid Theme Flips • Empty Category Pills
+                     Missing Cover Art • Zero & Max Stock Badges
+               ─────────────────────────────────────────────────
+                                  [ Tier 1 ]
+                          Core Feature Verification
+                      >=5 Discrete Tests per Feature Area
+                     R1 Matrix & About • R2 Themes & Cards
+                     R3 Dual POS & Tenders • R4 Versioning
 ```
 
 ---
 
-## 4. Test Scenarios
+## 4. Detailed Test Tier Scenarios
 
-### Tier 1: Feature Coverage (48 Test Cases)
-- **F1 (Product Management)**: Create book, create stationery, retrieve by SKU/barcode, update price, delete product, list products by category.
-- **F2 (Stock Management)**: Restock inventory, decrement inventory, check low-stock threshold (threshold = 5), trigger out-of-stock flag, multi-product decrement, rollback on failure.
-- **F3 (POS Billing)**: Single item calculation, multi-item basket, tax computation, cash change computation, subtotal verification, cash tendered equal to total.
-- **F4 (Discounting)**: Zero discount, 10% standard discount, 25% bulk discount, 50% clearance, 100% promotional giveaway, verify single-application (no double discount).
-- **F5 (Multi-Regional)**: USA preset (USD / Sales Tax), UK preset (GBP / 20% VAT), UAE preset (AED / 5% VAT), Saudi preset (SAR / 15% VAT), Qatar preset (QAR / 0% VAT), currency symbol formatting.
-- **F6 (Invoicing)**: Create invoice with 3 items, query by ID, query by date range, query by customer name, calculate total revenue across invoices, line items foreign key integrity.
-- **F7 (SQLite)**: DDL migration execution, table count verification, WAL mode confirmation, foreign key activation, transaction commit, transaction rollback.
-- **F8 (CSV Sync)**: Catalog CSV export, catalog CSV import, round-trip equality, invoice history CSV append, RFC 4180 delimiter handling.
+### Tier 1: Feature Coverage ($\ge 5$ Tests per Feature Area)
 
-### Tier 2: Boundary & Corner Cases (48 Test Cases)
-- **Catalog Boundaries**: Empty SKU validation, null/empty product name rejection, maximum length name (500 chars), duplicate SKU rejection, Unicode name handling ("كتاب الحاسوب", "War & Peace").
-- **Stock Boundaries**: Stock quantity = 0, restock with max integer ($2^{31}-1$), decrementing more than available stock (rejected), decrementing to exactly 0, negative restock quantity rejection.
-- **Billing Boundaries**: Empty cart ($0.00 subtotal, $0.00 tax, $0.00 total), single item with quantity = 1, price with fractional cents ($19.999), tendered cash less than total (negative change / error), exact change ($0.00 change due).
-- **Discount Boundaries**: 0% boundary, 100% boundary ($0.00 net total), negative discount rejected, discount > 100% rejected, discount on free items.
-- **Tax Boundaries**: 0.0% tax rate (tax = 0.00), 5.0% tax rate, 15.0% tax rate, 20.0% tax rate, 99.99% high tax stress, tax rounding check ($1.005$ rounds to $1.01$).
-- **Invoice Boundaries**: Non-existent ID returns empty, empty customer name defaults to "Walk-in Customer", single-item invoice, 100-item bulk invoice, long customer name handling.
-- **Persistence Boundaries**: SQLite unique constraint violation, foreign key orphan prevention, transaction rollback leaves 0 residue, special characters/SQL injection in strings (`O'Reilly'; DROP TABLE products;--`).
-- **CSV Boundaries**: Values with internal commas (`"Smith, John"`), internal quotes (`"12\" Ruler"`), multiline notes, empty CSV file, CSV with trailing empty lines.
+#### Area R1: Competitor Matrix & System Differentiators (F1.1, F1.2, F1.3)
+1. `testCompetitorMatrixFileCompleteness`: Verifies `docs/COMPETITOR_MATRIX.md` exists, contains all 5 target competitors (Square, Loyverse, Lightspeed, BookManager, Basil), covers all 25 benchmark criteria, and provides 1/3/5-year TCO calculations.
+2. `testInAppAboutDialogAccessibility`: Verifies `MainShellController` exposes about dialog navigation via `navAboutBtn` and `versionLabel` click handlers.
+3. `testZeroSaaSAndOfflinePersistenceContract`: Verifies application persistence architecture uses embedded SQLite 3 WAL mode with zero cloud subscription lock-in.
+4. `testDirectEscPosHardwareCapabilities`: Verifies binary ESC/POS command sequences for drawer kick (`0x1B, 0x70, 0x00, 0x19, 0xFA`), cut, and instant formatting.
+5. `testMultiRegionalTaxAndZatcaQrSupport`: Verifies multi-regional tax engine contracts for USA sales tax, UK VAT, and Gulf bilingual ZATCA Phase 2 QR generation.
 
-### Tier 3: Cross-Feature Combinations (15 Pairwise Scenarios)
-1. **Multi-Currency (GBP) + 10% Discount + 20% VAT + Stock Decrement**: UK store purchase verifying full mathematical chain and database stock count deduction.
-2. **UAE Dirhams (AED) + 5% VAT + Bilingual Invoice + SQLite Ledger**: Verifying Gulf preset persistence and receipt bilingual fields.
-3. **Saudi Riyals (SAR) + 15% VAT + 25% Discount + Cash Change**: Calculating high VAT with discount and cash tendered in SAR.
-4. **USA (USD) + 8.25% Sales Tax + Stock Decrement + CSV Sync**: Complete flow updating both SQLite and RFC 4180 CSV export.
-5. **Zero-Tax Region (QAR) + Promotional Discount (15%) + Mixed Items**: Validating that zero tax computes exactly $0.00 tax with valid discount.
-6. **Bulk Order (50 line items) + Multi-Regional Tax Switching**: Switching store settings from USA to UK and recalculating identical basket.
-7. **Failed Transaction Rollback**: Insufficient stock on 3rd item of a 4-item cart must roll back stock decrements for items 1 and 2 and write no invoice.
-8. **Restock after Order**: Decrementing stock during POS sale, followed by restock operation, verifying net inventory.
-9. **CSV Export -> Truncate DB -> CSV Import**: Full round-trip catalog restoration.
-10. **Invoice Persistence + CSV History Reconciliation**: Cross-checking SQLite `invoices` table against `invoice_history.csv` totals.
-11. **Extreme Monetary Precision (Sub-cent items)**: Purchasing 10 items at $0.33 each with 5% VAT, ensuring exact half-up rounding.
-12. **Concurrent POS Shopping Sessions**: Simulating 5 parallel checkout transactions with isolated database connections.
-13. **Customer Search across Multi-Currency Invoices**: Filtering ledger by customer name with varying currency symbols.
-14. **Category Stock Valuation**: Total stock value calculation by category (Books vs Stationery).
-15. **Regional Preset Dynamic Switch**: Dynamically changing settings from USA to UK to UAE and verifying POS calculation adaptability.
+#### Area R2: Real Commercial Visual Look & Feel (F2.1, F2.2, F2.3, F2.4, F2.5)
+1. `testThemeManagerTogglePrimerLightToDark`: Verifies runtime theme toggle sets AtlantaFX Primer Dark and applies `.theme-dark` root style class.
+2. `testThemePersistenceInStoreSettings`: Verifies SQLite schema migration V3 adds `ui_theme` column to `store_settings` and `SettingsDao` persists updates.
+3. `testProductTileRenderingAndMetadata`: Verifies product cards render title, author, price, and cover image container / category glyph.
+4. `testCategoryFilterPillsPopulation`: Verifies category chips display `All Items`, `Fiction`, `Non-Fiction`, `Academic`, `Stationery`, `Magazines`, and `Best Sellers`.
+5. `testOrderSummaryCardElevationAndReadout`: Verifies cashier sidebar layout contains elevation styling, discount buttons (-5%, -10%, -20%), and high-contrast total readout.
 
-### Tier 4: Real-World Application Scenarios (5 Realistic Sessions)
-1. **USA University Bookstore Rush**: A student buys 1 Calculus Textbook ($120.00), 2 Spiral Notebooks ($4.50 ea), and 1 Scientific Calculator ($25.00). Applies 10% student discount. Store applies 8.25% Texas sales tax. Tendered $150.00 cash. Verifies invoice, inventory, and change due ($17.15).
-2. **UK High-Street Bookshop & Stationery**: Customer buys 2 Fiction Novels (£8.99 ea) and 1 Fountain Pen (£22.50). In UK, books are 0% VAT, stationery is 20% VAT. Verifies split-VAT or standard VAT calculation, change from £50.00 note.
-3. **UAE Dubai Mall Modern Stationery**: Luxury purchase of 1 Leather Journal (AED 85.00), 2 Calligraphy Pens (AED 45.00 ea), 1 Stationery Gift Box (AED 120.00). 5% UAE VAT applied. Arabic/English bilingual invoice generated.
-4. **Saudi Educational Supply Center**: Bulk school supplies: 20 Math Workbooks (SAR 35.00 ea), 50 Ballpoint Pens (SAR 3.00 ea), 10 Geometry Sets (SAR 15.00 ea). Subtotal SAR 1,000.00. 15% Saudi VAT (SAR 150.00). Total SAR 1,150.00. Exported to CSV.
-5. **End-of-Day Store Reconciliation**: 10 transactions processed throughout the day. System aggregates gross revenue, total discounts awarded, total tax collected by regional type, and verifies stock level consistency between database and catalog.
+#### Area R3: Dual-Mode POS & Interactive Workflow (F3.1, F3.2, F3.3, F3.4)
+1. `testDualModePosSwitching`: Verifies switching between `TOUCH_GRID` and `TURBO_KEYBOARD` adjusts catalog table/grid visibility while preserving active cart contents.
+2. `testKeyboardAndScannerBufferHooked`: Verifies `setupKeyboardAndScannerBuffer()` registers keyboard event filters and barcode listener on POS startup.
+3. `testProductCardClickCartIncrement`: Verifies clicking product tiles in touch grid adds items and repeated clicks increment line-item quantity.
+4. `testSynthesizedAudioToneNonBlocking`: Verifies `PosAudioService` synthesizes 1850Hz chime and 350Hz error buzz asynchronously and safely in headless mode.
+5. `testSplitTenderMathematicalCalculation`: Verifies split payment computation across Cash, Card, and Store Credit with exact cash change math.
+
+#### Area R4: Semantic Versioning & System Consistency (F4.1, F4.2, F4.3)
+1. `testPomXmlVersion120`: Verifies `pom.xml` contains `<version>1.2.0</version>` and `<app.version>1.2.0</app.version>`.
+2. `testPackagingScriptsVersion120`: Verifies `installer.iss`, `package.bat`, and `package.ps1` reference version `1.2.0`.
+3. `testMainWindowTitleVersion120`: Verifies application startup title reflects `v1.2.0`.
+4. `testSidebarVersionLabel120`: Verifies `MainShell.fxml` sidebar label displays `Version 1.2.0 • Offline Ready`.
+5. `testDevModeExecutionContract`: Verifies `RunFX` and `Main` are executable without external network connectivity.
 
 ---
 
-## 5. Thresholds & Acceptance Criteria
+### Tier 2: Boundary & Corner Cases ($\ge 5$ Tests per Feature Area)
 
-| Metric | Target Threshold | Strict / Warning |
+1. **Split Tender Boundaries**:
+   - `testSplitTenderExactTenderZeroChange`: Sum of split tenders equals net total exactly ($0.00$ change).
+   - `testSplitTenderOverCashTenderChangeDue`: Cash portion tendered exceeds remaining balance, producing positive cash change.
+   - `testSplitTenderUnderTenderRejection`: Total split tenders less than net total is rejected.
+   - `testSplitTenderSingleTenderFullCash`: Single cash tender through split dialog matching standard cash flow.
+   - `testSplitTenderNonCashZeroChange`: Card or Store Credit cannot produce cash change.
+2. **Visual & Theme Boundaries**:
+   - `testRapidThemeSwitchingStability`: 50 rapid alternating toggles between Light and Dark themes without memory leakage or state desync.
+   - `testThemePersistenceFallback`: Unknown or null theme defaults safely to `"LIGHT"`.
+   - `testProductTileMissingCoverFallback`: Product without cover image displays high-contrast category glyph (`📖`, `✏`, etc.) without crashing.
+   - `testProductTileStockBadgesThreeStates`: Zero stock displays `.stock-out` (Red), low stock ($\le \text{threshold}$) displays `.stock-low` (Amber), abundant stock displays `.stock-in` (Green).
+   - `testCategoryFilterEmptyResults`: Selecting a category with 0 products displays an empty grid gracefully without UI freeze.
+3. **POS Workflow Boundaries**:
+   - `testModeSwitchDuringEmptyCart`: Toggling between Touch Grid and Turbo Keyboard with an empty cart.
+   - `testModeSwitchMaxItemsCart`: Toggling modes with 100+ line items without lag or item loss.
+   - `testBarcodeScanDuringTouchGridMode`: Hardware barcode scan received while cashier is browsing touch tile grid seamlessly adds item.
+   - `testKeyboardShortcutsDisabledInModal`: F-keys do not trigger background screen actions while split tender modal is open.
+   - `testAudioServiceAudioSystemUnavailable`: Audio service catches `LineUnavailableException` / `SecurityException` silently in constrained environments.
+
+---
+
+### Tier 3: Cross-Feature Pairwise Interactions
+
+1. **Theme Toggle during Active Cart with Split Tender**:
+   Switching between Light and Dark mode while an active cart has split tenders pending recalculates and maintains payment state cleanly.
+2. **Dual-Mode Toggle with Multiple Parked Carts**:
+   Toggling from Touch Grid to Turbo Keyboard mode with 3 carts parked in memory preserves all parked carts and recalls them accurately.
+3. **Continuous Barcode Scan + Touch Grid Card Click Interleaving**:
+   Cashier scans 2 items via barcode wedge, taps 1 product card on screen, and scans another item; cart contains all 4 items with correct quantities.
+4. **Category Filter Chip + Quick Discount Chip Interaction**:
+   Filtering grid by "Stationery", selecting 3 items, applying `-10%` quick discount chip, and verifying net total and tax breakdown.
+5. **Theme Switch + SQLite Settings DAO Mutation**:
+   Toggling theme persists `ui_theme` to SQLite `store_settings`, followed by store name update; both settings persist across reload.
+6. **Out-of-Stock Card Tap + Error Audio Buzz**:
+   Tapping a product card with 0 inventory triggers error audio buzz without incrementing cart items.
+7. **Multi-Currency Regional Preset Switch + Split Tender Math**:
+   Switching preset to UK (£ GBP, 20% VAT) and performing split tender calculation with pence rounding precision.
+8. **ZATCA Bilingual Invoice + ESC/POS Receipt Kick after Split Tender Checkout**:
+   Completing a split tender transaction generates both ESC/POS drawer kick byte sequences and valid ZATCA QR TLV records.
+
+---
+
+### Tier 4: Real-World Retail Scenarios
+
+1. **Scenario 1: Peak Retail Bookstore Rush (Touch-to-Turbo Speed Workflow)**:
+   - Cashier starts in Visual Touch-Grid Mode for walk-in customer browsing.
+   - Taps 2 fiction bestsellers and 1 stationery notebook.
+   - Sudden queue surge occurs: Cashier presses `F2` to switch to Turbo-Keyboard Mode.
+   - Rapidly scans 3 barcode items via wedge buffer.
+   - Hits `F8` to open Split Tender: Customer pays $50.00 Cash + $24.50 on Card.
+   - System computes exact change due, records atomic invoice and payment breakdown in SQLite, kicks cash drawer, and readies register for next customer in <100ms.
+2. **Scenario 2: Academic Semester Opening Rush (Category Filtering & Bulk Discounts)**:
+   - Student purchases multiple textbooks and stationery supplies.
+   - Cashier uses Category Filter Pills (`Academic` -> selects Calculus, Physics; `Stationery` -> selects Notebooks, Pens).
+   - Applies `-10%` educational discount chip.
+   - Customer pays with Student Store Credit and Cash.
+   - System updates inventory stock levels and verifies no overselling.
+3. **Scenario 3: Night Shift Retail Operation (Dark Theme & Register Auditing)**:
+   - Cashier toggles application to Primer Dark theme for reduced eye strain during evening hours.
+   - Processes mixed sales transactions with varying payment tenders.
+   - Closes register: Generates end-of-day Z-Report reconciling expected cash vs actual cash count.
+   - Verifies theme preference remains Dark on subsequent restarts.
+4. **Scenario 4: High-Street International Bookshop (Multi-Tax Split Tender & Thermal Receipt)**:
+   - High-street store operating with multi-regional presets (UK GBP with split zero-rated books and standard-rated stationery).
+   - Customer splits tender between Card and Cash.
+   - System computes VAT lines, prints dual ESC/POS thermal receipt with drawer kick, and archives invoice to PDF.
+
+---
+
+## 5. Verification Matrix & Quality Thresholds
+
+| Quality Metric | Target Threshold | Status / Enforcement |
 |---|---|---|
-| **Test Pass Rate** | **100% (0 failures, 0 errors)** | Strict |
-| **Total Test Count** | **$\ge 110$ tests** across Tiers 1–4 | Strict |
-| **Monetary Math Precision** | **Exact to 2 decimal places ($0.01$)** using `BigDecimal` HALF_UP | Strict |
-| **SQLite WAL Mode** | `journal_mode = wal`, `foreign_keys = 1` | Strict |
-| **CSV Format Compliance** | Full RFC 4180 compliance (double quote escaping, delimiter preservation) | Strict |
-| **Test Execution Duration** | $< 30$ seconds for full test suite execution | Warning |
-| **Test Isolation** | Zero cross-test state leakage; independent sandbox per test | Strict |
+| **Compilation** | Clean compilation via `mvnw.cmd test-compile` | Strict (0 errors, 0 warnings) |
+| **Full Suite Pass Rate** | 100% pass rate across $\ge 544$ pre-existing tests | Strict (0 failures, 0 regressions) |
+| **New v1.2.0 Tests** | $\ge 40$ discrete tests across Tiers 1–4 | Strict |
+| **Monetary Math Precision** | Exact to 2 decimal places ($0.01$) via `BigDecimal` | Strict |
+| **Headless Safety** | Tests pass without graphical desktop or physical audio hardware | Strict |
+| **Database Isolation** | Hermetic temporary SQLite databases per test class | Strict |
+
+---
+
+## 6. Execution Instructions
+
+```powershell
+# Compile the test suite
+.\mvnw.cmd test-compile
+
+# Run all v1.2.0 E2E tests
+.\mvnw.cmd test -Dtest="com.example.t.e2e.v12.*Test"
+
+# Run individual v1.2.0 test suites
+.\mvnw.cmd test -Dtest="com.example.t.e2e.v12.V12CompetitorMatrixE2ETest"
+.\mvnw.cmd test -Dtest="com.example.t.e2e.v12.V12CommercialLookFeelE2ETest"
+.\mvnw.cmd test -Dtest="com.example.t.e2e.v12.V12DualModePosE2ETest"
+
+# Run the complete test suite (baseline + v1.2.0)
+.\mvnw.cmd test
+```

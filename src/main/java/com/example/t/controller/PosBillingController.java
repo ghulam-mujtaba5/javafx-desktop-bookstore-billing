@@ -100,7 +100,7 @@ public class PosBillingController {
     private List<InvoicePayment> appliedSplitPayments;
     private BarcodeScannerBuffer scannerBuffer;
     @FXML private CheckBox giftReceiptCheckBox;
-    private String selectedCategory = "ALL";
+    private String selectedCategory = "All Items";
     @FXML private TableColumn<InvoiceItem, String> colCartSku;
     @FXML private TableColumn<InvoiceItem, String> colCartName;
     @FXML private TableColumn<InvoiceItem, String> colCartPrice;
@@ -297,6 +297,10 @@ public class PosBillingController {
      */
     public void addProductToCart(Product product, int quantity) {
         if (product == null || quantity <= 0) return;
+        if (product.getQuantity() <= 0) {
+            NotificationUtil.showWarning("Out of Stock", "'" + product.getProductName() + "' is out of stock.");
+            return;
+        }
 
         // Check if item already exists in cart
         for (InvoiceItem item : cartItems) {
@@ -673,15 +677,23 @@ public class PosBillingController {
         categoryChipsBox.getChildren().clear();
 
         List<String> categories = new ArrayList<>();
-        categories.add("ALL");
-        categories.add("Books");
+        categories.add("All Items");
+        categories.add("Fiction");
+        categories.add("Non-Fiction");
+        categories.add("Academic");
         categories.add("Stationery");
-        categories.add("Office Supplies");
+        categories.add("Magazines");
+        categories.add("Best Sellers");
 
+        if (selectedCategory == null || selectedCategory.isEmpty()) {
+            selectedCategory = "All Items";
+        }
+
+        boolean first = true;
         for (String cat : categories) {
-            Button chip = new Button(cat.equals("ALL") ? "🏷 All Items" : cat);
+            Button chip = new Button(cat);
             chip.getStyleClass().add("category-chip");
-            if (cat.equalsIgnoreCase(selectedCategory)) {
+            if (cat.equalsIgnoreCase(selectedCategory) || (first && ("ALL".equalsIgnoreCase(selectedCategory) || "All Items".equalsIgnoreCase(selectedCategory)))) {
                 chip.getStyleClass().add("active");
             }
             chip.setOnAction(e -> {
@@ -693,6 +705,7 @@ public class PosBillingController {
                 applyCategoryFilter();
             });
             categoryChipsBox.getChildren().add(chip);
+            first = false;
         }
     }
 
@@ -700,8 +713,27 @@ public class PosBillingController {
         if (filteredCatalog == null) return;
         String query = searchField != null && searchField.getText() != null ? searchField.getText().trim().toLowerCase() : "";
         filteredCatalog.setPredicate(p -> {
-            boolean matchesCat = "ALL".equalsIgnoreCase(selectedCategory) ||
-                    (p.getCategory() != null && p.getCategory().equalsIgnoreCase(selectedCategory));
+            boolean matchesCat;
+            if (selectedCategory == null || "ALL".equalsIgnoreCase(selectedCategory) || "All Items".equalsIgnoreCase(selectedCategory)) {
+                matchesCat = true;
+            } else if ("Best Sellers".equalsIgnoreCase(selectedCategory)) {
+                matchesCat = true;
+            } else if (p.getCategory() != null) {
+                String pCat = p.getCategory().trim().toLowerCase();
+                String sel = selectedCategory.trim().toLowerCase();
+                if (pCat.equals(sel)) {
+                    matchesCat = true;
+                } else if (pCat.equals("books") && (sel.equals("fiction") || sel.equals("non-fiction") || sel.equals("academic"))) {
+                    matchesCat = true;
+                } else if (pCat.contains(sel) || sel.contains(pCat)) {
+                    matchesCat = true;
+                } else {
+                    matchesCat = false;
+                }
+            } else {
+                matchesCat = false;
+            }
+
             if (!matchesCat) return false;
             if (query.isEmpty()) return true;
             return (p.getProductName() != null && p.getProductName().toLowerCase().contains(query)) ||
@@ -717,13 +749,18 @@ public class PosBillingController {
 
         List<Product> displayItems = filteredCatalog != null ? filteredCatalog : catalogData;
         for (Product product : displayItems) {
-            VBox tile = new VBox(4);
+            VBox tile = new VBox(6);
             tile.getStyleClass().add("product-tile");
+            tile.setPrefSize(155, 195);
+            tile.setMinSize(155, 195);
+            tile.setMaxSize(155, 195);
+            tile.setPadding(new Insets(10));
 
             Label titleLabel = new Label(product.getProductName());
             titleLabel.getStyleClass().add("product-tile-title");
             titleLabel.setWrapText(true);
-            titleLabel.setMaxHeight(36);
+            titleLabel.setMaxHeight(50);
+            VBox.setVgrow(titleLabel, Priority.ALWAYS);
 
             Label catLabel = new Label(product.getCategory() != null ? product.getCategory() : "General");
             catLabel.getStyleClass().add("product-tile-category");
@@ -738,13 +775,16 @@ public class PosBillingController {
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
             int stock = product.getQuantity();
-            Label stockLabel = new Label(stock > 0 ? (stock + " in stock") : "Out of Stock");
+            Label stockLabel = new Label();
             stockLabel.getStyleClass().add("product-tile-stock");
             if (stock <= 0) {
+                stockLabel.setText("Out of Stock");
                 stockLabel.getStyleClass().add("stock-out");
             } else if (stock <= 5) {
+                stockLabel.setText(stock + " in stock");
                 stockLabel.getStyleClass().add("stock-low");
             } else {
+                stockLabel.setText(stock + " in stock");
                 stockLabel.getStyleClass().add("stock-in");
             }
 
@@ -752,7 +792,7 @@ public class PosBillingController {
             tile.getChildren().addAll(titleLabel, catLabel, bottomRow);
 
             tile.setOnMouseClicked(e -> {
-                if (stock > 0) {
+                if (product.getQuantity() > 0) {
                     addProductToCart(product, 1);
                 } else {
                     NotificationUtil.showWarning("Out of Stock", "'" + product.getProductName() + "' is out of stock.");
@@ -829,8 +869,9 @@ public class PosBillingController {
 
     private void setQuickDiscount(double pct) {
         if (discountPercentField != null) {
-            discountPercentField.setText(String.format("%.1f", pct));
+            discountPercentField.setText(String.format(java.util.Locale.US, "%.1f", pct));
         }
+        recalculateOrder();
     }
 
     public void handleScannedBarcode(String barcode) {

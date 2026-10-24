@@ -1,8 +1,8 @@
 ; Inno Setup Script for Bookstore & Stationery Billing POS
-; Version: 1.1.0
+; Version: 1.2.0
 
 #define MyAppName "Bookstore & Stationery Billing POS"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "Ghulam Mujtaba"
 #define MyAppURL "https://github.com/ghulam-mujtaba5/javafx-desktop-bookstore-billing"
 #define MyAppExeName "BookstoreBilling.exe"

@@ -1,8 +1,12 @@
 package com.example.t;
 
+import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import com.example.t.controller.MainShellController;
+import com.example.t.dao.SettingsDao;
 import com.example.t.database.DatabaseManager;
+import com.example.t.model.StoreSettings;
+import com.example.t.util.ThemeManager;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -41,12 +45,18 @@ public class Main extends Application {
             System.err.println("Database initialization warning: " + e.getMessage());
         }
 
-        // 2. Apply AtlantaFX modern Fluent theme
+        // 2. Apply AtlantaFX modern Fluent theme from saved settings
+        SettingsDao settingsDao = new SettingsDao();
+        String initialTheme = ThemeManager.THEME_LIGHT;
         try {
-            Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+            StoreSettings s = settingsDao.getSettings();
+            if (s != null && s.getUiTheme() != null) {
+                initialTheme = s.getUiTheme();
+            }
         } catch (Throwable t) {
-            System.err.println("Could not apply AtlantaFX PrimerLight theme: " + t.getMessage());
+            System.err.println("Could not load saved theme preference: " + t.getMessage());
         }
+        ThemeManager.applyTheme(null, initialTheme, null);
 
         // 3. Load Master Navigation Shell as primary single-window stage
         loadMainShell();
@@ -77,6 +87,9 @@ public class Main extends Application {
                 scene.getStylesheets().add(cssUrl.toExternalForm());
             }
 
+            // Apply saved theme to Scene
+            ThemeManager.applyTheme(scene, ThemeManager.getCurrentTheme(), null);
+
             // Bind keyboard shortcuts (F5, F12, F14, F15)
             if (shellController != null) {
                 shellController.setupKeyShortcuts(scene);
@@ -87,7 +100,7 @@ public class Main extends Application {
             scene.heightProperty().addListener((obs, oldH, newH) -> updateResponsiveStyles(root, scene.getWidth(), newH.doubleValue()));
             updateResponsiveStyles(root, 1280, 800);
 
-            primaryStage.setTitle("Bookstore & Stationery Billing & Inventory v1.1.0");
+            primaryStage.setTitle("Bookstore & Stationery Billing & Inventory v1.2.0");
             primaryStage.setMinWidth(960);
             primaryStage.setMinHeight(640);
             primaryStage.setScene(scene);

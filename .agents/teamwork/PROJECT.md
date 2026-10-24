@@ -1,122 +1,87 @@
-# Project: Modern Offline JavaFX Desktop Bookstore & Stationery Billing & Inventory (v1.1.0)
+# Project: Modern Offline JavaFX Desktop Bookstore & Stationery Billing & Inventory (v1.2.0)
 
 ## Architecture
 - **Runtime & Target**: OpenJDK 21 LTS, JavaFX 21.0.6, ControlsFX 11.2.1, AtlantaFX 2.0.1 (Windows 11 Fluent theme).
-- **UI Architecture**: Single-stage Master Navigation Shell (Sidebar + Center Content Viewport) built with FXML + AtlantaFX CSS styling.
-- **Persistence Architecture**: Embedded SQLite 3 (`bookstore.db`) under `%LOCALAPPDATA%\BookstoreBilling\data\` with WAL mode, foreign keys, automated schema migrations (`schema_migrations` table), sample catalog seeding, backward-compatible flat-file migration, and RFC 4180 CSV export sync.
-- **Document / PDF Engine**: OpenPDF 1.3.40 generating professional, branded invoices with multi-regional support (USA sales tax, UK VAT, Gulf 5-15% VAT and bilingual Arabic/English layout) and 50x30mm Code-128 / EAN-13 shelf/spine labels.
-- **Hardware Printing Engine**: Raw ESC/POS bytecode streamer (80mm / 58mm), paper cut command, and cash drawer kick pulse.
-- **Metadata Engine**: Asynchronous bibliographic metadata retrieval (`MetadataService`) with ISBN-10/13 checksum validation, SQLite local cache, Google Books & Open Library fallback, and AppData cover art caching.
-- **Packaging Architecture**: Standalone zero-dependency Windows distribution (`BookstoreBilling.exe`) created via hybrid `jlink` runtime + `jpackage --type app-image` classpath bundling.
+- **UI Architecture**: Single-stage Master Navigation Shell with dual commercial themes (AtlantaFX Primer Light & Primer Dark) toggled dynamically with SQLite persistence; Dual-Mode POS (Visual Touch-Grid Mode vs. Turbo-Keyboard Mode).
+- **Persistence Architecture**: Embedded SQLite 3 (`bookstore.db`) under `%LOCALAPPDATA%\BookstoreBilling\data\` with WAL mode, foreign keys, automated schema migrations (`schema_migrations` table), and `store_settings.ui_theme` preference.
+- **Hardware & Printing Engine**: Raw ESC/POS bytecode streamer (80mm / 58mm), paper cut command, and cash drawer kick pulse (`0x1B, 0x70, 0x00, 0x19, 0xFA`). OpenPDF 1.3.40 generating multi-regional invoices and 50x30mm thermal shelf/spine labels.
+- **Audio & Haptics Engine**: Zero-external-dependency non-blocking PCM audio synthesizer (`javax.sound.sampled` via daemon thread) with JavaFX `ScaleTransition` card feedback.
+- **Competitor Superiority**: Documented and in-app verified differentiators over Square for Retail, Loyverse, Lightspeed Retail, BookManager, and Basil ($0 SaaS fees, <1ms local WAL latency, 100% offline sovereignty, direct binary hardware control).
+- **Packaging & Dev-Mode**: Zero-dependency Windows distribution (`v1.2.0`) via hybrid `jlink` + `jpackage`, and headless-safe modular dev-mode (`mvnw.cmd javafx:run`).
 
-## Feature Inventory (v1.1.0)
+## Feature Inventory (v1.2.0)
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| 1 | Baseline 100% Pass & Region Fix | Fix `RegionalPreset.GULF_UAE` currency symbol to Arabic "د.إ" to restore 100% pass (398/398) | M1.1-A | Explorer 3 / R5 (DONE) |
-| 2 | HTTP & Module Configuration | Add `requires java.net.http;` to `module-info.java` | M1.1-A | Explorer 1 / R1 (DONE) |
-| 3 | SQLite Schema Migration V2 | Add `catalog_cache`, `invoice_payments`, `financial_z_reports` tables & `invoice_items` columns | M1.1-A | Explorer 1, 2, 3 (DONE) |
-| 4 | Data DAOs & Models V2 | Add `CatalogCacheDao`, `InvoicePaymentDao`, `ZReportDao`, `BookMetadata`, and AppData covers dir | M1.1-A | Explorer 1, 2, 3 (DONE) |
-| 5 | ISBN Checksum & Conversion | Implement `IsbnValidator` with Mod 11, Mod 10, and bidirectional 978 conversion | M1.1-B | Explorer 1 / R1 |
-| 6 | Asynchronous MetadataService | Google Books + Open Library query with local SQLite cache and cover art download | M1.1-B | Explorer 1 / R1 |
-| 7 | Stock Catalog ISBN Auto-enrichment | Auto-populate title, author, publisher, edition, cover preview on ISBN entry in Stock UI | M1.1-B | Explorer 1 / R1 |
-| 8 | Keyboard Shortcuts (F1–F12) | Zero-touch keyboard navigation in POS billing coordinated with MainShell | M1.1-C | Explorer 2 / R2 |
-| 9 | Scanner Wedge Buffer | Buffer rapid hardware keystrokes (40ms threshold) terminated by Enter without corrupting text fields | M1.1-C | Explorer 2 / R2 |
-| 10 | Split Tender Payments | Split order total across Cash (with change math), Card, Store Credit into `invoice_payments` | M1.1-C | Explorer 2 / R2 |
-| 11 | Multi-Cart Park and Resume | In-memory `ParkedCart` state management (Hold F6 / Resume F7) with visual tab/switcher | M1.1-C | Explorer 2 / R2 |
-| 12 | Line Notes & Discounts | Support item-level discount %, cart discount %, line notes, and gift receipt generation | M1.1-C | Explorer 2 / R2 |
-| 13 | Thermal ESC/POS Byte Streamer | 80mm/58mm bytecode builder, paper cut, drawer kick pulse (`0x1B, 0x70, 0x00, 0x19, 0xFA`) | M1.1-D | Explorer 3 / R3 |
-| 14 | Shelf & Spine Barcode Labels | 50x30mm thermal label generation (Code-128 / EAN-13) using OpenPDF vector barcode classes | M1.1-D | Explorer 3 / R3 |
-| 15 | Dead Stock Radar Engine | Identify 60/90/180-day non-moving stock grouped by publisher with capital tied up & CSV export | M1.1-E | Explorer 3 / R4 |
-| 16 | Dynamic Reorder Assistant | Daily sales velocity ($V_{30}$) and lead time ($L$) safety stock reorder thresholds | M1.1-E | Explorer 3 / R4 |
-| 17 | Daily Financial Z-Report & Audit | End-of-day register closure, expected vs actual cash reconciliation, non-resettable grand totals | M1.1-E | Explorer 3 / R4 |
-| 18 | Semantic Versioning & Full Test Suite | Verify version 1.1.0 across artifacts and achieve 100% clean test suite execution | M1.1-E | Explorer 3 / R5 |
+| 1 | Competitor Benchmarking Matrix | 25-criteria benchmark against Square, Loyverse, Lightspeed, BookManager, Basil in `docs/COMPETITOR_MATRIX.md` | M1.2-A | Explorer 3 / R1 |
+| 2 | In-App About & Comparison Modal | In-app dialog displaying superiority matrix & offline architecture differentiators | M1.2-A | Explorer 3 / R1 |
+| 3 | Semantic Version Bump (v1.2.0) | Update version string to 1.2.0 across pom.xml, installer.iss, package scripts, Main, MainShell, tests | M1.2-A | Explorer 3 / R4 |
+| 4 | SQLite Schema Migration V3 | Add `ui_theme TEXT DEFAULT 'LIGHT'` to `store_settings` table | M1.2-B | Explorer 1 / R2 |
+| 5 | ThemeManager & AtlantaFX Toggle | Primer Light / Dark runtime switching with SQLite persistence and root CSS inversion | M1.2-B | Explorer 1 / R2 |
+| 6 | Visual Product Card Grid | 155x195px cards with cover thumbnails, category glyphs, title, author, price, 3-state stock badges | M1.2-B | Explorer 1 / R2 |
+| 7 | Category Filter Pills | Quick-filter chips (All, Fiction, Non-Fiction, Academic, Stationery, Magazines, Best Sellers) | M1.2-B | Explorer 1 / R2 |
+| 8 | Premium Order Summary Card | Elevation drop shadow, line-item badges, -5%/-10%/-20% quick discount chips, 28px bold total readout | M1.2-B | Explorer 1 / R2 |
+| 9 | Keyboard & Scanner Buffer Hook | Fix startup defect by calling `setupKeyboardAndScannerBuffer()` in `PosBillingController.initialize()` | M1.2-C | Explorer 2 / R3 |
+| 10 | Dual-Mode POS Architecture | `PosMode` (Touch-Grid vs. Turbo-Keyboard) toggle via `F2` and toolbar button without cart reset | M1.2-C | Explorer 2 / R3 |
+| 11 | Card Click Tactile & Audio Feedback | Non-blocking PCM audio chime/buzz via `javax.sound.sampled` daemon thread + scale pulse; quantity increment | M1.2-C | Explorer 2 / R3 |
+| 12 | Interactive Split Tender Modal | `SplitTenderDialog` calculating remaining balance & cash change across Cash, Card, Store Credit | M1.2-C | Explorer 2 / R3 |
+| 13 | Full Test Suite & Continuous Verification | Maintain 100% pass rate across all 544+ tests with zero regressions on JDK 21 LTS | M1.2-D | Explorer 3 / R4 |
+| 14 | Dev-Mode Execution & Offline Sovereignty | Verify `mvnw.cmd javafx:run` launches modularly without internet dependencies | M1.2-D | Explorer 3 / R4 |
 
-## Milestones (v1.1.0)
+## Milestones (v1.2.0)
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1.1-A | Baseline Fix, Migration V2 & Infrastructure | Fix UAE currency symbol, module-info http dependency, Migration V2 (catalog_cache, invoice_payments, z_reports), DAOs | none | DONE |
-| M1.1-B | Intelligent Online/Offline ISBN Engine (R1) | IsbnValidator (Mod 11/10 & conversion), MetadataService (Google Books/OpenLibrary fallback), cover caching, Stock UI integration | M1.1-A | DONE |
-| M1.1-C | Keyboard-First POS & Split Tender (R2) | F1-F12 shortcuts, barcode scanner buffer, split tender math & DAO, Park/Resume carts, item notes, gift receipt | M1.1-A | PLANNED |
-| M1.1-D | Thermal ESC/POS & Label Printing (R3) | EscPosBuilder (80mm/58mm, cut, drawer kick), pluggable transport, 50x30mm shelf/spine labels via OpenPDF | M1.1-A | PLANNED |
-| M1.1-E | Inventory Intelligence, Z-Reports & Full Pass (R4, R5) | Dead Stock Radar by publisher, dynamic safety stock, Z-Report reconciliation & audit ledger, 100% test suite pass | M1.1-B, M1.1-C, M1.1-D | PLANNED |
+| M1.2-A | Competitor Gap Analysis & Semantic Versioning (R1, R4a) | Features #1, #2, #3: Competitor matrix document, in-app comparison dialog, version bump across 7 files / 11 lines | none | PLANNED |
+| M1.2-B | Real Commercial Visual Look & Feel & Themes (R2) | Features #4, #5, #6, #7, #8: Schema migration V3, ThemeManager, visual cards, category pills, order summary card | M1.2-A | PLANNED |
+| M1.2-C | Dual-Mode POS Layout & Interactive Workflow (R3) | Features #9, #10, #11, #12: Keyboard & scanner buffer hook, Touch vs Turbo mode, audio/visual click feedback, SplitTenderDialog | M1.2-B | PLANNED |
+| M1.2-D | Continuous Verification, E2E Testing & Dev-Mode (R4b) | Features #13, #14: 100% test pass (544+ tests), new v1.2.0 test coverage, live dev-mode verification | M1.2-C | PLANNED |
 
-## Interface Contracts (v1.1.0)
+## Interface Contracts (v1.2.0)
 
-### 1. ISBN Validation & Metadata Layer (`com.example.t.service.isbn`)
-- `IsbnValidator`:
-  - `boolean isValid(String raw)`
-  - `boolean isValidIsbn10(String raw)`
-  - `boolean isValidIsbn13(String raw)`
-  - `String toIsbn13(String isbn10Raw)`
-  - `Optional<String> toIsbn10(String isbn13Raw)`
-  - `String clean(String raw)`
-- `MetadataService`:
-  - `CompletableFuture<Optional<BookMetadata>> lookupAsync(String rawIsbn)`
-  - `Optional<BookMetadata> lookupSync(String rawIsbn)`
-- `BookMetadata`:
-  - Attributes: `isbn13`, `isbn10`, `title`, `subtitle`, `authors`, `publisher`, `publishedYear`, `edition`, `format`, `genre`, `description`, `pageCount`, `coverImageUrl`, `coverLocalPath`, `source`.
+### 1. Theme & Settings Contract (`com.example.t.util.ThemeManager` & `com.example.t.model.StoreSettings`)
+- `StoreSettings`:
+  - `String getUiTheme()` / `void setUiTheme(String uiTheme)` (values: `"LIGHT"`, `"DARK"`).
+- `ThemeManager`:
+  - `void applyTheme(Scene scene, String themeName, SettingsDao settingsDao)`
+  - `void toggleTheme(Scene scene, SettingsDao settingsDao)`
+  - `String getCurrentTheme()`
 
-### 2. POS Keyboard, Scanner & Split Tender (`com.example.t.service` / `com.example.t.controller`)
-- `BarcodeScannerBuffer`:
-  - `void handleKeyEvent(KeyEvent event, Consumer<String> onBarcodeDetected)`
-  - Inter-keystroke threshold: 40ms, minimum length: 4 digits, terminator: `\r`, `\n`, `ENTER`.
-- `BillingService` Split Tender additions:
-  - `CalculationResult calculateSplitTender(double netTotal, List<PaymentTender> tenders)`
-  - Change due calculation: $c = \max(0, \sum \text{tendered}_\text{cash} - \text{applied}_\text{cash})$
-- `InvoicePayment`:
-  - Attributes: `paymentId`, `invoiceId`, `paymentType` (`CASH`, `CARD`, `STORE_CREDIT`), `amount`, `tenderedAmount`, `changeDue`, `referenceInfo`.
-- `ParkedCart`:
-  - Attributes: `cartId`, `displayName`, `parkedAt`, `customerName`, `items`, `discountPercent`, `notes`, `giftReceipt`.
+### 2. Dual-Mode POS Contract (`com.example.t.controller.PosBillingController`)
+- `PosMode` enum: `TOUCH_GRID`, `TURBO_KEYBOARD`.
+- `void setPosMode(PosMode mode)`
+- `PosMode getPosMode()`
+- `void togglePosMode()`
+- Behaviors:
+  - `TOUCH_GRID`: Catalog grid expanded with visual cards, category filter pills visible, cart sidebar elevated.
+  - `TURBO_KEYBOARD`: Cart table maximized full-height, catalog grid collapsed (`visible=false, managed=false`), search/barcode field persistently focused.
+  - Cart items, selected customer, and applied discount remain completely preserved across mode toggles.
 
-### 3. Hardware Thermal Printing & Labels (`com.example.t.service.printer`)
-- `EscPosBuilder`:
-  - `EscPosBuilder initialize()`
-  - `EscPosBuilder text(String text)`
-  - `EscPosBuilder align(Alignment alignment)`
-  - `EscPosBuilder bold(boolean on)`
-  - `EscPosBuilder lineFeed(int lines)`
-  - `EscPosBuilder cutPaper(boolean fullCut)`
-  - `EscPosBuilder kickDrawer()` (emits `0x1B, 0x70, 0x00, 0x19, 0xFA`)
-  - `byte[] getBytes()`
-- `ShelfLabelService`:
-  - `byte[] generatePdfLabels(List<Product> products, LabelConfig config)` (50x30mm Code-128 / EAN-13).
+### 3. POS Audio & Haptics Contract (`com.example.t.service.audio.PosAudioService`)
+- `PosAudioService`:
+  - `void playItemAdded()`: 1850Hz 45ms synthesized PCM chime (non-blocking daemon thread).
+  - `void playError()`: 350Hz 120ms synthesized PCM buzz (non-blocking daemon thread).
+  - Headless safe: catches all exceptions silently during headless CI/unit tests.
 
-### 4. Inventory Intelligence & Financial Z-Reports (`com.example.t.service.analytics`)
-- `DeadStockReport`:
-  - Query non-moving titles over $D \in \{60, 90, 180\}$ days grouped by publisher, capital tied up ($Q \times P_\text{purchase}$).
-  - Export to RFC 4180 CSV for return-to-vendor credit.
-- `DynamicReorderService`:
-  - Daily velocity $V_{30} = \sum \text{units}_{30\text{d}} / 30.0$.
-  - Reorder point $ROP = \max(\text{min\_stock}, \lceil V_{30} \times L \rceil)$.
-- `ZReportService`:
-  - `ZReport closeRegister(LocalDate date, double openingFloat, double actualCashCount, String closedBy)`
-  - Cumulative grand total: $CGT_K = CGT_{K-1} + \text{net\_sales}_K$.
+### 4. Split Tender Modal Contract (`com.example.t.controller.SplitTenderDialog`)
+- Inputs: `double netTotal`, `String currencySymbol`.
+- Outputs: `Optional<List<InvoicePayment>>` with calculated change due for cash tender.
+- Validation: Total tendered payments must be $\ge \text{netTotal}$.
 
-## Code Layout (v1.1.0 Additions)
+## Code Layout (v1.2.0 Additions)
 ```
+docs/
+└── COMPETITOR_MATRIX.md
 src/main/java/com/example/t/
-├── model/
-│   ├── BookMetadata.java
-│   ├── PaymentTender.java
-│   ├── InvoicePayment.java
-│   ├── ParkedCart.java
-│   └── ZReport.java
+├── controller/
+│   └── SplitTenderDialog.java
 ├── service/
-│   ├── isbn/
-│   │   ├── IsbnValidator.java
-│   │   └── MetadataService.java
-│   ├── printer/
-│   │   ├── EscPosBuilder.java
-│   │   ├── EscPosPrinterService.java
-│   │   └── ShelfLabelService.java
-│   └── analytics/
-│       ├── DeadStockService.java
-│       ├── DynamicReorderService.java
-│       └── ZReportService.java
-├── dao/
-│   ├── CatalogCacheDao.java
-│   ├── InvoicePaymentDao.java
-│   └── ZReportDao.java
+│   └── audio/
+│       └── PosAudioService.java
 └── util/
-    └── BarcodeScannerBuffer.java
+    └── ThemeManager.java
+src/main/resources/com/example/t/
+├── css/
+│   └── modern-fluent.css (dark theme rules & card elevations)
+└── fxml/
+    ├── AboutDialog.fxml (or modal in MainShell)
+    └── SplitTenderDialog.fxml
 ```

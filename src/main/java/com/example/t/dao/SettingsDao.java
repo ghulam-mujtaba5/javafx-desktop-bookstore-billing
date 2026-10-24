@@ -50,7 +50,7 @@ public class SettingsDao {
         if (exists) {
             String updateSql = "UPDATE store_settings SET store_name = ?, store_address = ?, store_phone = ?, " +
                     "region_preset = ?, currency_code = ?, currency_symbol = ?, tax_name = ?, tax_rate = ?, " +
-                    "receipt_language = ?, admin_password_hash = ? WHERE setting_id = 1;";
+                    "receipt_language = ?, admin_password_hash = ?, ui_theme = ? WHERE setting_id = 1;";
             try (PreparedStatement pstmt = conn.prepareStatement(updateSql)) {
                 pstmt.setString(1, settings.getStoreName());
                 pstmt.setString(2, settings.getStoreAddress());
@@ -62,12 +62,13 @@ public class SettingsDao {
                 pstmt.setDouble(8, settings.getTaxRate());
                 pstmt.setString(9, settings.getReceiptLanguage());
                 pstmt.setString(10, settings.getAdminPasswordHash());
+                pstmt.setString(11, settings.getUiTheme() != null ? settings.getUiTheme() : "LIGHT");
                 return pstmt.executeUpdate() > 0;
             }
         } else {
             String insertSql = "INSERT INTO store_settings (setting_id, store_name, store_address, store_phone, " +
-                    "region_preset, currency_code, currency_symbol, tax_name, tax_rate, receipt_language, admin_password_hash) " +
-                    "VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                    "region_preset, currency_code, currency_symbol, tax_name, tax_rate, receipt_language, admin_password_hash, ui_theme) " +
+                    "VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
             try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
                 pstmt.setString(1, settings.getStoreName());
                 pstmt.setString(2, settings.getStoreAddress());
@@ -79,12 +80,38 @@ public class SettingsDao {
                 pstmt.setDouble(8, settings.getTaxRate());
                 pstmt.setString(9, settings.getReceiptLanguage());
                 pstmt.setString(10, settings.getAdminPasswordHash());
+                pstmt.setString(11, settings.getUiTheme() != null ? settings.getUiTheme() : "LIGHT");
                 return pstmt.executeUpdate() > 0;
             }
         }
     }
 
+    public boolean updateTheme(String theme) throws SQLException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            return updateTheme(theme, conn);
+        }
+    }
+
+    public boolean updateTheme(String theme, Connection conn) throws SQLException {
+        String safeTheme = (theme != null && "DARK".equalsIgnoreCase(theme.trim())) ? "DARK" : "LIGHT";
+        String sql = "UPDATE store_settings SET ui_theme = ? WHERE setting_id = 1;";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, safeTheme);
+            return pstmt.executeUpdate() > 0;
+        }
+    }
+
     private StoreSettings mapRow(ResultSet rs) throws SQLException {
+        String theme = "LIGHT";
+        try {
+            String val = rs.getString("ui_theme");
+            if (val != null && !val.isBlank()) {
+                theme = val;
+            }
+        } catch (SQLException ignored) {
+            // In case column does not exist in an older test fixture
+        }
+
         return new StoreSettings(
                 rs.getInt("setting_id"),
                 rs.getString("store_name"),
@@ -96,7 +123,8 @@ public class SettingsDao {
                 rs.getString("tax_name"),
                 rs.getDouble("tax_rate"),
                 rs.getString("receipt_language"),
-                rs.getString("admin_password_hash")
+                rs.getString("admin_password_hash"),
+                theme
         );
     }
 }

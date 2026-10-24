@@ -10,7 +10,7 @@ cd /d "%SCRIPT_DIR%"
 
 set APP_NAME=BookstoreBilling
 set APP_MAIN_CLASS=com.example.t.RunFX
-set APP_VERSION=1.1.0
+set APP_VERSION=1.2.0
 set VENDOR=BookstoreBilling
 set DESCRIPTION=Bookstore and Stationery Billing POS Application
 set ICON_FILE=%SCRIPT_DIR%icon.ico
@@ -144,7 +144,7 @@ if "%DRY_RUN%"=="1" (
     echo Planned Execution Steps:
     echo  1. "%MVNW_CMD%" package -DskipTests -Ppackage-windows
     echo  2. "%JLINK_CMD%" --no-header-files --no-man-pages --strip-debug --add-modules %JLINK_MODULES% --output "%RUNTIME_DIR%"
-    echo  3. "%JPACKAGE_CMD%" --type app-image --name %APP_NAME% --dest "%DIST_DIR%" --input "%LIBS_DIR%" --main-jar t-1.0-SNAPSHOT.jar --main-class %APP_MAIN_CLASS% --runtime-image "%RUNTIME_DIR%"
+    echo  3. "%JPACKAGE_CMD%" --type app-image --name %APP_NAME% --dest "%DIST_DIR%" --input "%LIBS_DIR%" --main-jar t-1.2.0.jar --main-class %APP_MAIN_CLASS% --runtime-image "%RUNTIME_DIR%"
     echo.
     echo [OK] Dry-run validation successful. Environment and parameters are valid.
     exit /b 0

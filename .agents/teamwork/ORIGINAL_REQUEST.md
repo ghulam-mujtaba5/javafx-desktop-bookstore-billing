@@ -114,3 +114,53 @@ Enhance inventory management and analytics:
 ### Versioning & Verification
 - [ ] `pom.xml` reflects updated version `1.1.0`.
 - [ ] 100% of unit and E2E test suites pass cleanly on JDK 21 LTS (`mvnw.cmd test`).
+
+
+## 2026-10-23T04:36:04Z
+
+Comprehensive competitive feature enhancement and real commercial software visual "Look & Feel" upgrade for JavaFX Desktop Bookstore & Stationery Billing & Inventory against industry-leading POS systems (Square for Retail, Loyverse, Lightspeed Retail, BookManager, and Shopify POS). Implements winning features systematically, elevates the UI to premium dark/light commercial terminal styling with visual book cards and dual-mode POS, maintains semantic versioning (v1.2.0), and keeps dev mode active.
+
+Working directory: e:\javafx-desktop-bookstore-billing
+Integrity mode: development
+
+## Requirements
+
+### R1. Competitor Gap Analysis & Feature Superiority Matrix
+Analyze top commercial POS platforms (Square for Retail, Loyverse, Lightspeed Retail, BookManager, Basil):
+- Compare core bookstore & retail capabilities: catalog visual presentation, quick action chips, cart hold/resume, split tender calculations, multi-regional tax receipts (bilingual ZATCA QR, UK VAT, USA Sales Tax), and offline persistence.
+- Document and implement clear winning differentiators: zero monthly cloud subscription fees, zero internet latency, local embedded SQLite WAL persistence, and direct binary ESC/POS thermal printing with cash drawer kick.
+
+### R2. Real Commercial Software Visual "Look & Feel" (Dark/Light Fluent UI)
+Transform the POS interface to match high-end modern retail terminals:
+- **Visual Product Card Grid**: Dynamic tile view displaying book cover thumbnails / category icons, title, author, price, and instant stock badge (Green = In Stock, Amber = Low Stock, Red = Out of Stock).
+- **Category Filter Pills**: Quick-filter chips (All, Fiction, Non-Fiction, Academic, Stationery, Magazines, Best Sellers) for one-tap catalog browsing.
+- **Dark & Light Commercial Themes**: One-click toggle between AtlantaFX Primer Light and Primer Dark with persistent user theme preference in SQLite store settings.
+- **Premium Order Summary Card**: Styled cashier cart sidebar with elevation shadow, line-item badges, quick discount chips (-5%, -10%, -20%), and large high-contrast total readout.
+
+### R3. Dual-Mode POS Layout (Touch-Grid vs. Turbo-Keyboard Mode)
+Provide seamless switching between two industry-standard POS operational modes:
+- **Visual Touch Grid Mode**: Large card buttons optimized for touchscreen terminals, mouse navigation, and counter sales.
+- **Turbo Keyboard Mode**: Dense, rapid keyboard-only workflow (`F1`–`F12`, barcode wedge auto-scan, instant split tender modal, cash change computation) for high-traffic peak retail hours.
+
+### R4. Semantic Versioning, Dev-Mode Execution & Continuous Verification
+- Bump application semantic version from `v1.1.0` to `v1.2.0` across `pom.xml`, Windows packaging metadata, and application title bar.
+- Keep the application running in live dev mode (`mvnw.cmd javafx:run`) during iterative development.
+- Maintain 100% test pass rate across the full suite of 544+ unit and integration tests with zero regressions.
+
+## Acceptance Criteria
+
+### Look & Feel and Visual Cards
+- [ ] Catalog screen renders responsive visual product cards with cover images/icons, price badges, and stock level indicators.
+- [ ] Category filter pills filter the active grid instantly without UI lag.
+- [ ] Theme switcher toggles between Primer Light and Primer Dark dynamically and persists across app restarts.
+- [ ] Cart summary sidebar displays large high-contrast subtotal, discount, tax, and total figures with clear tender buttons.
+
+### Dual-Mode Workflow & POS Usability
+- [ ] Cashier can toggle between Touch Tile Grid and Turbo Keyboard mode with a single click or keyboard shortcut.
+- [ ] Clicking a product card adds it to the active cart with audio/visual feedback; repeated clicks increment quantity.
+- [ ] Keyboard shortcuts (`F1`–`F12`), barcode scanner wedge, parked carts, and split tenders operate seamlessly across both modes.
+
+### Verification & Versioning
+- [ ] Application title bar and `pom.xml` reflect `v1.2.0`.
+- [ ] Full automated test suite passes cleanly on JDK 21 LTS (`mvnw.cmd test`).
+- [ ] Application launches cleanly in dev mode (`mvnw.cmd javafx:run`) on Windows with zero external network dependencies.

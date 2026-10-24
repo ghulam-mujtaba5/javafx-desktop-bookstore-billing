@@ -40,7 +40,7 @@ Set-Location $ScriptDir
 
 $AppName = "BookstoreBilling"
 $AppMainClass = "com.example.t.RunFX"
-$AppVersion = "1.1.0"
+$AppVersion = "1.2.0"
 $Vendor = "BookstoreBilling"
 $Description = "Bookstore & Stationery Billing POS Application"
 $IconFile = Join-Path $ScriptDir "icon.ico"
@@ -139,7 +139,7 @@ if ($DryRun) {
     Write-Host "`nPlanned Execution Steps:"
     Write-Host " 1. $MvnwCmd package -DskipTests -Ppackage-windows"
     Write-Host " 2. $JlinkCmd --no-header-files --no-man-pages --strip-debug --add-modules $JlinkModules --output $RuntimeDir"
-    Write-Host " 3. $JpackageCmd --type app-image --name $AppName --dest $DistDir --input $LibsDir --main-jar t-1.0-SNAPSHOT.jar --main-class $AppMainClass --runtime-image $RuntimeDir"
+    Write-Host " 3. $JpackageCmd --type app-image --name $AppName --dest $DistDir --input $LibsDir --main-jar t-1.2.0.jar --main-class $AppMainClass --runtime-image $RuntimeDir"
     Write-Host "`n[OK] Dry-run validation successful. Environment and parameters are valid." -ForegroundColor Green
     exit 0
 }

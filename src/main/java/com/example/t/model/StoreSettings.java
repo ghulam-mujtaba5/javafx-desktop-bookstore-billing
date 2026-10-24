@@ -19,16 +19,25 @@ public class StoreSettings {
     private final DoubleProperty taxRate;
     private final StringProperty receiptLanguage;
     private final StringProperty adminPasswordHash;
+    private final StringProperty uiTheme;
 
     public StoreSettings() {
         this(1, "GM Bookstore & Stationery", "123 Main Street", "0300 0000000",
                 "USA", "USD", "$", "Sales Tax", 8.25, "EN",
-                PasswordUtil.hashPassword("admin")); // genuine salted hash for 'admin'
+                PasswordUtil.hashPassword("admin"), "LIGHT"); // genuine salted hash for 'admin'
     }
 
     public StoreSettings(int settingId, String storeName, String storeAddress, String storePhone,
                          String regionPreset, String currencyCode, String currencySymbol,
                          String taxName, double taxRate, String receiptLanguage, String adminPasswordHash) {
+        this(settingId, storeName, storeAddress, storePhone, regionPreset, currencyCode, currencySymbol,
+                taxName, taxRate, receiptLanguage, adminPasswordHash, "LIGHT");
+    }
+
+    public StoreSettings(int settingId, String storeName, String storeAddress, String storePhone,
+                         String regionPreset, String currencyCode, String currencySymbol,
+                         String taxName, double taxRate, String receiptLanguage, String adminPasswordHash,
+                         String uiTheme) {
         this.settingId = new SimpleIntegerProperty(settingId);
         this.storeName = new SimpleStringProperty(storeName != null ? storeName : "My Bookstore");
         this.storeAddress = new SimpleStringProperty(storeAddress != null ? storeAddress : "");
@@ -40,6 +49,7 @@ public class StoreSettings {
         this.taxRate = new SimpleDoubleProperty(taxRate);
         this.receiptLanguage = new SimpleStringProperty(receiptLanguage != null ? receiptLanguage : "EN");
         this.adminPasswordHash = new SimpleStringProperty(adminPasswordHash != null ? adminPasswordHash : "");
+        this.uiTheme = new SimpleStringProperty(uiTheme != null ? uiTheme : "LIGHT");
     }
 
     public static StoreSettings defaultSettings() {
@@ -188,6 +198,18 @@ public class StoreSettings {
         this.adminPasswordHash.set(adminPasswordHash);
     }
 
+    public String getUiTheme() {
+        return uiTheme.get();
+    }
+
+    public StringProperty uiThemeProperty() {
+        return uiTheme;
+    }
+
+    public void setUiTheme(String uiTheme) {
+        this.uiTheme.set(uiTheme != null ? uiTheme : "LIGHT");
+    }
+
     @Override
     public String toString() {
         return "StoreSettings{" +
@@ -195,6 +217,7 @@ public class StoreSettings {
                 ", region='" + getRegionPreset() + '\'' +
                 ", currency='" + getCurrencyCode() + '\'' +
                 ", taxRate=" + getTaxRate() +
+                ", uiTheme='" + getUiTheme() + '\'' +
                 '}';
     }
 }

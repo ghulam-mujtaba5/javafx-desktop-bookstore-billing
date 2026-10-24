@@ -295,12 +295,32 @@ public class PackagingEmpiricalChallengeTest {
         String cfg = Files.readString(cfgPath);
         assertTrue(cfg.contains("app.mainclass=com.example.t.RunFX"),
                 "Configuration must specify app.mainclass=com.example.t.RunFX");
-        assertTrue(cfg.contains("app.classpath=$APPDIR\\t-1.0-SNAPSHOT.jar") || cfg.contains("app.classpath=$APPDIR\\t-1.1.0.jar"),
+        assertTrue(cfg.contains("app.classpath=$APPDIR\\t-1.0-SNAPSHOT.jar") || cfg.contains("app.classpath=$APPDIR\\t-1.1.0.jar") || cfg.contains("app.classpath=$APPDIR\\t-1.2.0.jar"),
                 "Configuration must include main jar in classpath");
         assertTrue(cfg.contains("app.classpath=$APPDIR\\sqlite-jdbc"),
                 "Configuration must include sqlite-jdbc in classpath");
         assertTrue(cfg.contains("app.classpath=$APPDIR\\openpdf"),
                 "Configuration must include openpdf in classpath");
+    }
+
+    @Test
+    @DisplayName("Challenge 11: All packaging scripts and metadata must declare consistent version 1.2.0")
+    void testPackagingScriptsVersionConsistency() throws Exception {
+        String pomContent = Files.readString(projectRoot.resolve("pom.xml"));
+        assertTrue(pomContent.contains("<version>1.2.0</version>"), "pom.xml must declare version 1.2.0");
+        assertTrue(pomContent.contains("<app.version>1.2.0</app.version>"), "pom.xml must declare app.version 1.2.0");
+
+        String ps1Content = Files.readString(packagePs1);
+        assertTrue(ps1Content.contains("$AppVersion = \"1.2.0\""), "package.ps1 must declare AppVersion 1.2.0");
+
+        String batContent = Files.readString(packageBat);
+        assertTrue(batContent.contains("set APP_VERSION=1.2.0"), "package.bat must declare APP_VERSION 1.2.0");
+
+        Path issPath = projectRoot.resolve("installer.iss");
+        if (Files.exists(issPath)) {
+            String issContent = Files.readString(issPath);
+            assertTrue(issContent.contains("#define MyAppVersion \"1.2.0\""), "installer.iss must declare MyAppVersion 1.2.0");
+        }
     }
 
     private static String readProcessOutput(Process process) throws Exception {
