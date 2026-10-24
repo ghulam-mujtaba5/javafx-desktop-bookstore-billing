@@ -1,0 +1,84 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://apps.microsoft.com/detail/9nbrrj4d4qks",
+      "name": "Bookstore POS & Stationery Billing",
+      "alternateName": [
+        "JavaFX Desktop Bookstore Billing",
+        "Bookstore POS",
+        "Stationery Billing Software"
+      ],
+      "operatingSystem": "Windows 10, Windows 11",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Point of Sale (POS) & Inventory Management",
+      "description": "High-performance, offline-first Point of Sale (POS), barcode inventory management, ISBN bibliographic lookup engine, and receipt billing software engineered for independent bookstores, campus shops, and stationery retailers on Windows 10 and Windows 11.",
+      "url": "https://apps.microsoft.com/detail/9nbrrj4d4qks",
+      "downloadUrl": "https://get.microsoft.com/installer/download/9NBRRJ4D4QKS?referrer=appbadge&cid=github_readme",
+      "image": "https://store-images.s-microsoft.com/image/apps.21287.13578067074853993.c80b5f5f-31ff-4df6-bbf3-1885e50f2d38.34ef9fe6-08e9-4bf8-9bf8-5c7f219b8f90",
+      "screenshot": "https://store-images.s-microsoft.com/image/apps.22689.13578067074853993.c80b5f5f-31ff-4df6-bbf3-1885e50f2d38.d6346b6d-05a1-4a39-87d6-262a10183a5e",
+      "softwareVersion": "1.1.0",
+      "softwareRequirements": "Windows 10 Version 17763.0 or higher, Windows 11 (x64 architecture)",
+      "author": {
+        "@type": "Person",
+        "name": "Ghulam Mujtaba",
+        "url": "https://github.com/ghulam-mujtaba5"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "featureList": [
+        "Keyboard-First POS Cashier Checkout with F1-F12 hotkeys",
+        "Instant continuous barcode scanner wedge support (EAN-13, UPC, Code 128)",
+        "Dual ISBN-10 and ISBN-13 checksum validation with automated metadata retrieval",
+        "ESC/POS 80mm and 58mm direct thermal receipt printing with cash drawer pulse",
+        "Split-tender payments: Cash with automated change calculator, Credit Cards, Store Credit",
+        "Stationery & non-book merchandise catalog with custom SKUs",
+        "Dead stock aging radar (30, 60, 90, 180+ days) for vendor returns",
+        "100% Offline SQLite database with zero cloud latency and zero monthly SaaS fees"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://apps.microsoft.com/detail/9nbrrj4d4qks#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is Bookstore POS & Stationery Billing free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, Bookstore POS & Stationery Billing is completely free to download and use on Windows with no recurring monthly subscriptions or hidden charges."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Bookstore POS work offline without internet?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, all core checkout operations, barcode scanning, stock tracking, and thermal receipt printing run 100% offline using a local embedded SQLite database."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which thermal receipt printers are supported?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Any standard 80mm or 58mm ESC/POS thermal receipt printer connected via USB, COM port, or Windows spooler is supported, including automatic cash drawer triggers."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does ISBN book metadata lookup work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The app validates ISBN-10 and ISBN-13 check digits and can automatically fetch book titles, authors, and publishers from Google Books and Open Library."
+          }
+        }
+      ]
+    }
+  ]
+}

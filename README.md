@@ -36,7 +36,7 @@
 - [❓ Frequently Asked Questions (AI & Search AEO)](#-frequently-asked-questions-ai--search-aeo)
 - [🧰 Technology Architecture](#-technology-architecture)
 - [🛠 Developer Setup & Source Build](#-developer-setup--source-build)
-- [📄 Software Schema Metadata](#-software-schema-metadata)
+- [📄 Software Specification & Schema Metadata](#-software-specification--schema-metadata)
 
 ---
 
@@ -229,9 +229,14 @@ cd javafx-desktop-bookstore-billing
 
 ---
 
-## 📄 Software Schema Metadata
+## 📄 Software Specification & Schema Metadata
 
-<script type="application/ld+json">
+Machine-readable JSON-LD metadata for AI search discovery, indexing engines, and software catalog crawlers. A standalone file is also available at [`assets/schema.jsonld`](assets/schema.jsonld).
+
+<details>
+<summary><strong>🔍 Click to expand Schema.org SoftwareApplication specification (JSON-LD)</strong></summary>
+
+```json
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -270,9 +275,14 @@ cd javafx-desktop-bookstore-billing
     "100% Offline SQLite database with zero cloud latency and zero monthly SaaS fees"
   ]
 }
-</script>
+```
 
-<script type="application/ld+json">
+</details>
+
+<details>
+<summary><strong>❓ Click to expand FAQPage schema metadata (JSON-LD)</strong></summary>
+
+```json
 {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -311,7 +321,9 @@ cd javafx-desktop-bookstore-billing
     }
   ]
 }
-</script>
+```
+
+</details>
 
 ---
 
